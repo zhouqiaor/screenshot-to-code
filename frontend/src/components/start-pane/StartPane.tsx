@@ -17,6 +17,7 @@ interface Props {
   designSystems: DesignSystem[];
   onAddNewDesignSystem: () => void;
   onManageDesignSystems: () => void;
+  onAdbDesignSystemContent?: (content: string) => void;
 }
 
 const StartPane: React.FC<Props> = ({
@@ -28,6 +29,7 @@ const StartPane: React.FC<Props> = ({
   designSystems,
   onAddNewDesignSystem,
   onManageDesignSystems,
+  onAdbDesignSystemContent,
 }) => {
   return (
     <div className="flex flex-col justify-center items-center py-8">
@@ -40,6 +42,7 @@ const StartPane: React.FC<Props> = ({
         designSystems={designSystems}
         onAddNewDesignSystem={onAddNewDesignSystem}
         onManageDesignSystems={onManageDesignSystems}
+        onAdbDesignSystemContent={onAdbDesignSystemContent}
       />
     </div>
   );

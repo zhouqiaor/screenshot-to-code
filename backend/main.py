@@ -1,4 +1,6 @@
 # Load environment variables first
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,6 +20,7 @@ from routes import (
     prompt_reports,
     agent_runs,
     eval_sets,
+    adb,
 )
 from uploaded_assets import configure_uploaded_asset_routes
 
@@ -42,7 +45,7 @@ async def probe_screenshot_preview_on_startup() -> None:
 # Configure CORS settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,3 +62,4 @@ app.include_router(design_systems.router)
 app.include_router(prompt_reports.router)
 app.include_router(agent_runs.router)
 app.include_router(eval_sets.router)
+app.include_router(adb.router)

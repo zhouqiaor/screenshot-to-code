@@ -59,6 +59,7 @@ class AgentEngine:
         openai_api_key: Optional[str],
         openai_base_url: Optional[str],
         anthropic_api_key: Optional[str],
+        anthropic_base_url: Optional[str],
         gemini_api_key: Optional[str],
         replicate_api_key: Optional[str],
         should_generate_images: bool,
@@ -67,6 +68,7 @@ class AgentEngine:
         initial_file_state: Optional[Dict[str, str]] = None,
         option_codes: Optional[List[str]] = None,
         recorder: Optional[AgentRunRecorder] = None,
+        stack: str = "",
     ):
         self.send_message = send_message
         self.variant_index = variant_index
@@ -74,15 +76,19 @@ class AgentEngine:
         self.openai_api_key = openai_api_key
         self.openai_base_url = openai_base_url
         self.anthropic_api_key = anthropic_api_key
+        self.anthropic_base_url = anthropic_base_url
         self.gemini_api_key = gemini_api_key
         self.replicate_api_key = replicate_api_key
         self.should_generate_images = should_generate_images
         self.should_extract_assets = should_extract_assets
+        self.stack = stack
 
         self.file_state = AgentFileState()
         if initial_file_state and initial_file_state.get("content"):
-            self.file_state.path = initial_file_state.get("path") or "index.html"
+            self.file_state.path = initial_file_state.get("path") or AgentFileState.default_path_for_stack(stack)
             self.file_state.content = initial_file_state["content"]
+        elif not initial_file_state or not initial_file_state.get("content"):
+            self.file_state.path = AgentFileState.default_path_for_stack(stack)
 
         self.tool_runtime = AgentToolRuntime(
             file_state=self.file_state,
@@ -93,6 +99,7 @@ class AgentEngine:
             replicate_api_key=replicate_api_key,
             asset_base_url=asset_base_url,
             option_codes=option_codes,
+            stack=self.stack,
         )
         self._tool_preview_lengths: Dict[str, int] = {}
 
@@ -328,7 +335,7 @@ class AgentEngine:
 
     async def run(self, model: Llm, prompt_messages: List[ChatCompletionMessageParam]) -> str:
         self.tool_runtime.input_images = self._extract_input_images(prompt_messages)
-        seed_file_state_from_messages(self.file_state, prompt_messages)
+        seed_file_state_from_messages(self.file_state, prompt_messages, stack=self.stack)
 
         if self.recorder is not None:
             self.recorder.record_run_start(model, prompt_messages)
@@ -340,6 +347,7 @@ class AgentEngine:
             openai_api_key=self.openai_api_key,
             openai_base_url=self.openai_base_url,
             anthropic_api_key=self.anthropic_api_key,
+            anthropic_base_url=self.anthropic_base_url,
             gemini_api_key=self.gemini_api_key,
             replicate_api_key=self.replicate_api_key,
             # Only advertise extraction when the request actually contains a
@@ -373,10 +381,15 @@ class AgentEngine:
             await session.close()
 
     async def _finalize_response(self, assistant_text: str) -> str:
+        # For Android Compose with multi-file state, prefer returning the
+        # deliverable (.kt) rather than the preview HTML.
+        if self.stack == "android_compose" and "MainActivity.kt" in self.file_state.files:
+            return self.file_state.get_file("MainActivity.kt")
+
         if self.file_state.content:
             return self.file_state.content
 
-        html = extract_html_content(assistant_text)
+        html = extract_html_content(assistant_text, stack=self.stack)
         if html:
             self.file_state.content = html
             await self._send("setCode", html)

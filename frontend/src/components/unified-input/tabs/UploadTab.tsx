@@ -7,6 +7,8 @@ import ScreenRecorder from "../../recording/ScreenRecorder";
 import { DesignSystemSelectorProps } from "../../settings/DesignSystemSelector";
 import { Stack } from "../../../lib/stacks";
 import ScreenshotToCodeControls from "../ScreenshotToCodeControls";
+import AdbCaptureButton from "../AdbCaptureButton";
+import type { AdbCaptureResult } from "../../../lib/adb-api";
 
 function fileToDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -53,9 +55,10 @@ interface Props {
   stack: Stack;
   setStack: (stack: Stack) => void;
   designSystem: DesignSystemSelectorProps;
+  onAdbDesignSystemContent?: (content: string) => void;
 }
 
-function UploadTab({ doCreate, stack, setStack, designSystem }: Props) {
+function UploadTab({ doCreate, stack, setStack, designSystem, onAdbDesignSystemContent }: Props) {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [uploadedDataUrls, setUploadedDataUrls] = useState<string[]>([]);
   const [uploadedInputMode, setUploadedInputMode] = useState<
@@ -268,6 +271,18 @@ function UploadTab({ doCreate, stack, setStack, designSystem }: Props) {
     inputMode: "image" | "video"
   ) => {
     doCreate(images, inputMode, "");
+  };
+
+  const handleAdbCaptureComplete = (result: AdbCaptureResult) => {
+    // Set the captured screenshot as the uploaded image
+    setUploadedDataUrls([result.screenshotDataUrl]);
+    setUploadedInputMode("image");
+    setFiles([]);
+    setSelectedIndex(0);
+    // Inject design system data
+    if (onAdbDesignSystemContent) {
+      onAdbDesignSystemContent(result.designSystemBlock);
+    }
   };
 
   const handleRemoveImage = (index: number) => {
@@ -485,6 +500,10 @@ function UploadTab({ doCreate, stack, setStack, designSystem }: Props) {
             stack={stack}
             setStack={setStack}
             designSystem={designSystem}
+          />
+          <AdbCaptureButton
+            stack={stack}
+            onCaptureComplete={handleAdbCaptureComplete}
           />
         </div>
       )}
