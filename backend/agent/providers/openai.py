@@ -431,7 +431,14 @@ def _build_provider_turn(state: OpenAIResponsesParseState) -> ProviderTurn:
 # ---------------------------------------------------------------------------
 
 # Models known to trigger the SDK silent crash — use raw httpx for these.
-_VOLCANO_ARK_MODELS = {"doubao-seed-evolving"}
+_VOLCANO_ARK_MODELS = {
+    "doubao-seed-evolving",
+    "doubao-seed-1.6-flash",
+    "doubao-seed-1.8",
+    "doubao-seed-1.6-vision",
+    "doubao-seed-2.0-mini",
+    "doubao-seed-2.0-code",
+}
 
 
 def _is_volcano_ark_model(model: Llm) -> bool:

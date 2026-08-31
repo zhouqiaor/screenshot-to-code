@@ -66,4 +66,31 @@ MODEL_PRICING: Dict[str, ModelPricing] = {
     "gemini-3.6-flash": ModelPricing(
         input=1.50, output=7.50, cache_read=0.15
     ),
+    # --- Doubao (Volcano Engine Ark) ---
+    # Verified against Volcano Engine console on 2026-08-31.
+    # CNY per million tokens → USD/M at 7.2 CNY/USD.
+    "doubao-seed-evolving": ModelPricing(
+        input=0.833, output=4.167, cache_read=0.167
+    ),
+    "doubao-seed-1.6-flash": ModelPricing(
+        input=0.021, output=0.208, cache_read=0.004
+    ),
+    "doubao-seed-1.8": ModelPricing(
+        input=0.111, output=0.278, cache_read=0.022
+    ),
+    "doubao-seed-1.6-vision": ModelPricing(
+        input=0.111, output=1.111, cache_read=0.022
+    ),
+    "doubao-seed-2.0-mini": ModelPricing(
+        input=0.028, output=0.278, cache_read=0.006
+    ),
+    "doubao-seed-2.0-code": ModelPricing(
+        input=0.444, output=2.222, cache_read=0.089
+    ),
+    # --- Qwen (via DashScope Anthropic-compatible endpoint) ---
+    # Verified against help.aliyun.com/zh/model-studio/qwen3-7-max on
+    # 2026-08-31. CNY per million tokens → USD/M at 7.2 CNY/USD.
+    "qwen3.7-max": ModelPricing(
+        input=1.667, output=5.0, cache_read=0.333, cache_write=2.083
+    ),
 }
