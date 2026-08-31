@@ -103,6 +103,24 @@ def validate_code(stack: Stack, code: str) -> ValidationResult:
 # Shared helpers
 # ---------------------------------------------------------------------------
 
+_HTML_VOID_TAGS = frozenset({
+    "area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "param", "source", "track", "wbr",
+})
+
+_HTML_TAG_RE = re.compile(
+    r"<(/?)([a-zA-Z][a-zA-Z0-9]*)((?:\s+(?:[^>\"']|\"[^\"]*\"|'[^']*')*)?)(/?)>",
+    re.DOTALL,
+)
+
+# Strips HTML comments, <script> blocks, and <style> blocks before tag matching
+_HTML_STRIP_RE = re.compile(
+    r"<!--[\s\S]*?-->"  # HTML comments
+    r"|<script\b[^>]*>[\s\S]*?</script\s*>"  # script blocks
+    r"|<style\b[^>]*>[\s\S]*?</style\s*>",  # style blocks
+    re.IGNORECASE | re.DOTALL,
+)
+
 
 def _line_col_from_offset(text: str, offset: int) -> tuple[int, int]:
     """Return the 1-based (line, col) for a 0-based character offset."""
@@ -157,16 +175,11 @@ def _validate_html(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
         return errors, warnings
 
     # Fallback: parse as XML and accept HTML5 void elements.
-    void_tags = {
-        "area", "base", "br", "col", "embed", "hr", "img", "input",
-        "link", "meta", "param", "source", "track", "wbr",
-    }
-    tag_re = re.compile(
-        r"<(/?)([a-zA-Z][a-zA-Z0-9]*)((?:\s+(?:[^>\"']|\"[^\"]*\"|'[^']*')*)?)(/?)>",
-        re.DOTALL,
-    )
+    # Strip comments, scripts, and styles to avoid false-positive tag
+    # matches on angle brackets inside those regions.
+    stripped_html = _HTML_STRIP_RE.sub("", code)
     stack: List[str] = []
-    for match in tag_re.finditer(code):
+    for match in _HTML_TAG_RE.finditer(stripped_html):
         closing = match.group(1) == "/"
         tag = match.group(2).lower()
         self_close = match.group(4) == "/"
@@ -192,7 +205,7 @@ def _validate_html(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
                         severity="error",
                     )
                 )
-        elif not self_close and tag not in void_tags:
+        elif not self_close and tag not in _HTML_VOID_TAGS:
             stack.append(tag)
     for tag in reversed(stack):
         errors.append(
@@ -273,7 +286,10 @@ def _validate_android_xml(code: str) -> tuple[List[ValidationIssue], List[Valida
 # ---------------------------------------------------------------------------
 
 
-_COMPOSABLE_RE = re.compile(r"@Composable\s+(?:private\s+|internal\s+)*fun\s+([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
+_COMPOSABLE_RE = re.compile(
+    r"@Composable(?:\([^)]*\))?\s+(?:private\s+|internal\s+)*fun\s+([A-Za-z_][A-Za-z0-9_]*)",
+    re.MULTILINE,
+)
 _IMPORT_RE = re.compile(r"^\s*import\s+([a-zA-Z][\w.]*)", re.MULTILINE)
 
 
@@ -295,9 +311,8 @@ def _strip_comments_and_strings(text: str) -> str:
 
 
 def _check_balanced(text: str, open_ch: str, close_ch: str) -> int:
-    stripped = _strip_comments_and_strings(text)
     depth = 0
-    for ch in stripped:
+    for ch in text:
         if ch == open_ch:
             depth += 1
         elif ch == close_ch:
@@ -332,7 +347,9 @@ def _validate_android_compose(code: str) -> tuple[List[ValidationIssue], List[Va
                 )
             )
 
-    brace_depth = _check_balanced(code, "{", "}")
+    stripped = _strip_comments_and_strings(code)
+
+    brace_depth = _check_balanced(stripped, "{", "}")
     if brace_depth < 0:
         errors.append(
             ValidationIssue(
@@ -352,7 +369,7 @@ def _validate_android_compose(code: str) -> tuple[List[ValidationIssue], List[Va
             )
         )
 
-    paren_depth = _check_balanced(code, "(", ")")
+    paren_depth = _check_balanced(stripped, "(", ")")
     if paren_depth < 0:
         errors.append(
             ValidationIssue(
@@ -391,13 +408,15 @@ def _validate_android_compose(code: str) -> tuple[List[ValidationIssue], List[Va
 
 
 _QML_IMPORT_RE = re.compile(r"^\s*import\s+\S+", re.MULTILINE)
+_QML_PROPERTY_RE = re.compile(r"^\s*property\s+(\w+)\s+(\w+)\s*:", re.MULTILINE)
 
 
 def _validate_qt_qml(code: str) -> tuple[List[ValidationIssue], List[ValidationIssue]]:
     errors: List[ValidationIssue] = []
     warnings: List[ValidationIssue] = []
 
-    brace_depth = _check_balanced(code, "{", "}")
+    stripped_qml = _strip_comments_and_strings(code)
+    brace_depth = _check_balanced(stripped_qml, "{", "}")
     if brace_depth < 0:
         errors.append(
             ValidationIssue(
@@ -427,7 +446,7 @@ def _validate_qt_qml(code: str) -> tuple[List[ValidationIssue], List[ValidationI
             )
         )
 
-    property_re = re.compile(r"^\s*property\s+(\w+)\s+(\w+)\s*:", re.MULTILINE)
+    property_re = _QML_PROPERTY_RE
     matches = list(property_re.finditer(code))
     if not matches and "property " in code:
         for line_no, line in enumerate(code.splitlines(), 1):

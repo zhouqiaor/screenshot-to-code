@@ -21,8 +21,12 @@ def _analyze_diagrams() -> None:
         if not os.path.exists(json_path):
             sys.stderr.write(f"SKIP {name}\n")
             continue
-        with open(json_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError) as exc:
+            sys.stderr.write(f"ERROR {name}: {exc}\n")
+            continue
         meta = data.get("meta", {})
         schema_ver = data.get("schema_version", "N/A")
         viewBox = meta.get("viewBox", meta.get("viewbox", "N/A"))
@@ -52,6 +56,8 @@ def _analyze_diagrams() -> None:
             states = len(data.get("states", []))
             trans = len(data.get("transitions", []))
             sys.stderr.write(f"{name:40s} v{schema_ver} lanes={lanes} states={states} trans={trans} viewBox={viewBox}\n")
+        else:
+            sys.stderr.write(f"WARN {name}: unknown diagram type '{dtype}'\n")
 
 
 if __name__ == "__main__":

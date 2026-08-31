@@ -45,8 +45,8 @@ def is_powershell_available() -> bool:
 
 
 def is_uia_available() -> bool:
-    """Return True when the full UIA toolchain (Windows + PowerShell) is available."""
-    return is_windows() and is_powershell_available()
+    """Return True when the full UIA toolchain (Windows + PowerShell + script) is available."""
+    return is_windows() and is_powershell_available() and _PS_SCRIPT.exists()
 
 
 def _run_capture_script(output_dir: str, window_title: str | None = None) -> dict[str, Any]:
@@ -62,6 +62,12 @@ def _run_capture_script(output_dir: str, window_title: str | None = None) -> dic
     ]
     if window_title:
         cmd += ["--window-title", window_title]
+
+    if not _PS_SCRIPT.exists():
+        raise RuntimeError(
+            f"Windows UIA capture script not found at {_PS_SCRIPT}. "
+            f"Ensure 'scripts/win_capture.py' exists."
+        )
 
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=60)

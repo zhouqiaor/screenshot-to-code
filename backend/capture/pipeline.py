@@ -108,7 +108,10 @@ class AdbCapturePipeline:
             result = run_pipeline(device_id=target_id, output_dir=str(output_dir))
         finally:
             if tmp is not None:
-                tmp.cleanup()
+                try:
+                    tmp.cleanup()
+                except OSError:
+                    logger.warning("Failed to clean up temp dir: %s", output_dir, exc_info=True)
 
         return CaptureResult(
             screenshot_data_url=result.get("screenshot_data_url", ""),
@@ -153,9 +156,11 @@ class WinUiaCapturePipeline:
 
         try:
             window_title = target_id if target_id else None
+            mock = kwargs.get("mock")
             result = capture_window_ui(
                 output_dir=str(output_dir),
                 window_title=window_title,
+                mock=mock,
             )
 
             screenshot_path = result.get("screenshot", "")
@@ -198,7 +203,10 @@ class WinUiaCapturePipeline:
             )
         finally:
             if tmp is not None:
-                tmp.cleanup()
+                try:
+                    tmp.cleanup()
+                except OSError:
+                    logger.warning("Failed to clean up temp dir: %s", output_dir, exc_info=True)
 
 
 # ---------------------------------------------------------------------------

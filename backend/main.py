@@ -8,6 +8,7 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 from config import IS_DEBUG_ENABLED
 from routes import (
     capabilities,
@@ -63,3 +64,11 @@ app.include_router(prompt_reports.router)
 app.include_router(agent_runs.router)
 app.include_router(eval_sets.router)
 app.include_router(adb.router)
+
+
+@app.get("/metrics")
+async def metrics() -> PlainTextResponse:
+    """Prometheus-compatible metrics endpoint for token governance."""
+    from costs.metrics import render_metrics
+
+    return PlainTextResponse(render_metrics(), media_type="text/plain")
