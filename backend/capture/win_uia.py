@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
 import os
 import platform
 import shutil
@@ -29,6 +30,8 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 # Path to the companion PowerShell capture script
 _PS_SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "win_capture.py"
@@ -83,7 +86,10 @@ def _run_capture_script(output_dir: str, window_title: str | None = None) -> dic
         payload = json.loads(result.stdout)
         return payload
     except json.JSONDecodeError:
-        # Script may just print status messages; fall back to expected file paths.
+        logger.warning(
+            "Capture script output was not valid JSON; falling back to default file paths. "
+            "stdout: %.200s", result.stdout,
+        )
         return {"screenshot": str(Path(output_dir) / "screenshot.png"),
                 "ui_tree": str(Path(output_dir) / "ui_tree.xml")}
 

@@ -176,8 +176,10 @@ def _validate_html(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
 
     # Fallback: parse as XML and accept HTML5 void elements.
     # Strip comments, scripts, and styles to avoid false-positive tag
-    # matches on angle brackets inside those regions.
-    stripped_html = _HTML_STRIP_RE.sub("", code)
+    # matches on angle brackets inside those regions. Replace with
+    # equal-length whitespace so character offsets stay aligned with
+    # the original source.
+    stripped_html = _HTML_STRIP_RE.sub(lambda m: " " * len(m.group()), code)
     stack: List[str] = []
     for match in _HTML_TAG_RE.finditer(stripped_html):
         closing = match.group(1) == "/"

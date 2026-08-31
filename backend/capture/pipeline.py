@@ -166,8 +166,7 @@ class WinUiaCapturePipeline:
             screenshot_path = result.get("screenshot", "")
             ui_tree_path = result.get("ui_tree", "")
 
-            # Parse skeleton from UIA XML (prefer win_skeleton_parser, fall
-            # back to the shared skeleton_parser).
+            # Parse skeleton from UIA XML using the shared skeleton_parser.
             skeleton: dict[str, Any] = {}
             if ui_tree_path and Path(ui_tree_path).exists():
                 try:

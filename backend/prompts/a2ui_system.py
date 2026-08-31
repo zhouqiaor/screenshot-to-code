@@ -116,7 +116,7 @@ Optional fields:
 - Use meaningful ids that describe the element's role.
 - Keep the file ordered: root first, then depth-first.
 - One object per line, no trailing commas, no multi-line JSON.
-- Validate the output with the validate_code tool after every change.
+- When available, validate the output with the validate_code tool after every change.
 
 # Targeted element edits
 

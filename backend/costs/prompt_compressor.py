@@ -28,6 +28,6 @@ def truncate_skeleton(skeleton_json: str, max_chars: int = _MAX_SKELETON_CHARS) 
 
     cut = max_chars - len(_TRUNCATION_NOTICE)
     if cut <= 0:
-        return skeleton_json[:max_chars]
+        return _TRUNCATION_NOTICE[:max_chars]
 
     return skeleton_json[:cut] + _TRUNCATION_NOTICE

@@ -111,8 +111,8 @@ def test_record_circuit_breaker_sets_gauge() -> None:
 
     record_circuit_breaker(is_open=False)
     output = render_metrics()
-    # Should show 0 (closed)
-    lines = [l for l in output.split("\n") if "ai_circuit_breaker_open{" in l]
+    # Should show 0 (closed) - no labels, no empty braces
+    lines = [l for l in output.split("\n") if "ai_circuit_breaker_open" in l and not l.startswith("#")]
     assert len(lines) == 1
     assert lines[0].strip().endswith(" 0.0")
 
