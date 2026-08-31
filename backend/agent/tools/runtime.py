@@ -38,6 +38,7 @@ class AgentToolRuntime:
         asset_base_url: str = "",
         user_id: Optional[str] = None,
         option_codes: Optional[List[str]] = None,
+        stack: str = "",
     ):
         self.file_state = file_state
         self.should_generate_images = should_generate_images
@@ -49,6 +50,7 @@ class AgentToolRuntime:
         self.asset_base_url = asset_base_url
         self.user_id = user_id
         self.option_codes = option_codes or []
+        self.stack = stack
 
     def _effective_replicate_api_key(self) -> str | None:
         return self.replicate_api_key or REPLICATE_API_KEY
@@ -87,6 +89,7 @@ class AgentToolRuntime:
             return await run_screenshot_preview(
                 tool_call.arguments,
                 file_state=self.file_state,
+                stack=self.stack,
             )
         if tool_call.name == "save_assets":
             return await run_save_assets(tool_call.arguments, user_id=self.user_id)
@@ -108,27 +111,29 @@ class AgentToolRuntime:
                 summary={"error": "Missing content"},
             )
 
-        extracted = extract_html_content(content)
-        self.file_state.path = path
-        self.file_state.content = extracted or content
+        extracted = extract_html_content(content, stack=self.stack)
+        final_content = extracted or content
+        # set_file adds a new key (or replaces the same path) and updates
+        # active_path — it does NOT overwrite unrelated files.
+        self.file_state.set_file(path, final_content)
 
         summary = {
-            "path": self.file_state.path,
-            "contentLength": len(self.file_state.content),
-            "preview": summarize_text(self.file_state.content, 320),
+            "path": path,
+            "contentLength": len(final_content),
+            "preview": summarize_text(final_content, 320),
         }
         result = {
-            "content": f"Successfully created file at {self.file_state.path}.",
+            "content": f"Successfully created file at {path}.",
             "details": {
-                "path": self.file_state.path,
-                "contentLength": len(self.file_state.content),
+                "path": path,
+                "contentLength": len(final_content),
             },
         }
         return ToolExecutionResult(
             ok=True,
             result=result,
             summary=summary,
-            updated_content=self.file_state.content,
+            updated_content=final_content,
         )
 
     @staticmethod

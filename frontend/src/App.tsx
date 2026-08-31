@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { generateCode } from "./generateCode";
-import { AppState, AppTheme, EditorTheme, Settings } from "./types";
+import { AppState, AppTheme, EditorTheme, Settings, DesignSystem } from "./types";
 import { NEW_DESIGN_SYSTEM_CONTENT } from "./lib/design-systems";
 import { IS_RUNNING_ON_CLOUD } from "./config";
 import { OnboardingNote } from "./components/messages/OnboardingNote";
@@ -947,6 +947,22 @@ function App() {
                 designSystems={designSystems}
                 onAddNewDesignSystem={handleAddNewDesignSystem}
                 onManageDesignSystems={() => openDesignSystemsManager()}
+                onAdbDesignSystemContent={async (content: string) => {
+                  // Create an ADB design system entry with the captured data
+                  // and select it so it flows through the designSystem parameter
+                  try {
+                    const ds = await createDesignSystem({
+                      name: `ADB Capture ${new Date().toLocaleTimeString()}`,
+                      content,
+                    });
+                    setSettings((prev: Settings) => ({
+                      ...prev,
+                      selectedDesignSystemId: ds.id,
+                    }));
+                  } catch {
+                    toast.error("Failed to save ADB design data.");
+                  }
+                }}
               />
             )}
 

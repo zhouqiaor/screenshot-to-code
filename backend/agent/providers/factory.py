@@ -10,7 +10,7 @@ from agent.providers.base import ProviderSession
 from agent.providers.gemini import GeminiProviderSession, serialize_gemini_tools
 from agent.providers.openai import OpenAIProviderSession, serialize_openai_tools
 from agent.tools import canonical_tool_definitions
-from config import REPLICATE_API_KEY
+from config import REPLICATE_API_KEY, ANTHROPIC_BASE_URL
 from fs_logging.agent_runs import AgentRunRecorder
 from llm import ANTHROPIC_MODELS, GEMINI_MODELS, OPENAI_MODELS, Llm
 from preview_screenshot import is_screenshot_preview_available
@@ -27,6 +27,7 @@ def create_provider_session(
     replicate_api_key: Optional[str],
     should_extract_assets: bool = True,
     recorder: Optional[AgentRunRecorder] = None,
+    anthropic_base_url: Optional[str] = None,
 ) -> ProviderSession:
     canonical_tools = canonical_tool_definitions(
         image_generation_enabled=should_generate_images,
@@ -49,13 +50,20 @@ def create_provider_session(
             prompt_messages=prompt_messages,
             tools=serialize_openai_tools(canonical_tools),
             recorder=recorder,
+            # Pass credentials for raw httpx fallback (used when the SDK
+            # silently crashes on large request bodies, e.g. Volcano Ark).
+            fallback_api_key=openai_api_key,
+            fallback_base_url=openai_base_url,
         )
 
     if model in ANTHROPIC_MODELS:
         if not anthropic_api_key:
             raise Exception("Anthropic API key is missing.")
 
-        client = AsyncAnthropic(api_key=anthropic_api_key)
+        client = AsyncAnthropic(
+            api_key=anthropic_api_key,
+            base_url=anthropic_base_url or ANTHROPIC_BASE_URL,
+        )
         return AnthropicProviderSession(
             client=client,
             model=model,

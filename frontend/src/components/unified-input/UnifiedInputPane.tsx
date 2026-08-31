@@ -22,6 +22,7 @@ interface Props {
   designSystems: DesignSystem[];
   onAddNewDesignSystem: () => void;
   onManageDesignSystems: () => void;
+  onAdbDesignSystemContent?: (content: string) => void;
 }
 
 type InputTab = "upload" | "url" | "text" | "import";
@@ -35,6 +36,7 @@ function UnifiedInputPane({
   designSystems,
   onAddNewDesignSystem,
   onManageDesignSystems,
+  onAdbDesignSystemContent,
 }: Props) {
   const [activeTab, setActiveTab] = useState<InputTab>("upload");
 
@@ -108,6 +110,7 @@ function UnifiedInputPane({
             stack={settings.generatedCodeConfig}
             setStack={setStack}
             designSystem={designSystemSelectorProps}
+            onAdbDesignSystemContent={onAdbDesignSystemContent}
           />
         </TabsContent>
 

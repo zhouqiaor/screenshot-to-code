@@ -14,6 +14,7 @@ async def run_screenshot_preview(
     _args: Dict[str, Any],
     *,
     file_state: AgentFileState,
+    stack: str = "",
 ) -> ToolExecutionResult:
     """Render the current HTML and return screenshots.
 
@@ -21,8 +22,18 @@ async def run_screenshot_preview(
     attached image bytes (multimodal parts) to verify its work and never
     embeds them in its output, so they are NOT persisted as assets. A data
     URL is inlined into the summary purely so the UI can show the same preview.
+
+    For Android Compose, the LLM generates both ``MainActivity.kt`` and
+    ``preview.html``.  We render ``preview.html`` (the visual approximation)
+    rather than the Kotlin source.
     """
-    if not file_state.content:
+    # For Android Compose, prefer preview.html if it exists.
+    if stack == "android_compose" and "preview.html" in file_state.files:
+        html_content = file_state.get_file("preview.html")
+    else:
+        html_content = file_state.content
+
+    if not html_content:
         return ToolExecutionResult(
             ok=False,
             result={"error": "No file exists yet. Call create_file first."},
@@ -34,7 +45,7 @@ async def run_screenshot_preview(
     try:
         for viewport in PREVIEW_VIEWPORTS:
             image_bytes = await capture_preview_screenshot(
-                file_state.content,
+                html_content,
                 device=viewport,
                 full_page=True,
             )
