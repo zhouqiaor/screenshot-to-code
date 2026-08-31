@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -52,8 +53,6 @@ class AdbDevicesResponse(BaseModel):
 
 def _list_devices_raw() -> list[dict[str, str]]:
     """List ADB devices without importing scripts module (which requires adb on PATH)."""
-    import subprocess
-
     try:
         result = subprocess.run(
             ["adb", "devices"], capture_output=True, text=True, check=False, timeout=10
@@ -97,7 +96,6 @@ def adb_capture(request: AdbCaptureRequest) -> AdbCaptureResponse:
     code generation request's designSystem field.
     """
     import shutil
-    import subprocess
     import tempfile
 
     if shutil.which("adb") is None:
@@ -108,7 +106,7 @@ def adb_capture(request: AdbCaptureRequest) -> AdbCaptureResponse:
 
     # Validate deviceId format (defense in depth, complements Pydantic pattern)
     device_id = request.deviceId
-    if device_id and _DEVICE_ID_FORBIDDEN_PREFIX in device_id[0]:
+    if device_id and device_id.startswith(_DEVICE_ID_FORBIDDEN_PREFIX):
         raise HTTPException(
             status_code=400,
             detail="Invalid deviceId format.",
@@ -134,8 +132,8 @@ def adb_capture(request: AdbCaptureRequest) -> AdbCaptureResponse:
             deviceId=result["device_id"],
         )
     except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=503, detail=f"ADB command failed: {e}") from e
+        raise HTTPException(status_code=503, detail="ADB command failed.") from e
     except RuntimeError as e:
-        raise HTTPException(status_code=503, detail=str(e)) from e
+        raise HTTPException(status_code=503, detail="ADB capture failed.") from e
     except Exception as e:
         raise HTTPException(status_code=500, detail="ADB capture failed.") from e

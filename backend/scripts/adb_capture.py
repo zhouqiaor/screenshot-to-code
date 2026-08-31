@@ -80,8 +80,11 @@ def capture_device_ui(device_id: str | None = None, output_dir: str = ".") -> di
         ui_tree_path = out / "ui_tree.xml"
         _run_adb(["pull", device_ui_tree, str(ui_tree_path)], device_id)
     finally:
-        # Clean up temp files on the device
-        _run_adb(["shell", "rm", "-f", device_screenshot, device_ui_tree], device_id)
+        # Clean up temp files on the device; swallow errors to avoid masking the original exception
+        try:
+            _run_adb(["shell", "rm", "-f", device_screenshot, device_ui_tree], device_id)
+        except Exception:
+            pass
 
     return {
         "screenshot": str(screenshot_path),
