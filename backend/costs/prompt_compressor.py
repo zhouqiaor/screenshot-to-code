@@ -1,5 +1,10 @@
 """Skeleton JSON truncation to keep prompt size bounded.
 
+Note: This module is defined but not yet wired into the capture pipeline.
+Integration with the ADB/UIA capture flow is planned for a follow-up PR
+once skeleton sizes are measured in production to calibrate max_chars.
+"""
+
 Complex UI skeletons can reach 20K+ tokens (4 variants x 30 steps x 20K =
 2.4M tokens per generation). This module caps the skeleton to ~2000 tokens
 (~8K characters) using a simple character-count heuristic.

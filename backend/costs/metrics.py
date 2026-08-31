@@ -24,6 +24,11 @@ from costs.token_usage import TokenUsage
 _lock = threading.Lock()
 
 
+def _escape_label(value: str) -> str:
+    """Escape a label value per Prometheus exposition format."""
+    return value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
 class _Counter:
     """A labeled counter (monotonic increase only)."""
 
@@ -45,7 +50,7 @@ class _Counter:
             for key, val in sorted(self._values.items()):
                 if self._label_names:
                     label_str = ",".join(
-                        f'{ln}="{lv}"' for ln, lv in zip(self._label_names, key)
+                        f'{ln}="{_escape_label(lv)}"' for ln, lv in zip(self._label_names, key)
                     )
                     lines.append(f"{self._name}{{{label_str}}} {val}")
                 else:
@@ -74,7 +79,7 @@ class _Gauge:
             for key, val in sorted(self._values.items()):
                 if self._label_names:
                     label_str = ",".join(
-                        f'{ln}="{lv}"' for ln, lv in zip(self._label_names, key)
+                        f'{ln}="{_escape_label(lv)}"' for ln, lv in zip(self._label_names, key)
                     )
                     lines.append(f"{self._name}{{{label_str}}} {val}")
                 else:

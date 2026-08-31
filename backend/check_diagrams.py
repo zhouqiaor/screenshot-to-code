@@ -4,7 +4,7 @@ import os
 import sys
 
 
-def _analyze_diagrams() -> None:
+def _analyze_diagrams() -> int:
     diagrams_dir = os.path.join(os.path.dirname(__file__), "..", "design-docs", "diagrams")
     diagrams = [
         ("current-architecture", "architecture"),
@@ -15,6 +15,7 @@ def _analyze_diagrams() -> None:
         ("adb-capture-sequence", "sequence"),
         ("codegen-lifecycle", "lifecycle"),
     ]
+    errors = 0
 
     for name, dtype in diagrams:
         json_path = os.path.join(diagrams_dir, f"{name}.{dtype}.json")
@@ -26,6 +27,7 @@ def _analyze_diagrams() -> None:
                 data = json.load(f)
         except (json.JSONDecodeError, OSError) as exc:
             sys.stderr.write(f"ERROR {name}: {exc}\n")
+            errors += 1
             continue
         meta = data.get("meta", {})
         schema_ver = data.get("schema_version", "N/A")
@@ -59,6 +61,8 @@ def _analyze_diagrams() -> None:
         else:
             sys.stderr.write(f"WARN {name}: unknown diagram type '{dtype}'\n")
 
+    return errors
+
 
 if __name__ == "__main__":
-    _analyze_diagrams()
+    sys.exit(_analyze_diagrams())

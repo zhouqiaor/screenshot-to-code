@@ -84,8 +84,12 @@ def _run_capture_script(output_dir: str, window_title: str | None = None) -> dic
 
     try:
         payload = json.loads(result.stdout)
+        if not isinstance(payload, dict):
+            raise TypeError(
+                f"Expected JSON object from capture script, got {type(payload).__name__}"
+            )
         return payload
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, TypeError):
         logger.warning(
             "Capture script output was not valid JSON; falling back to default file paths. "
             "stdout: %.200s", result.stdout,

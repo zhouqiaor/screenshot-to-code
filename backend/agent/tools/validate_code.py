@@ -109,7 +109,7 @@ _HTML_VOID_TAGS = frozenset({
 })
 
 _HTML_TAG_RE = re.compile(
-    r"<(/?)([a-zA-Z][a-zA-Z0-9]*)((?:\s+(?:[^>\"']|\"[^\"]*\"|'[^']*')*)?)(/?)>",
+    r"<(/?)([a-zA-Z][a-zA-Z0-9-]*)((?:\s+(?:[^>\"']|\"[^\"]*\"|'[^']*')*)?)(/?)>",
     re.DOTALL,
 )
 
@@ -235,7 +235,7 @@ def _validate_android_xml(code: str) -> tuple[List[ValidationIssue], List[Valida
     except ElementTree.ParseError as exc:
         msg = str(exc)
         position = getattr(exc, "position", (1, 0))
-        line = int(position[0]) if position and position[0] else 1
+        line = int(position[0]) + 1 if position and position[0] is not None else 1
         col = int(position[1]) + 1 if position and len(position) > 1 else 1
         errors.append(
             ValidationIssue(
@@ -482,7 +482,7 @@ def _validate_a2ui(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
         jsonschema_ok = False
 
     lines = code.splitlines()
-    if not lines:
+    if not lines or not any(line.strip() for line in lines):
         errors.append(
             ValidationIssue(
                 line=1,

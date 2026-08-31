@@ -303,6 +303,9 @@ class AgentEngine:
                     spent=spent,
                     limit=decision.limit_usd,
                 )
+            # NOTE: record_usage() for token/cost counters requires a
+            # total_token_usage() method on ProviderSession; deferred to
+            # a follow-up PR to avoid expanding the Protocol in this PR.
             if decision.alert_level == "exceeded":
                 print(
                     f"[BUDGET] Aborting variant {self.variant_index}: "
