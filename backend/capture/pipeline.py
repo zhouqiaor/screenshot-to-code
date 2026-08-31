@@ -7,9 +7,13 @@ stack's ``capture_pipeline_id`` in stack_registry.py maps to one entry in
 """
 from __future__ import annotations
 
+import logging
+from pathlib import Path
 from typing import Any, Optional, Protocol, runtime_checkable
 
 from capture.result import CaptureResult
+
+logger = logging.getLogger(__name__)
 
 
 @runtime_checkable
@@ -157,10 +161,10 @@ class WinUiaCapturePipeline:
             skeleton: dict[str, Any] = {}
             if ui_tree_path and Path(ui_tree_path).exists():
                 try:
-                    from scripts.win_skeleton_parser import parse_ui_tree
+                    from scripts.skeleton_parser import parse_ui_tree
                     skeleton = parse_ui_tree(ui_tree_path)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("skeleton_parser failed", exc_info=True)
 
             # Extract theme from screenshot (requires skeleton).
             theme: dict[str, Any] = {}
@@ -168,8 +172,8 @@ class WinUiaCapturePipeline:
                 try:
                     from scripts.theme_extractor import extract_theme
                     theme = extract_theme(screenshot_path, skeleton)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("theme_extractor failed", exc_info=True)
 
             # Convert screenshot to data URL.
             screenshot_data_url = ""
@@ -177,7 +181,8 @@ class WinUiaCapturePipeline:
                 try:
                     from capture.win_uia import screenshot_to_data_url
                     screenshot_data_url = screenshot_to_data_url(screenshot_path)
-                except Exception:
+                except Exception as e:
+                    logger.debug("screenshot_to_data_url failed", exc_info=True)
                     screenshot_data_url = ""
 
             return CaptureResult(

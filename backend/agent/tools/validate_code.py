@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, List, Literal, TypedDict, cast
+from typing import Any, List, Literal, TypedDict
 
 from xml.etree import ElementTree
 
@@ -111,8 +111,8 @@ def _line_col_from_offset(text: str, offset: int) -> tuple[int, int]:
     upto = text[:offset]
     line = upto.count("\n") + 1
     last_nl = upto.rfind("\n")
-    col = offset - last_nl if last_nl >= 0 else offset
-    return line, col + 1
+    col = offset - last_nl if last_nl >= 0 else offset + 1
+    return line, col
 
 
 # ---------------------------------------------------------------------------
@@ -252,12 +252,7 @@ def _validate_android_xml(code: str) -> tuple[List[ValidationIssue], List[Valida
             )
         )
 
-    android_ns = "http://schemas.android.com/apk/res/android"
-    nsmap = root.attrib.get(
-        "{http://www.w3.org/2000/xmlns/}android",
-        root.attrib.get("xmlns:android", ""),
-    )
-    if not nsmap:
+    if "xmlns:android" not in code:
         warnings.append(
             ValidationIssue(
                 line=1,
@@ -279,9 +274,23 @@ _COMPOSABLE_RE = re.compile(r"@Composable\s+(?:private\s+|internal\s+)*fun\s+([A
 _IMPORT_RE = re.compile(r"^\s*import\s+([a-zA-Z][\w.]*)", re.MULTILINE)
 
 
+# Strip string literals and comments before brace/paren counting
+_STRING_RE = re.compile(r'"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'')
+_LINE_COMMENT_RE = re.compile(r'//[^\n]*')
+_BLOCK_COMMENT_RE = re.compile(r'/\*[\s\S]*?\*/')
+
+
+def _strip_comments_and_strings(text: str) -> str:
+    text = _BLOCK_COMMENT_RE.sub("", text)
+    text = _LINE_COMMENT_RE.sub("", text)
+    text = _STRING_RE.sub("", text)
+    return text
+
+
 def _check_balanced(text: str, open_ch: str, close_ch: str) -> int:
+    stripped = _strip_comments_and_strings(text)
     depth = 0
-    for ch in text:
+    for ch in stripped:
         if ch == open_ch:
             depth += 1
         elif ch == close_ch:
@@ -507,17 +516,12 @@ def _validate_a2ui(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
             continue
         if jsonschema_ok:
             try:
-                import jsonschema as _js  # type: ignore[import-not-found]
-
-                _js.validate(instance=obj, schema=schema)
-            except _js.ValidationError as exc:  # type: ignore[misc]
-                col = 1
-                if isinstance(exc.absolute_path, list) and exc.absolute_path:
-                    col = 1
+                jsonschema.validate(instance=obj, schema=schema)
+            except jsonschema.ValidationError as exc:
                 errors.append(
                     ValidationIssue(
                         line=idx,
-                        col=col,
+                        col=1,
                         message=f"Schema validation failed: {exc.message}",
                         severity="error",
                     )

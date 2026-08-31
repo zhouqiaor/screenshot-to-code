@@ -18,7 +18,6 @@ from agent.tools import (
     summarize_text,
     summarize_tool_input,
 )
-from config import GENERATION_MAX_COST_USD
 from costs.budget_checker import check_budget, check_circuit_breaker, record_abort
 from fs_logging.agent_runs import AgentRunRecorder
 
