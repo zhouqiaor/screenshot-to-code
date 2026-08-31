@@ -89,7 +89,13 @@ class AdbCapturePipeline:
                 "'adb' is on PATH."
             )
 
-        from scripts.run_adb_pipeline import run_pipeline
+        try:
+            from scripts.run_adb_pipeline import run_pipeline
+        except ImportError as e:
+            raise RuntimeError(
+                "ADB pipeline script not found. Ensure "
+                "'scripts/run_adb_pipeline.py' exists and is importable."
+            ) from e
 
         output_dir = kwargs.get("output_dir")
         if output_dir is None:
@@ -135,7 +141,6 @@ class WinUiaCapturePipeline:
         **kwargs: Any,
     ) -> CaptureResult:
         import tempfile
-        from pathlib import Path
 
         from capture.win_uia import capture_window_ui
 
@@ -163,8 +168,8 @@ class WinUiaCapturePipeline:
                 try:
                     from scripts.skeleton_parser import parse_ui_tree
                     skeleton = parse_ui_tree(ui_tree_path)
-                except Exception as e:
-                    logger.debug("skeleton_parser failed", exc_info=True)
+                except Exception:
+                    logger.warning("skeleton_parser failed, skeleton will be empty", exc_info=True)
 
             # Extract theme from screenshot (requires skeleton).
             theme: dict[str, Any] = {}
@@ -172,8 +177,8 @@ class WinUiaCapturePipeline:
                 try:
                     from scripts.theme_extractor import extract_theme
                     theme = extract_theme(screenshot_path, skeleton)
-                except Exception as e:
-                    logger.debug("theme_extractor failed", exc_info=True)
+                except Exception:
+                    logger.warning("theme_extractor failed, theme will be empty", exc_info=True)
 
             # Convert screenshot to data URL.
             screenshot_data_url = ""
@@ -181,8 +186,8 @@ class WinUiaCapturePipeline:
                 try:
                     from capture.win_uia import screenshot_to_data_url
                     screenshot_data_url = screenshot_to_data_url(screenshot_path)
-                except Exception as e:
-                    logger.debug("screenshot_to_data_url failed", exc_info=True)
+                except Exception:
+                    logger.warning("screenshot_to_data_url failed", exc_info=True)
                     screenshot_data_url = ""
 
             return CaptureResult(

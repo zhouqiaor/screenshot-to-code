@@ -161,7 +161,10 @@ def _validate_html(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
         "area", "base", "br", "col", "embed", "hr", "img", "input",
         "link", "meta", "param", "source", "track", "wbr",
     }
-    tag_re = re.compile(r"<(/?)([a-zA-Z][a-zA-Z0-9]*)((?:\s+[^>]*?)?)(/?)>", re.DOTALL)
+    tag_re = re.compile(
+        r"<(/?)([a-zA-Z][a-zA-Z0-9]*)((?:\s+(?:[^>\"']|\"[^\"]*\"|'[^']*')*)?)(/?)>",
+        re.DOTALL,
+    )
     stack: List[str] = []
     for match in tag_re.finditer(code):
         closing = match.group(1) == "/"
