@@ -54,6 +54,15 @@ class Llm(Enum):
     GEMINI_3_6_FLASH_MEDIUM = "gemini-3.6-flash (medium thinking)"
     GEMINI_3_6_FLASH_LOW = "gemini-3.6-flash (low thinking)"
     GEMINI_3_6_FLASH_MINIMAL = "gemini-3.6-flash (minimal thinking)"
+    # Qwen (via DashScope Anthropic-compatible endpoint)
+    QWEN_3_7_MAX = "qwen3.7-max"
+    # Doubao (via Volcano Engine Ark OpenAI-compatible endpoint)
+    DOUBAO_SEED_EVOLVING = "doubao-seed-evolving"
+    DOUBAO_SEED_1_6_FLASH = "doubao-seed-1.6-flash"
+    DOUBAO_SEED_1_8 = "doubao-seed-1.8"
+    DOUBAO_SEED_1_6_VISION = "doubao-seed-1.6-vision"
+    DOUBAO_SEED_2_0_MINI = "doubao-seed-2.0-mini"
+    DOUBAO_SEED_2_0_CODE = "doubao-seed-2.0-code"
 
 
 class Completion(TypedDict):
@@ -115,6 +124,15 @@ MODEL_PROVIDER: dict[Llm, str] = {
     Llm.GEMINI_3_6_FLASH_MEDIUM: "gemini",
     Llm.GEMINI_3_6_FLASH_LOW: "gemini",
     Llm.GEMINI_3_6_FLASH_MINIMAL: "gemini",
+    # Qwen models
+    Llm.QWEN_3_7_MAX: "anthropic",
+    # Doubao models
+    Llm.DOUBAO_SEED_EVOLVING: "openai",
+    Llm.DOUBAO_SEED_1_6_FLASH: "openai",
+    Llm.DOUBAO_SEED_1_8: "openai",
+    Llm.DOUBAO_SEED_1_6_VISION: "openai",
+    Llm.DOUBAO_SEED_2_0_MINI: "openai",
+    Llm.DOUBAO_SEED_2_0_CODE: "openai",
 }
 
 # Convenience sets for membership checks
@@ -156,6 +174,13 @@ OPENAI_MODEL_CONFIG: dict[Llm, dict[str, str]] = {
     Llm.GPT_5_6_SOL_XHIGH: {"api_name": "gpt-5.6-sol", "reasoning_effort": "xhigh"},
     Llm.GPT_5_6_SOL_MAX: {"api_name": "gpt-5.6-sol", "reasoning_effort": "max"},
     Llm.GPT_5_6_TERRA_LOW: {"api_name": "gpt-5.6-terra", "reasoning_effort": "low"},
+    # Doubao — no reasoning_effort (Volcano Ark API rejects "summary" field)
+    Llm.DOUBAO_SEED_EVOLVING: {"api_name": "doubao-seed-evolving"},
+    Llm.DOUBAO_SEED_1_6_FLASH: {"api_name": "doubao-seed-1.6-flash"},
+    Llm.DOUBAO_SEED_1_8: {"api_name": "doubao-seed-1.8"},
+    Llm.DOUBAO_SEED_1_6_VISION: {"api_name": "doubao-seed-1.6-vision"},
+    Llm.DOUBAO_SEED_2_0_MINI: {"api_name": "doubao-seed-2.0-mini"},
+    Llm.DOUBAO_SEED_2_0_CODE: {"api_name": "doubao-seed-2.0-code"},
 }
 
 

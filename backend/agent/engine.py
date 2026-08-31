@@ -19,6 +19,7 @@ from agent.tools import (
     summarize_tool_input,
 )
 from config import GENERATION_MAX_COST_USD
+from costs.budget_checker import check_budget, check_circuit_breaker, record_abort
 from fs_logging.agent_runs import AgentRunRecorder
 
 
@@ -42,10 +43,13 @@ class BudgetExceededError(Exception):
     not contain cost figures; the exact spend is in the run record.
     """
 
-    def __init__(self) -> None:
-        super().__init__(
-            "Generation stopped: this variant exceeded its resource limit."
-        )
+    def __init__(self, message: Optional[str] = None) -> None:
+        if message is None:
+            super().__init__(
+                "Generation stopped: this variant exceeded its resource limit."
+            )
+        else:
+            super().__init__(message)
 
 
 class AgentEngine:
@@ -275,12 +279,28 @@ class AgentEngine:
             # just produced its final answer is already paid for. Unpriced
             # models return None and are not bounded.
             spent = session.total_cost_usd()
-            if spent is not None and spent > GENERATION_MAX_COST_USD:
+
+            # Cross-session circuit breaker (checked first)
+            breaker_reason = check_circuit_breaker()
+            if breaker_reason is not None:
+                print(f"[BUDGET] {breaker_reason}")
+                raise BudgetExceededError(breaker_reason)
+
+            # Single-variant budget check with tiered alerts
+            decision = check_budget(spent)
+            if decision.alert_level == "exceeded":
                 print(
                     f"[BUDGET] Aborting variant {self.variant_index}: "
-                    f"${spent:.2f} > ${GENERATION_MAX_COST_USD:.2f}"
+                    f"${decision.spent_usd:.2f} > ${decision.limit_usd:.2f}"
                 )
+                record_abort()
                 raise BudgetExceededError()
+            if decision.alert_level in ("warn", "alert", "critical"):
+                print(
+                    f"[BUDGET {decision.alert_level.upper()}] "
+                    f"variant {self.variant_index}: "
+                    f"${decision.spent_usd:.2f} / ${decision.limit_usd:.2f}"
+                )
 
             executed_tool_calls: List[ExecutedToolCall] = []
             for tool_call in turn.tool_calls:
