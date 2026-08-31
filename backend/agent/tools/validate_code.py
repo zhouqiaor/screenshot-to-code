@@ -246,7 +246,7 @@ def _validate_android_xml(code: str) -> tuple[List[ValidationIssue], List[Valida
                 col=1,
                 message=(
                     f"Unexpected root element <{root.tag}>. "
-                    "Expected ConstraintLayout or LinearLayout."
+                    f"Expected one of: {sorted(allowed_roots)}."
                 ),
                 severity="warning",
             )
@@ -274,17 +274,21 @@ _COMPOSABLE_RE = re.compile(r"@Composable\s+(?:private\s+|internal\s+)*fun\s+([A
 _IMPORT_RE = re.compile(r"^\s*import\s+([a-zA-Z][\w.]*)", re.MULTILINE)
 
 
-# Strip string literals and comments before brace/paren counting
-_STRING_RE = re.compile(r'"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'')
-_LINE_COMMENT_RE = re.compile(r'//[^\n]*')
-_BLOCK_COMMENT_RE = re.compile(r'/\*[\s\S]*?\*/')
+# Strip string literals and comments before brace/paren counting.
+# A single combined regex pass avoids misclassifying comment-like sequences
+# (e.g. URLs containing "//") that appear inside string literals, because
+# the string alternative is matched first (leftmost alternation wins).
+_STRIP_RE = re.compile(
+    r'"""[\s\S]*?"""'  # triple-quoted strings
+    r'|"(?:\\.|[^"\\])*"'  # double-quoted strings
+    r"|'(?:\\.|[^'\\])*'"  # single-quoted strings
+    r'|//[^\n]*'  # line comments
+    r'|/\*[\s\S]*?\*/'  # block comments
+)
 
 
 def _strip_comments_and_strings(text: str) -> str:
-    text = _BLOCK_COMMENT_RE.sub("", text)
-    text = _LINE_COMMENT_RE.sub("", text)
-    text = _STRING_RE.sub("", text)
-    return text
+    return _STRIP_RE.sub("", text)
 
 
 def _check_balanced(text: str, open_ch: str, close_ch: str) -> int:

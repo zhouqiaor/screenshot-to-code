@@ -283,7 +283,7 @@ class AgentEngine:
             breaker_reason = check_circuit_breaker()
             if breaker_reason is not None:
                 print(f"[BUDGET] {breaker_reason}")
-                raise BudgetExceededError(breaker_reason)
+                raise BudgetExceededError()
 
             # Single-variant budget check with tiered alerts
             decision = check_budget(spent)
