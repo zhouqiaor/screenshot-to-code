@@ -15,11 +15,14 @@ jobs:
        (startsWith(github.event.comment.body, '/open-code-review') ||
         startsWith(github.event.comment.body, '@open-code-review')))
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: ocr-review-${{ github.event.pull_request.number || github.event.issue.number }}
+      cancel-in-progress: true
     permissions:
       contents: read
       pull-requests: write
       issues: read
-      id-token: write
 
     steps:
       - name: Checkout
@@ -31,33 +34,169 @@ jobs:
       - name: Install OpenCodeReview
         run: npm install -g @alibaba-group/open-code-review
 
-      - name: Configure LLM provider (Volcano Engine Ark)
+      - name: Configure LLM provider (DashScope / 百炼)
         env:
-          ARK_API_KEY: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
+          DASHSCOPE_API_KEY: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
         run: |
-          if [ -z "$ARK_API_KEY" ]; then
+          if [ -z "$DASHSCOPE_API_KEY" ]; then
             echo "::warning::OCR_LLM_AUTH_TOKEN secret is not configured."
             exit 0
           fi
-          # volcengine is a built-in provider with protocol=openai
-          # base URL is preset to https://ark.cn-beijing.volces.com/api/v3
-          ocr config set provider volcengine
+          # dashscope is a built-in provider with protocol=openai
+          # base URL is preset to https://dashscope.aliyuncs.com/compatible-mode/v1
+          ocr config set provider dashscope
           ocr config set model "${{ vars.OCR_LLM_MODEL }}"
-          ocr config set providers.volcengine.api_key "$ARK_API_KEY"
-          # verify config
-          ocr llm test
+          ocr config set providers.dashscope.api_key "$DASHSCOPE_API_KEY"
+          # verify config (non-blocking: if test fails, review step will surface the real error)
+          ocr llm test || echo "::warning::ocr llm test failed, proceeding to review step"
 
       - name: Run OCR review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use env vars to avoid script injection via PR title / branch names
+          PR_BASE_REF: ${{ github.base_ref }}
+          PR_HEAD_REF: ${{ github.head_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.issue.pull_request.url }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
+          # For issue_comment events, pull_request info is nested differently
+          if [ -n "$PR_NUMBER" ]; then
+            BASE_REF="$PR_BASE_REF"
+            HEAD_REF="$PR_HEAD_REF"
+            TITLE="$PR_TITLE"
+          else
+            # issue_comment event: fetch PR info via API
+            PR_DATA=$(curl -sf -H "Authorization: token $GITHUB_TOKEN" "$PR_URL")
+            BASE_REF=$(echo "$PR_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['base']['ref'])")
+            HEAD_REF=$(echo "$PR_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['head']['ref'])")
+            TITLE=$(echo "$PR_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['title'])")
+          fi
+
+          echo "Base: $BASE_REF, Head: $HEAD_REF"
+
+          # Run OCR review — don't let non-zero exit code block the comment step
+          # (ocr review may return non-zero even with valid output)
           ocr review \
-            --provider volcengine \
+            --provider dashscope \
             --model "${{ vars.OCR_LLM_MODEL }}" \
-            --from origin/${{ github.base_ref }} \
-            --to origin/${{ github.head_ref }} \
+            --from "origin/$BASE_REF" \
+            --to "origin/$HEAD_REF" \
             --format json \
-            --background "${{ github.event.pull_request.title }}" \
-            --concurrency 5
-# OCR Volcano Engine Integration
-# Verify new Ark key 2026-09-01T06:20:30Z
+            --audience agent \
+            --background "$TITLE" \
+            --concurrency 5 \
+            --output review.json || echo "::warning::ocr review exited non-zero, but review.json may still be valid"
+
+      - name: Post review summary as PR comment
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_RUN_ID: ${{ github.run_id }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          # Determine PR number from either pull_request or issue_comment event
+          PR_NUM="${PR_NUMBER:-$ISSUE_NUMBER}"
+          export PR_NUM
+          # parse_review.py reads GITHUB_REPOSITORY and GITHUB_RUN_ID from env
+          export GITHUB_REPOSITORY="$GH_REPOSITORY"
+          export GITHUB_RUN_ID="$GH_RUN_ID"
+
+          if [ ! -f review.json ]; then
+            echo "No review.json found, posting failure comment."
+            curl -sf -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GH_REPOSITORY/issues/$PR_NUM/comments" \
+              -d "{\"body\": \"## OpenCodeReview\n\n\u26a0\ufe0f OCR review did not produce output. Check the [workflow logs](https://github.com/$GH_REPOSITORY/actions/runs/$GH_RUN_ID) for details.\"}"
+            exit 0
+          fi
+
+          # Debug: print review.json top-level keys and first 2 comments for troubleshooting
+          echo "=== review.json top-level keys ==="
+          python3 -c "import json; d=json.load(open('review.json')); print(list(d.keys())); cs=d.get('comments') or []; print(f'comments count: {len(cs)}'); [print(json.dumps(c, indent=2)[:500]) for c in cs[:2]]"
+          echo "=== end debug ==="
+
+          # Parse the JSON review using a standalone script to avoid heredoc indentation issues
+          if ! python3 scripts/parse_review.py; then
+            echo "::warning::parse_review.py failed, posting raw error comment"
+            # Post a fallback comment so the user knows parsing failed
+            curl -sf -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GH_REPOSITORY/issues/$PR_NUM/comments" \
+              -d "{\"body\": \"## OpenCodeReview\n\n\u26a0\ufe0f Failed to parse review output. Check the [workflow logs](https://github.com/$GH_REPOSITORY/actions/runs/$GH_RUN_ID) for details.\"}"
+            exit 0
+          fi
+
+          if [ -f pr-comment.md ]; then
+            # Post comment via GitHub API — use -f to fail on HTTP errors
+            if curl -sf -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GH_REPOSITORY/issues/$PR_NUM/comments" \
+              -d "{\"body\": $(python3 -c 'import json; print(json.dumps(open("pr-comment.md").read()))')}"; then
+              echo "PR comment posted."
+            else
+              echo "::error::Failed to post PR comment (HTTP error from GitHub API)"
+              exit 1
+            fi
+          else
+            echo "::warning::pr-comment.md was not generated by parse_review.py"
+            exit 0
+          fi
+
+      - name: Upload SARIF report (optional)
+        if: always()
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPOSITORY: ${{ github.repository }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_BASE_REF: ${{ github.base_ref }}
+          PR_URL: ${{ github.event.issue.pull_request.url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # Get PR info for issue_comment events
+          if [ -n "$PR_NUMBER" ]; then
+            HEAD_SHA="$PR_HEAD_SHA"
+            HEAD_REF="$PR_HEAD_REF"
+            BASE_REF="$PR_BASE_REF"
+          else
+            PR_DATA=$(curl -sf -H "Authorization: token $GITHUB_TOKEN" "$PR_URL")
+            HEAD_SHA=$(echo "$PR_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['head']['sha'])")
+            HEAD_REF=$(echo "$PR_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['head']['ref'])")
+            BASE_REF=$(echo "$PR_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['base']['ref'])")
+          fi
+
+          # Use full Git ref for SARIF upload (refs/heads/branch-name, not bare branch name)
+          SARIF_REF="refs/heads/$HEAD_REF"
+
+          # Re-run OCR in SARIF format — GitHub code-scanning requires SARIF;
+          # there is no JSON→SARIF converter in OCR CLI.
+          ocr review \
+            --provider dashscope \
+            --model "${{ vars.OCR_LLM_MODEL }}" \
+            --from "origin/$BASE_REF" \
+            --to "origin/$HEAD_REF" \
+            --format sarif \
+            --output results.sarif \
+            --audience agent \
+            --concurrency 5 || true
+
+          if [ -f results.sarif ]; then
+            # Use -f to fail on HTTP errors
+            curl -sf -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GH_REPOSITORY/code-scanning/sarifs" \
+              -d "{\"commit_sha\": \"$HEAD_SHA\", \"ref\": \"$SARIF_REF\", \"sarif\": \"$(base64 -w0 results.sarif)\"}" \
+              || echo "::warning::SARIF upload failed (HTTP error)"
+          else
+            echo "No SARIF file generated, skipping upload."
+          fi

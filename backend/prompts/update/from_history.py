@@ -7,7 +7,6 @@ from prompts.design_system import build_design_system_prompt_block
 from prompts.policies import build_selected_stack_policy, build_user_image_policy
 from prompts.prompt_types import PromptHistoryMessage, Stack
 from prompts.message_builder import Prompt, build_history_message
-from costs.history_truncator import truncate_history_images
 
 
 def build_update_prompt_from_history(
@@ -22,9 +21,6 @@ def build_update_prompt_from_history(
     )
     if first_user_index == -1:
         raise ValueError("Update history must include at least one user message")
-
-    # T5: Strip images from older history turns to save tokens
-    history = truncate_history_images(history)
 
     prompt_messages: Prompt = [
         cast(
