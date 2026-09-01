@@ -1,4 +1,5 @@
 from prompts.prompt_types import Stack
+from costs.prompt_compressor import truncate_skeleton
 
 
 def build_selected_stack_policy(stack: Stack) -> str:
@@ -45,8 +46,10 @@ def build_adb_data_policy(theme_json: str | None, skeleton_json: str | None) -> 
         parts.append(f"\n### theme.json (design tokens)\n```json\n{theme_json}\n```\n")
 
     if skeleton_json:
+        # T4: Truncate skeleton to cap prompt size (~8K chars ≈ 2K tokens)
+        truncated_skeleton = truncate_skeleton(skeleton_json)
         parts.append(
-            f"\n### skeleton.json (UI hierarchy + bounds)\n```json\n{skeleton_json}\n```\n"
+            f"\n### skeleton.json (UI hierarchy + bounds)\n```json\n{truncated_skeleton}\n```\n"
         )
         parts.append("\nKey constraints from skeleton.json:")
         parts.append(

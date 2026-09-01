@@ -4,6 +4,7 @@ from prompts.prompt_types import Stack
 from prompts import system_prompt
 from prompts.design_system import build_design_system_prompt_block
 from prompts.policies import build_selected_stack_policy, build_user_image_policy
+from costs.image_compressor import compress_image_data_url
 
 def build_image_prompt_messages(
     image_data_urls: list[str],
@@ -49,10 +50,12 @@ If multiple screenshots are provided, organize them meaningfully:
 
     user_content: list[ChatCompletionContentPartParam] = []
     for image_data_url in image_data_urls:
+        # T1: Compress image to 768px JPEG to reduce token usage
+        compressed_url = compress_image_data_url(image_data_url)
         user_content.append(
             {
                 "type": "image_url",
-                "image_url": {"url": image_data_url, "detail": "high"},
+                "image_url": {"url": compressed_url, "detail": "high"},
             }
         )
     user_content.append(
