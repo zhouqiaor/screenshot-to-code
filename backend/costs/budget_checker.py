@@ -59,6 +59,12 @@ def check_budget(spent: Optional[float]) -> BudgetDecision:
     if spent is None:
         return BudgetDecision(True, "none", 0.0, GENERATION_MAX_COST_USD)
 
+    if GENERATION_MAX_COST_USD <= 0:
+        return BudgetDecision(
+            True, "none", spent, GENERATION_MAX_COST_USD,
+            "Budget limit is zero or negative; skipping check"
+        )
+
     ratio = spent / GENERATION_MAX_COST_USD
     if ratio > 1.0:
         return BudgetDecision(

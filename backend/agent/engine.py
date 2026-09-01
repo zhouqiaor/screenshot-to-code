@@ -18,8 +18,8 @@ from agent.tools import (
     summarize_text,
     summarize_tool_input,
 )
-from config import GENERATION_MAX_COST_USD
 from costs.budget_checker import check_budget, check_circuit_breaker, record_abort
+from costs.metrics import record_budget, record_circuit_breaker
 from fs_logging.agent_runs import AgentRunRecorder
 
 
@@ -39,17 +39,25 @@ class EmptyOutputError(Exception):
 class BudgetExceededError(Exception):
     """Raised when a single generation exceeds the spend ceiling.
 
-    The message is shown verbatim to end users (variantError), so it must
-    not contain cost figures; the exact spend is in the run record.
+    The user-facing message (shown verbatim in variantError via str(e))
+    is always the clean default. Internal diagnostic context (circuit
+    breaker reason, cost figures) is stored in ``internal_reason`` for
+    logging/eval callers, not exposed to end users.
     """
 
-    def __init__(self, message: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        *,
+        internal_reason: Optional[str] = None,
+    ) -> None:
         if message is None:
             super().__init__(
                 "Generation stopped: this variant exceeded its resource limit."
             )
         else:
             super().__init__(message)
+        self.internal_reason = internal_reason
 
 
 class AgentEngine:
@@ -282,19 +290,29 @@ class AgentEngine:
 
             # Cross-session circuit breaker (checked first)
             breaker_reason = check_circuit_breaker()
+            record_circuit_breaker(breaker_reason is not None)
             if breaker_reason is not None:
                 print(f"[BUDGET] {breaker_reason}")
-                raise BudgetExceededError(breaker_reason)
+                raise BudgetExceededError(internal_reason=breaker_reason)
 
             # Single-variant budget check with tiered alerts
             decision = check_budget(spent)
+            if spent is not None:
+                record_budget(
+                    variant=self.variant_index,
+                    spent=spent,
+                    limit=decision.limit_usd,
+                )
+            # NOTE: record_usage() for token/cost counters requires a
+            # total_token_usage() method on ProviderSession; deferred to
+            # a follow-up PR to avoid expanding the Protocol in this PR.
             if decision.alert_level == "exceeded":
                 print(
                     f"[BUDGET] Aborting variant {self.variant_index}: "
                     f"${decision.spent_usd:.2f} > ${decision.limit_usd:.2f}"
                 )
                 record_abort()
-                raise BudgetExceededError()
+                raise BudgetExceededError(internal_reason=decision.reason)
             if decision.alert_level in ("warn", "alert", "critical"):
                 print(
                     f"[BUDGET {decision.alert_level.upper()}] "

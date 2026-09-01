@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, List, Literal, TypedDict, cast
+from typing import Any, List, Literal, TypedDict
 
 from xml.etree import ElementTree
 
@@ -103,6 +103,24 @@ def validate_code(stack: Stack, code: str) -> ValidationResult:
 # Shared helpers
 # ---------------------------------------------------------------------------
 
+_HTML_VOID_TAGS = frozenset({
+    "area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "param", "source", "track", "wbr",
+})
+
+_HTML_TAG_RE = re.compile(
+    r"<(/?)([a-zA-Z][a-zA-Z0-9-]*)((?:\s+(?:[^>\"']|\"[^\"]*\"|'[^']*')*)?)(/?)>",
+    re.DOTALL,
+)
+
+# Strips HTML comments, <script> blocks, and <style> blocks before tag matching
+_HTML_STRIP_RE = re.compile(
+    r"<!--[\s\S]*?-->"  # HTML comments
+    r"|<script\b[^>]*>[\s\S]*?</script\s*>"  # script blocks
+    r"|<style\b[^>]*>[\s\S]*?</style\s*>",  # style blocks
+    re.IGNORECASE | re.DOTALL,
+)
+
 
 def _line_col_from_offset(text: str, offset: int) -> tuple[int, int]:
     """Return the 1-based (line, col) for a 0-based character offset."""
@@ -111,8 +129,8 @@ def _line_col_from_offset(text: str, offset: int) -> tuple[int, int]:
     upto = text[:offset]
     line = upto.count("\n") + 1
     last_nl = upto.rfind("\n")
-    col = offset - last_nl if last_nl >= 0 else offset
-    return line, col + 1
+    col = offset - last_nl if last_nl >= 0 else offset + 1
+    return line, col
 
 
 # ---------------------------------------------------------------------------
@@ -157,13 +175,13 @@ def _validate_html(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
         return errors, warnings
 
     # Fallback: parse as XML and accept HTML5 void elements.
-    void_tags = {
-        "area", "base", "br", "col", "embed", "hr", "img", "input",
-        "link", "meta", "param", "source", "track", "wbr",
-    }
-    tag_re = re.compile(r"<(/?)([a-zA-Z][a-zA-Z0-9]*)((?:\s+[^>]*?)?)(/?)>", re.DOTALL)
+    # Strip comments, scripts, and styles to avoid false-positive tag
+    # matches on angle brackets inside those regions. Replace with
+    # equal-length whitespace so character offsets stay aligned with
+    # the original source.
+    stripped_html = _HTML_STRIP_RE.sub(lambda m: " " * len(m.group()), code)
     stack: List[str] = []
-    for match in tag_re.finditer(code):
+    for match in _HTML_TAG_RE.finditer(stripped_html):
         closing = match.group(1) == "/"
         tag = match.group(2).lower()
         self_close = match.group(4) == "/"
@@ -189,7 +207,7 @@ def _validate_html(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
                         severity="error",
                     )
                 )
-        elif not self_close and tag not in void_tags:
+        elif not self_close and tag not in _HTML_VOID_TAGS:
             stack.append(tag)
     for tag in reversed(stack):
         errors.append(
@@ -217,7 +235,7 @@ def _validate_android_xml(code: str) -> tuple[List[ValidationIssue], List[Valida
     except ElementTree.ParseError as exc:
         msg = str(exc)
         position = getattr(exc, "position", (1, 0))
-        line = int(position[0]) if position and position[0] else 1
+        line = int(position[0]) + 1 if position and position[0] is not None else 1
         col = int(position[1]) + 1 if position and len(position) > 1 else 1
         errors.append(
             ValidationIssue(
@@ -246,18 +264,13 @@ def _validate_android_xml(code: str) -> tuple[List[ValidationIssue], List[Valida
                 col=1,
                 message=(
                     f"Unexpected root element <{root.tag}>. "
-                    "Expected ConstraintLayout or LinearLayout."
+                    f"Expected one of: {sorted(allowed_roots)}."
                 ),
                 severity="warning",
             )
         )
 
-    android_ns = "http://schemas.android.com/apk/res/android"
-    nsmap = root.attrib.get(
-        "{http://www.w3.org/2000/xmlns/}android",
-        root.attrib.get("xmlns:android", ""),
-    )
-    if not nsmap:
+    if "xmlns:android" not in code:
         warnings.append(
             ValidationIssue(
                 line=1,
@@ -275,8 +288,28 @@ def _validate_android_xml(code: str) -> tuple[List[ValidationIssue], List[Valida
 # ---------------------------------------------------------------------------
 
 
-_COMPOSABLE_RE = re.compile(r"@Composable\s+(?:private\s+|internal\s+)*fun\s+([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
+_COMPOSABLE_RE = re.compile(
+    r"@Composable(?:\([^)]*\))?\s+(?:private\s+|internal\s+)*fun\s+([A-Za-z_][A-Za-z0-9_]*)",
+    re.MULTILINE,
+)
 _IMPORT_RE = re.compile(r"^\s*import\s+([a-zA-Z][\w.]*)", re.MULTILINE)
+
+
+# Strip string literals and comments before brace/paren counting.
+# A single combined regex pass avoids misclassifying comment-like sequences
+# (e.g. URLs containing "//") that appear inside string literals, because
+# the string alternative is matched first (leftmost alternation wins).
+_STRIP_RE = re.compile(
+    r'"""[\s\S]*?"""'  # triple-quoted strings
+    r'|"(?:\\.|[^"\\])*"'  # double-quoted strings
+    r"|'(?:\\.|[^'\\])*'"  # single-quoted strings
+    r'|//[^\n]*'  # line comments
+    r'|/\*[\s\S]*?\*/'  # block comments
+)
+
+
+def _strip_comments_and_strings(text: str) -> str:
+    return _STRIP_RE.sub("", text)
 
 
 def _check_balanced(text: str, open_ch: str, close_ch: str) -> int:
@@ -316,7 +349,9 @@ def _validate_android_compose(code: str) -> tuple[List[ValidationIssue], List[Va
                 )
             )
 
-    brace_depth = _check_balanced(code, "{", "}")
+    stripped = _strip_comments_and_strings(code)
+
+    brace_depth = _check_balanced(stripped, "{", "}")
     if brace_depth < 0:
         errors.append(
             ValidationIssue(
@@ -336,7 +371,7 @@ def _validate_android_compose(code: str) -> tuple[List[ValidationIssue], List[Va
             )
         )
 
-    paren_depth = _check_balanced(code, "(", ")")
+    paren_depth = _check_balanced(stripped, "(", ")")
     if paren_depth < 0:
         errors.append(
             ValidationIssue(
@@ -375,13 +410,15 @@ def _validate_android_compose(code: str) -> tuple[List[ValidationIssue], List[Va
 
 
 _QML_IMPORT_RE = re.compile(r"^\s*import\s+\S+", re.MULTILINE)
+_QML_PROPERTY_RE = re.compile(r"^\s*property\s+(\w+)\s+(\w+)\s*:", re.MULTILINE)
 
 
 def _validate_qt_qml(code: str) -> tuple[List[ValidationIssue], List[ValidationIssue]]:
     errors: List[ValidationIssue] = []
     warnings: List[ValidationIssue] = []
 
-    brace_depth = _check_balanced(code, "{", "}")
+    stripped_qml = _strip_comments_and_strings(code)
+    brace_depth = _check_balanced(stripped_qml, "{", "}")
     if brace_depth < 0:
         errors.append(
             ValidationIssue(
@@ -411,7 +448,7 @@ def _validate_qt_qml(code: str) -> tuple[List[ValidationIssue], List[ValidationI
             )
         )
 
-    property_re = re.compile(r"^\s*property\s+(\w+)\s+(\w+)\s*:", re.MULTILINE)
+    property_re = _QML_PROPERTY_RE
     matches = list(property_re.finditer(code))
     if not matches and "property " in code:
         for line_no, line in enumerate(code.splitlines(), 1):
@@ -445,7 +482,7 @@ def _validate_a2ui(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
         jsonschema_ok = False
 
     lines = code.splitlines()
-    if not lines:
+    if not lines or not any(line.strip() for line in lines):
         errors.append(
             ValidationIssue(
                 line=1,
@@ -507,17 +544,12 @@ def _validate_a2ui(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
             continue
         if jsonschema_ok:
             try:
-                import jsonschema as _js  # type: ignore[import-not-found]
-
-                _js.validate(instance=obj, schema=schema)
-            except _js.ValidationError as exc:  # type: ignore[misc]
-                col = 1
-                if isinstance(exc.absolute_path, list) and exc.absolute_path:
-                    col = 1
+                jsonschema.validate(instance=obj, schema=schema)
+            except jsonschema.ValidationError as exc:
                 errors.append(
                     ValidationIssue(
                         line=idx,
-                        col=col,
+                        col=1,
                         message=f"Schema validation failed: {exc.message}",
                         severity="error",
                     )

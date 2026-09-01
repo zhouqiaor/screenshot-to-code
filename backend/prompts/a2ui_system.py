@@ -8,6 +8,9 @@ declare event handlers via ``onClick``.  The output file is ``surface.jsonl``.
 The renderer on the frontend parses each line, builds an id→object map, then
 mounts a React tree starting from the root object (the first object whose
 ``id`` is not referenced by any other object's ``children``).
+
+Note: This prompt is defined but not yet wired into the prompt builder.
+Integration with stack-based prompt selection is planned for a follow-up PR.
 """
 
 A2UI_SYSTEM_PROMPT = """
@@ -113,7 +116,7 @@ Optional fields:
 - Use meaningful ids that describe the element's role.
 - Keep the file ordered: root first, then depth-first.
 - One object per line, no trailing commas, no multi-line JSON.
-- Validate the output with the validate_code tool after every change.
+- When available, validate the output with the validate_code tool after every change.
 
 # Targeted element edits
 

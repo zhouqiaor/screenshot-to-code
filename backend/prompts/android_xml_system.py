@@ -9,6 +9,9 @@ stack produces two related resources:
 
 The agent emits both via successive ``create_file`` calls.  The final
 deliverable returned to the caller is ``activity_main.xml``.
+
+Note: This prompt is defined but not yet wired into the prompt builder.
+Integration with stack-based prompt selection is planned for a follow-up PR.
 """
 
 ANDROID_XML_SYSTEM_PROMPT = """

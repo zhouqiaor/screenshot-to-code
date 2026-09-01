@@ -53,10 +53,6 @@ def test_all_defined_stacks_have_preferences() -> None:
 # --- metrics tests ---
 
 
-def setup_method(self) -> None:
-    reset_metrics()
-
-
 def test_record_usage_increments_counters() -> None:
     """record_usage should increment all relevant counters."""
     reset_metrics()
@@ -83,7 +79,16 @@ def test_record_usage_without_pricing() -> None:
     assert "ai_tokens_input_total" in output
     assert "10" in output
     # cost counter should not have this model
-    assert "no-cost-model" not in output.split("ai_cost_usd_total")[1].split("\n")[0]
+    # Verify no data line under ai_cost_usd_total references this model
+    cost_section = output.split("# TYPE ai_cost_usd_total counter")[1]
+    # Only look at lines until the next TYPE declaration
+    cost_lines = []
+    for line in cost_section.split("\n"):
+        if line.startswith("# TYPE"):
+            break
+        if line and not line.startswith("#"):
+            cost_lines.append(line)
+    assert all("no-cost-model" not in line for line in cost_lines)
 
 
 def test_record_budget_sets_gauge() -> None:
@@ -106,8 +111,8 @@ def test_record_circuit_breaker_sets_gauge() -> None:
 
     record_circuit_breaker(is_open=False)
     output = render_metrics()
-    # Should show 0 (closed)
-    lines = [l for l in output.split("\n") if "ai_circuit_breaker_open{" in l]
+    # Should show 0 (closed) - no labels, no empty braces
+    lines = [l for l in output.split("\n") if "ai_circuit_breaker_open" in l and not l.startswith("#")]
     assert len(lines) == 1
     assert lines[0].strip().endswith(" 0.0")
 

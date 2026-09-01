@@ -7,9 +7,13 @@ stack's ``capture_pipeline_id`` in stack_registry.py maps to one entry in
 """
 from __future__ import annotations
 
+import logging
+from pathlib import Path
 from typing import Any, Optional, Protocol, runtime_checkable
 
 from capture.result import CaptureResult
+
+logger = logging.getLogger(__name__)
 
 
 @runtime_checkable
@@ -85,7 +89,13 @@ class AdbCapturePipeline:
                 "'adb' is on PATH."
             )
 
-        from scripts.run_adb_pipeline import run_pipeline
+        try:
+            from scripts.run_adb_pipeline import run_pipeline
+        except ImportError as e:
+            raise RuntimeError(
+                "ADB pipeline script not found. Ensure "
+                "'scripts/run_adb_pipeline.py' exists and is importable."
+            ) from e
 
         output_dir = kwargs.get("output_dir")
         if output_dir is None:
@@ -98,7 +108,10 @@ class AdbCapturePipeline:
             result = run_pipeline(device_id=target_id, output_dir=str(output_dir))
         finally:
             if tmp is not None:
-                tmp.cleanup()
+                try:
+                    tmp.cleanup()
+                except OSError:
+                    logger.warning("Failed to clean up temp dir: %s", output_dir, exc_info=True)
 
         return CaptureResult(
             screenshot_data_url=result.get("screenshot_data_url", ""),
@@ -131,7 +144,6 @@ class WinUiaCapturePipeline:
         **kwargs: Any,
     ) -> CaptureResult:
         import tempfile
-        from pathlib import Path
 
         from capture.win_uia import capture_window_ui
 
@@ -144,23 +156,24 @@ class WinUiaCapturePipeline:
 
         try:
             window_title = target_id if target_id else None
+            mock = kwargs.get("mock")
             result = capture_window_ui(
                 output_dir=str(output_dir),
                 window_title=window_title,
+                mock=mock,
             )
 
             screenshot_path = result.get("screenshot", "")
             ui_tree_path = result.get("ui_tree", "")
 
-            # Parse skeleton from UIA XML (prefer win_skeleton_parser, fall
-            # back to the shared skeleton_parser).
+            # Parse skeleton from UIA XML using the shared skeleton_parser.
             skeleton: dict[str, Any] = {}
             if ui_tree_path and Path(ui_tree_path).exists():
                 try:
-                    from scripts.win_skeleton_parser import parse_ui_tree
+                    from scripts.skeleton_parser import parse_ui_tree
                     skeleton = parse_ui_tree(ui_tree_path)
                 except Exception:
-                    pass
+                    logger.warning("skeleton_parser failed, skeleton will be empty", exc_info=True)
 
             # Extract theme from screenshot (requires skeleton).
             theme: dict[str, Any] = {}
@@ -169,7 +182,7 @@ class WinUiaCapturePipeline:
                     from scripts.theme_extractor import extract_theme
                     theme = extract_theme(screenshot_path, skeleton)
                 except Exception:
-                    pass
+                    logger.warning("theme_extractor failed, theme will be empty", exc_info=True)
 
             # Convert screenshot to data URL.
             screenshot_data_url = ""
@@ -178,6 +191,7 @@ class WinUiaCapturePipeline:
                     from capture.win_uia import screenshot_to_data_url
                     screenshot_data_url = screenshot_to_data_url(screenshot_path)
                 except Exception:
+                    logger.warning("screenshot_to_data_url failed", exc_info=True)
                     screenshot_data_url = ""
 
             return CaptureResult(
@@ -188,7 +202,10 @@ class WinUiaCapturePipeline:
             )
         finally:
             if tmp is not None:
-                tmp.cleanup()
+                try:
+                    tmp.cleanup()
+                except OSError:
+                    logger.warning("Failed to clean up temp dir: %s", output_dir, exc_info=True)
 
 
 # ---------------------------------------------------------------------------

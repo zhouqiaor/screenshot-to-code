@@ -24,6 +24,11 @@ from costs.token_usage import TokenUsage
 _lock = threading.Lock()
 
 
+def _escape_label(value: str) -> str:
+    """Escape a label value per Prometheus exposition format."""
+    return value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
 class _Counter:
     """A labeled counter (monotonic increase only)."""
 
@@ -43,10 +48,13 @@ class _Counter:
                  f"# TYPE {self._name} counter"]
         with _lock:
             for key, val in sorted(self._values.items()):
-                label_str = ",".join(
-                    f'{ln}="{lv}"' for ln, lv in zip(self._label_names, key)
-                )
-                lines.append(f"{self._name}{{{label_str}}} {val}")
+                if self._label_names:
+                    label_str = ",".join(
+                        f'{ln}="{_escape_label(lv)}"' for ln, lv in zip(self._label_names, key)
+                    )
+                    lines.append(f"{self._name}{{{label_str}}} {val}")
+                else:
+                    lines.append(f"{self._name} {val}")
         return "\n".join(lines)
 
 
@@ -69,10 +77,13 @@ class _Gauge:
                  f"# TYPE {self._name} gauge"]
         with _lock:
             for key, val in sorted(self._values.items()):
-                label_str = ",".join(
-                    f'{ln}="{lv}"' for ln, lv in zip(self._label_names, key)
-                )
-                lines.append(f"{self._name}{{{label_str}}} {val}")
+                if self._label_names:
+                    label_str = ",".join(
+                        f'{ln}="{_escape_label(lv)}"' for ln, lv in zip(self._label_names, key)
+                    )
+                    lines.append(f"{self._name}{{{label_str}}} {val}")
+                else:
+                    lines.append(f"{self._name} {val}")
         return "\n".join(lines)
 
 
