@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #f3f3f3;
+            padding: 40px;
+        }
+        .settings-card {
+            background: white;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 32px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 { margin-bottom: 24px; color: #1a1a1a; }
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .toggle { position: relative; width: 44px; height: 22px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #ccc;
+            border-radius: 22px;
+            transition: 0.2s;
+        }
+        .slider::before {
+            content: "";
+            position: absolute;
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        input:checked + .slider { background: #0078d7; }
+        input:checked + .slider::before { transform: translateX(22px); }
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            margin: 8px 0 24px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .save-btn {
+            width: 100%;
+            padding: 10px;
+            background: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .save-btn:hover { background: #106ebe; }
+    </style>
+</head>
+<body>
+    <div class="settings-card">
+        <h2>Settings</h2>
+        <div class="setting-row">
+            <span>Enable notifications</span>
+            <label class="toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="setting-row">
+            <span>Dark theme</span>
+            <label class="toggle">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <label>Language</label>
+        <select>
+            <option>English</option>
+            <option>简体中文</option>
+        </select>
+        <button class="save-btn">Save</button>
+    </div>
+</body>
+</html>

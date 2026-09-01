@@ -1,0 +1,44 @@
+{
+  "settings_android_xml": {
+    "stack": "android_xml",
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "source": "template"
+  },
+  "settings_android_compose": {
+    "stack": "android_compose",
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "source": "template"
+  },
+  "settings_qt_qml": {
+    "stack": "qt_qml",
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "source": "template"
+  },
+  "settings_a2ui": {
+    "stack": "a2ui",
+    "ok": true,
+    "errors": 0,
+    "warnings": 2,
+    "source": "template"
+  },
+  "settings_windows_win32": {
+    "stack": "html",
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "source": "template"
+  },
+  "llm_android_xml": {
+    "stack": "android_xml",
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "source": "llm_generated"
+  }
+}
