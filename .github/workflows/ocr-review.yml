@@ -59,3 +59,5 @@ jobs:
             --format json \
             --background "${{ github.event.pull_request.title }}" \
             --concurrency 5
+# OCR Volcano Engine Integration
+# Verify new Ark key 2026-09-01T06:20:30Z
