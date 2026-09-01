@@ -25,7 +25,7 @@ from typing import Any, List, Literal, TypedDict
 from xml.etree import ElementTree
 
 
-Stack = Literal["html", "android_compose", "android_xml", "qt_qml", "a2ui", "windows_wpf"]
+Stack = Literal["html", "android_compose", "android_xml", "qt_qml", "a2ui"]
 
 _SEVERITY = Literal["error", "warning"]
 
@@ -76,8 +76,6 @@ def validate_code(stack: Stack, code: str) -> ValidationResult:
         errors, warnings = _validate_qt_qml(code)
     elif stack == "a2ui":
         errors, warnings = _validate_a2ui(code)
-    elif stack == "windows_wpf":
-        errors, warnings = _validate_wpf_xaml(code)
     else:
         return ValidationResult(
             ok=False,
@@ -603,94 +601,6 @@ def _validate_a2ui(code: str) -> tuple[List[ValidationIssue], List[ValidationIss
                 )
             else:
                 seen_ids[obj_id] = idx
-
-    return errors, warnings
-
-
-# ---------------------------------------------------------------------------
-# Windows WPF (XAML)
-# ---------------------------------------------------------------------------
-
-_WPF_ROOT_TAGS = {
-    "Window", "Page", "UserControl", "Application",
-    "ResourceDictionary", "WindowBase",
-}
-
-_WPF_NS = "http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-
-
-def _validate_wpf_xaml(code: str) -> tuple[List[ValidationIssue], List[ValidationIssue]]:
-    """Validate WPF XAML well-formedness and basic structure."""
-    errors: List[ValidationIssue] = []
-    warnings: List[ValidationIssue] = []
-
-    # Parse as XML
-    try:
-        root = ElementTree.fromstring(code)
-    except ElementTree.ParseError as exc:
-        msg = str(exc)
-        position = getattr(exc, "position", (1, 0))
-        line = int(position[0]) + 1 if position and position[0] is not None else 1
-        col = int(position[1]) + 1 if position and len(position) > 1 else 1
-        errors.append(
-            ValidationIssue(
-                line=line,
-                col=col,
-                message=f"XAML parse error: {msg}",
-                severity="error",
-            )
-        )
-        return errors, warnings
-
-    # Check root element is a valid WPF root
-    # ElementTree strips namespace prefix, so tag is like '{ns}Window'
-    tag_local = root.tag.split("}")[-1] if "}" in root.tag else root.tag
-    if tag_local not in _WPF_ROOT_TAGS:
-        warnings.append(
-            ValidationIssue(
-                line=1,
-                col=1,
-                message=(
-                    f"Unexpected root element <{tag_local}>. "
-                    f"Expected one of: {sorted(_WPF_ROOT_TAGS)}."
-                ),
-                severity="warning",
-            )
-        )
-
-    # Check for WPF XAML namespace declaration (check raw code since
-    # ElementTree resolves namespaces internally)
-    if _WPF_NS not in code:
-        warnings.append(
-            ValidationIssue(
-                line=1,
-                col=1,
-                message="Missing WPF XAML namespace (http://schemas.microsoft.com/winfx/2006/xaml/presentation).",
-                severity="warning",
-            )
-        )
-
-    # Check brace balance (XAML attributes can contain {} for bindings)
-    stripped = _strip_comments_and_strings(code)
-    brace_depth = _check_balanced(stripped, "{", "}")
-    if brace_depth < 0:
-        errors.append(
-            ValidationIssue(
-                line=1,
-                col=1,
-                message="Unbalanced braces: more '}' than '{'.",
-                severity="error",
-            )
-        )
-    elif brace_depth > 0:
-        errors.append(
-            ValidationIssue(
-                line=1,
-                col=1,
-                message=f"Unbalanced braces: {brace_depth} unclosed '{{'.",
-                severity="error",
-            )
-        )
 
     return errors, warnings
 
