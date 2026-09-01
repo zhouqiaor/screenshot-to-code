@@ -1,14 +1,21 @@
 import re
 
 
-def extract_html_content(text: str) -> str:
+def extract_html_content(text: str, stack: str = "") -> str:
     file_match = re.search(
         r"<file\s+path=\"[^\"]+\">\s*(.*?)\s*</file>",
         text,
         re.DOTALL | re.IGNORECASE,
     )
     if file_match:
-        return extract_html_content(file_match.group(1).strip())
+        return extract_html_content(file_match.group(1).strip(), stack=stack)
+
+    # For non-web stacks (android_compose, qt_qml, etc.), strip markdown
+    # code fences and return the raw code without trying to find <html>.
+    if stack and stack not in ("html", "react", "vue", "bootstrap", "ionic", ""):
+        text = re.sub(r'^```[a-zA-Z]*\s*\n?', '', text, flags=re.MULTILINE)
+        text = re.sub(r'\n?```\s*$', '', text, flags=re.MULTILINE)
+        return text.strip()
 
     # First, strip markdown code fences if present
     text = re.sub(r'^```html?\s*\n?', '', text, flags=re.MULTILINE)
