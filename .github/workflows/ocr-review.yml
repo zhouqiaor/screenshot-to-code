@@ -1,0 +1,43 @@
+name: OpenCodeReview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  issue_comment:
+    types: [created]
+
+jobs:
+  review:
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       (startsWith(github.event.comment.body, '/open-code-review') ||
+        startsWith(github.event.comment.body, '@open-code-review')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install OpenCodeReview
+        run: npm install -g @alibaba-group/open-code-review
+
+      - name: Run OCR review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ocr review \
+            --from origin/${{ github.base_ref }} \
+            --to origin/${{ github.head_ref }} \
+            --format json \
+            --background "${{ github.event.pull_request.title }}" \
+            --concurrency 5
