@@ -32,12 +32,20 @@ PromptConstructionStrategy = Literal[
 
 
 Stack = Literal[
+    # Web stacks (frontend selectable)
     "html_css",
     "html_tailwind",
     "react_tailwind",
     "bootstrap",
     "ionic_tailwind",
     "vue_tailwind",
+    # Native stacks (fork extensions)
+    "android_compose",
+    "android_xml",
+    "a2ui",
+    "qt_qml",
+    "windows_wpf",
+    "winui3",
 ]
 
 

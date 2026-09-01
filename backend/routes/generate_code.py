@@ -11,7 +11,6 @@ from starlette.websockets import WebSocketDisconnect
 from websockets.exceptions import ConnectionClosedOK, ConnectionClosedError
 from config import (
     ANTHROPIC_API_KEY,
-    ANTHROPIC_BASE_URL,
     GEMINI_API_KEY,
     IS_DEBUG_ENABLED,
     IS_PROD,
@@ -266,7 +265,6 @@ class ExtractedParams:
     history: List[PromptHistoryMessage]
     file_state: Dict[str, str] | None
     option_codes: List[str]
-    anthropic_base_url: str | None = None
     should_extract_assets: bool = True
     asset_base_url: str = ""
     design_system: str | None = None
@@ -325,13 +323,6 @@ class ParameterExtractionStage:
             )
         if not openai_base_url:
             print("Using official OpenAI URL")
-
-        # Base URL for Anthropic API (for Qwen via DashScope, etc.)
-        anthropic_base_url: str | None = None
-        if not IS_PROD:
-            anthropic_base_url = self._get_from_settings_dialog_or_env(
-                params, "anthropicBaseURL", ANTHROPIC_BASE_URL
-            )
 
         # Feature preferences default to enabled for older clients.
         should_generate_images = bool(params.get("isImageGenerationEnabled", True))
@@ -392,7 +383,6 @@ class ParameterExtractionStage:
             gemini_api_key=gemini_api_key,
             replicate_api_key=replicate_api_key,
             openai_base_url=openai_base_url,
-            anthropic_base_url=anthropic_base_url,
             generation_type=generation_type,
             prompt=prompt,
             history=history,
@@ -576,13 +566,11 @@ class AgenticGenerationStage:
         stack: str | None = None,
         input_mode: str | None = None,
         generation_type: str | None = None,
-        anthropic_base_url: str | None = None,
     ):
         self.send_message = send_message
         self.openai_api_key = openai_api_key
         self.openai_base_url = openai_base_url
         self.anthropic_api_key = anthropic_api_key
-        self.anthropic_base_url = anthropic_base_url
         self.gemini_api_key = gemini_api_key
         self.replicate_api_key = replicate_api_key
         self.should_generate_images = should_generate_images
@@ -658,7 +646,6 @@ class AgenticGenerationStage:
                 openai_api_key=self.openai_api_key,
                 openai_base_url=self.openai_base_url,
                 anthropic_api_key=self.anthropic_api_key,
-                anthropic_base_url=self.anthropic_base_url,
                 gemini_api_key=self.gemini_api_key,
                 replicate_api_key=self.replicate_api_key,
                 should_generate_images=self.should_generate_images,
@@ -667,7 +654,6 @@ class AgenticGenerationStage:
                 initial_file_state=self.file_state,
                 option_codes=self.option_codes,
                 recorder=recorder,
-                stack=self.stack or "",
             )
             completion = await runner.run(model, prompt_messages)
             if completion:
@@ -854,7 +840,6 @@ class CodeGenerationMiddleware(Middleware):
                 stack=str(context.extracted_params.stack),
                 input_mode=str(context.extracted_params.input_mode),
                 generation_type=context.extracted_params.generation_type,
-                anthropic_base_url=context.extracted_params.anthropic_base_url,
             )
 
             context.variant_completions = await generation_stage.process_variants(

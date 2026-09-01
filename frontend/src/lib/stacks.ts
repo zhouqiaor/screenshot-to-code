@@ -7,6 +7,13 @@ export enum Stack {
   BOOTSTRAP = "bootstrap",
   VUE_TAILWIND = "vue_tailwind",
   IONIC_TAILWIND = "ionic_tailwind",
+  // Native stacks (fork extensions)
+  ANDROID_COMPOSE = "android_compose",
+  ANDROID_XML = "android_xml",
+  A2UI = "a2ui",
+  QT_QML = "qt_qml",
+  WINDOWS_WPF = "windows_wpf",
+  WINUI3 = "winui3",
 }
 
 export const STACK_DESCRIPTIONS: {
@@ -18,4 +25,11 @@ export const STACK_DESCRIPTIONS: {
   bootstrap: { components: ["Bootstrap"], inBeta: false },
   vue_tailwind: { components: ["Vue", "Tailwind"], inBeta: true },
   ionic_tailwind: { components: ["Ionic", "Tailwind"], inBeta: true },
+  // Native stacks (experimental)
+  android_compose: { components: ["Android", "Compose"], inBeta: true },
+  android_xml: { components: ["Android", "XML"], inBeta: true },
+  a2ui: { components: ["A2UI", "JSONL"], inBeta: true },
+  qt_qml: { components: ["Qt", "QML"], inBeta: true },
+  windows_wpf: { components: ["WPF", "XAML"], inBeta: true },
+  winui3: { components: ["WinUI 3", "XAML"], inBeta: true },
 };
