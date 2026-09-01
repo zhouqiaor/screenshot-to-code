@@ -24,3 +24,41 @@ frontend/.env.local
 
 # Walkthrough demo videos
 walkthrough/
+
+# ── Android / Kotlin build artifacts (per GitHub official templates) ──
+# Gradle
+.gradle/
+**/build/
+
+# APK & AAB
+*.apk
+*.aab
+*.apk.aligned
+*.apk.idsig
+
+# Keystore
+*.keystore
+*.jks
+
+# Compiled classes & DEX
+*.class
+*.dex
+*.kotlin_module
+
+# AAPT-generated
+R.java
+
+# Build metadata
+class_list.txt
+output-metadata.json
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Kotlin plugin data
+.kotlin/
