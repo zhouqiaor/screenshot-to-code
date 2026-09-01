@@ -30,6 +30,11 @@ STACK_MODEL_PREFERENCE: dict[str, Llm] = {
     "ionic_tailwind": Llm.GEMINI_3_6_FLASH_LOW,
     # Low-complexity / structured stacks (cheapest viable)
     "android_compose": Llm.GEMINI_3_6_FLASH_MINIMAL,
+    "android_xml": Llm.GEMINI_3_6_FLASH_MINIMAL,
+    "a2ui": Llm.GEMINI_3_6_FLASH_MINIMAL,
+    "qt_qml": Llm.GEMINI_3_6_FLASH_LOW,
+    "windows_wpf": Llm.GEMINI_3_6_FLASH_LOW,
+    "winui3": Llm.GEMINI_3_6_FLASH_LOW,
 }
 
 _DEFAULT_MODEL = Llm.GEMINI_3_6_FLASH_HIGH
