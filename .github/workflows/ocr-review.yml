@@ -34,7 +34,17 @@ jobs:
       - name: Run OCR review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OCR_LLM_URL: ${{ secrets.OCR_LLM_URL }}
+          OCR_LLM_AUTH_TOKEN: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
+          OCR_LLM_MODEL: ${{ vars.OCR_LLM_MODEL }}
+          OCR_LLM_USE_ANTHROPIC: ${{ vars.OCR_LLM_USE_ANTHROPIC }}
         run: |
+          if [ -z "$OCR_LLM_URL" ] && [ -z "$OCR_LLM_AUTH_TOKEN" ]; then
+            echo "::warning::OCR_LLM_URL and OCR_LLM_AUTH_TOKEN secrets are not configured."
+            echo "::warning::Configure them in Settings > Secrets and variables > Actions."
+            echo "::warning::Skipping OCR review for now."
+            exit 0
+          fi
           ocr review \
             --from origin/${{ github.base_ref }} \
             --to origin/${{ github.head_ref }} \
