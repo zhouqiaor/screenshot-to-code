@@ -42,10 +42,10 @@ jobs:
             exit 0
           fi
           if [ -z "$OCR_PROVIDER" ]; then
-            OCR_PROVIDER="dashscope"
+            OCR_PROVIDER="volcengine"
           fi
           if [ -z "$OCR_MODEL" ]; then
-            OCR_MODEL="glm-5.2"
+            OCR_MODEL="doubao-seed-2-1-turbo-260628"
           fi
           echo "Using provider=$OCR_PROVIDER model=$OCR_MODEL"
           # volcengine: protocol=openai, base=https://ark.cn-beijing.volces.com/api/v3
@@ -62,8 +62,8 @@ jobs:
           OCR_PROVIDER: ${{ vars.OCR_LLM_PROVIDER }}
           OCR_MODEL: ${{ vars.OCR_LLM_MODEL }}
         run: |
-          PROVIDER="${OCR_PROVIDER:-dashscope}"
-          MODEL="${OCR_MODEL:-glm-5.2}"
+          PROVIDER="${OCR_PROVIDER:-volcengine}"
+          MODEL="${OCR_MODEL:-doubao-seed-2-1-turbo-260628}"
           ocr review \
             --provider "$PROVIDER" \
             --model "$MODEL" \
