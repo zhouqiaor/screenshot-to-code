@@ -1,0 +1,44 @@
+{
+  "timestamp": "2026-09-01T19:10:00+08:00",
+  "model": "doubao-seed-2-1-turbo-260628",
+  "api_key": "REDACTED",
+  "base_url": "https://ark.cn-beijing.volces.com/api/v3",
+  "calls": [
+    {
+      "step": "combined_5stack",
+      "tokens": {"input": 900, "output": 26206, "total": 27106},
+      "cost_cny": 0.3958,
+      "time_sec": 246.2,
+      "note": "Generated KOTLIN+XML+QML in one call; HTML truncated; A2UI missing (token limit)"
+    },
+    {
+      "step": "a2ui_supplement",
+      "tokens": {"input": 792, "output": 18467, "total": 19259},
+      "cost_cny": 0.2774,
+      "time_sec": 180.0,
+      "note": "Generated A2UI JSONL separately"
+    },
+    {
+      "step": "html_supplement",
+      "tokens": {"input": 814, "output": 11295, "total": 12109},
+      "cost_cny": 0.1721,
+      "time_sec": 120.0,
+      "note": "Generated complete HTML separately"
+    }
+  ],
+  "total_tokens": {"input": 2506, "output": 55968, "total": 58474},
+  "total_cost_cny": 0.8453,
+  "stacks": {
+    "KOTLIN": {"file": "llm_android_compose.kt", "chars": 16410, "ok": true, "validation": "PASS"},
+    "XML": {"file": "llm_android_xml.xml", "chars": 16533, "ok": true, "validation": "PASS"},
+    "QML": {"file": "llm_qt_qml.qml", "chars": 8414, "ok": true, "validation": "PASS"},
+    "HTML": {"file": "llm_windows_html.html", "chars": 12357, "ok": true, "validation": "PASS"},
+    "A2UI": {"file": "llm_a2ui.jsonl", "chars": 5930, "ok": true, "validation": "PASS"}
+  },
+  "validation": {
+    "total_stacks": 5,
+    "valid": 5,
+    "failed": 0,
+    "all_pass": true
+  }
+}

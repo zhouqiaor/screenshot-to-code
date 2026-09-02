@@ -1,0 +1,204 @@
+{
+  "timestamp": "2026-09-01T23:10:35.269206",
+  "screenshot": "C:\\Code\\screenshot-to-code\\e2e_demo\\screenshots\\run_20260901\\source_screenshot_1024.png",
+  "size": {
+    "width": 1024,
+    "height": 576
+  },
+  "top_colors": [
+    {
+      "count": 601,
+      "hex": "#ffffff",
+      "pct": 12.0
+    },
+    {
+      "count": 174,
+      "hex": "#f1f3f5",
+      "pct": 3.5
+    },
+    {
+      "count": 87,
+      "hex": "#fefefe",
+      "pct": 1.7
+    },
+    {
+      "count": 41,
+      "hex": "#11457e",
+      "pct": 0.8
+    },
+    {
+      "count": 31,
+      "hex": "#00457e",
+      "pct": 0.6
+    },
+    {
+      "count": 26,
+      "hex": "#f2f4f6",
+      "pct": 0.5
+    },
+    {
+      "count": 26,
+      "hex": "#0c447d",
+      "pct": 0.5
+    },
+    {
+      "count": 21,
+      "hex": "#fafafa",
+      "pct": 0.4
+    },
+    {
+      "count": 21,
+      "hex": "#f4f6f7",
+      "pct": 0.4
+    },
+    {
+      "count": 19,
+      "hex": "#f3f5f7",
+      "pct": 0.4
+    },
+    {
+      "count": 19,
+      "hex": "#10447d",
+      "pct": 0.4
+    },
+    {
+      "count": 19,
+      "hex": "#03477e",
+      "pct": 0.4
+    },
+    {
+      "count": 19,
+      "hex": "#01457e",
+      "pct": 0.4
+    },
+    {
+      "count": 19,
+      "hex": "#01102f",
+      "pct": 0.4
+    },
+    {
+      "count": 19,
+      "hex": "#000f2e",
+      "pct": 0.4
+    }
+  ],
+  "luminance": {
+    "mean": 115.5,
+    "min": 0.0,
+    "max": 255.0,
+    "dark_pct": 66.4,
+    "light_pct": 33.6
+  },
+  "regions_vertical": {
+    "top": {
+      "lum_mean": 102.2,
+      "rgb_mean": [
+        68,
+        110,
+        151
+      ]
+    },
+    "mid": {
+      "lum_mean": 167.4,
+      "rgb_mean": [
+        177,
+        162,
+        165
+      ]
+    },
+    "bot": {
+      "lum_mean": 76.8,
+      "rgb_mean": [
+        78,
+        73,
+        86
+      ]
+    }
+  },
+  "h_dividers": [
+    105,
+    312,
+    325,
+    465
+  ],
+  "v_dividers": [
+    254
+  ],
+  "ui_description": {
+    "theme": "light",
+    "primary_color": "#1677ff",
+    "background_color": "#f5f5f5",
+    "text_color": "#212121",
+    "title": "设置 - 声音与显示",
+    "components": [
+      {
+        "type": "button",
+        "text": "×",
+        "position": "top",
+        "description": "设置窗口关闭按钮"
+      },
+      {
+        "type": "text",
+        "text": "设置",
+        "position": "sidebar",
+        "description": "设置应用侧边栏标题"
+      },
+      {
+        "type": "input",
+        "text": "搜索设置项",
+        "position": "sidebar",
+        "description": "设置项搜索输入框，前置搜索图标"
+      },
+      {
+        "type": "list",
+        "text": "企业服务配置、声音与显示、摄像机、壁纸、Wi-Fi、智慧功能、高级设置",
+        "position": "sidebar",
+        "description": "设置功能分类导航列表，当前选中「声音与显示」，部分项右侧显示对应状态"
+      },
+      {
+        "type": "text",
+        "text": "声音与显示",
+        "position": "top",
+        "description": "当前设置页面的标题"
+      },
+      {
+        "type": "switch",
+        "text": "扬声器",
+        "position": "center",
+        "description": "扬声器功能开关，当前为开启状态"
+      },
+      {
+        "type": "slider",
+        "text": "音量",
+        "position": "center",
+        "description": "扬声器音量调节滑块，左侧带喇叭图标"
+      },
+      {
+        "type": "slider",
+        "text": "提示音量",
+        "position": "center",
+        "description": "提示音量调节滑块，左侧带喇叭图标"
+      },
+      {
+        "type": "switch",
+        "text": "按键音",
+        "position": "center",
+        "description": "按键音功能开关，当前为开启状态"
+      },
+      {
+        "type": "switch",
+        "text": "麦克风",
+        "position": "center",
+        "description": "麦克风功能开关，当前为关闭状态"
+      },
+      {
+        "type": "slider",
+        "text": "亮度",
+        "position": "bottom",
+        "description": "屏幕亮度调节滑块，左侧带太阳图标"
+      }
+    ],
+    "layout": "horizontal",
+    "summary": "设置应用的声音与显示页面，可对扬声器、音量、提示音量、按键音、麦克风及屏幕亮度等声音和显示相关选项进行配置"
+  }
+}

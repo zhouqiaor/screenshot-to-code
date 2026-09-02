@@ -1,0 +1,454 @@
+{
+  "Android XML": {
+    "checks": {
+      "xml_parse": {
+        "ok": true,
+        "root_tag": "LinearLayout",
+        "namespace": {
+          "android": "http://schemas.android.com/apk/res/android",
+          "app": "http://schemas.android.com/apk/res-auto"
+        }
+      },
+      "namespaces": {
+        "ok": true,
+        "android_ns": true,
+        "app_ns": true
+      },
+      "elements": {
+        "total": 68,
+        "unique_tags": [
+          "",
+          "ImageView",
+          "LinearLayout",
+          "ScrollView",
+          "SeekBar",
+          "TextView",
+          "androidx.appcompat.widget.AppCompatButton",
+          "androidx.appcompat.widget.AppCompatEditText",
+          "androidx.appcompat.widget.SwitchCompat"
+        ],
+        "max_depth": 6,
+        "ok": true
+      },
+      "attributes": {
+        "unique_attrs": [
+          "background",
+          "checked",
+          "contentDescription",
+          "drawablePadding",
+          "drawableStart",
+          "gravity",
+          "hint",
+          "id",
+          "inputType",
+          "layout_height",
+          "layout_marginBottom",
+          "layout_marginEnd",
+          "layout_marginStart",
+          "layout_weight",
+          "layout_width",
+          "orientation",
+          "padding",
+          "paddingBottom",
+          "paddingHorizontal",
+          "paddingVertical",
+          "progress",
+          "progressTint",
+          "src",
+          "text",
+          "textColor",
+          "textColorHint",
+          "textSize",
+          "textStyle",
+          "thumbTint",
+          "trackTint"
+        ],
+        "count": 30,
+        "id_count": 4,
+        "ok": true
+      },
+      "ids": {
+        "declared": [
+          "@+id/btn_close",
+          "@+id/volume_seekbar",
+          "@+id/tip_volume_seekbar",
+          "@+id/brightness_seekbar"
+        ],
+        "count": 4,
+        "ok": true
+      },
+      "aapt2_compile": {
+        "ok": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "",
+        "output_files": []
+      }
+    },
+    "ok": true,
+    "screenshot": {
+      "ok": true,
+      "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\deep_verify\\xml_screenshot.png",
+      "size_bytes": 26018
+    },
+    "device_render": {
+      "ok": false,
+      "steps": {
+        "device_check": {
+          "ok": true,
+          "output": "List of devices attached\r\n200.47.91.1:5555\tdevice"
+        },
+        "html_render": {
+          "ok": true,
+          "html_file": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\deep_verify\\xml_device_render.html"
+        },
+        "edge_screenshot": {
+          "ok": false,
+          "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\deep_verify\\xml_edge_screenshot.png",
+          "size_bytes": 0
+        },
+        "device_screenshot": {
+          "ok": true,
+          "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\screenshots\\xml_device_screenshot.png",
+          "size_bytes": 118621
+        }
+      }
+    }
+  },
+  "Qt QML": {
+    "checks": {
+      "imports": {
+        "total": 4,
+        "list": [
+          {
+            "name": "QtQuick",
+            "version": "2.15"
+          },
+          {
+            "name": "QtQuick.Controls",
+            "version": "2.15"
+          },
+          {
+            "name": "QtQuick.Layouts",
+            "version": "1.15"
+          },
+          {
+            "name": "QtQuick.Controls.Material",
+            "version": "2.15"
+          }
+        ],
+        "ok": true,
+        "required": [
+          "QtQuick",
+          "QtQuick.Controls",
+          "QtQuick.Layouts"
+        ]
+      },
+      "brace_balance": {
+        "braces": {
+          "open": 50,
+          "close": 50,
+          "balanced": true
+        },
+        "parens": {
+          "open": 4,
+          "close": 4,
+          "balanced": true
+        },
+        "brackets": {
+          "open": 0,
+          "close": 0,
+          "balanced": true
+        },
+        "ok": true
+      },
+      "root_element": {
+        "has_ApplicationWindow": true,
+        "root_candidates": [
+          "ApplicationWindow"
+        ],
+        "ok": true
+      },
+      "components": {
+        "types_found": {
+          "ApplicationWindow": 1,
+          "Rectangle": 5,
+          "ColumnLayout": 3,
+          "RowLayout": 7,
+          "Text": 11,
+          "TextField": 1,
+          "ListView": 1,
+          "ListModel": 1,
+          "ListElement": 7,
+          "Button": 1,
+          "Switch": 3,
+          "Slider": 3,
+          "ScrollView": 1,
+          "Item": 1,
+          "Row": 1,
+          "MouseArea": 1
+        },
+        "total_components": 48,
+        "ok": true
+      },
+      "properties": {
+        "total": 146,
+        "unique": 42,
+        "sample": [
+          "Medium",
+          "accent",
+          "background",
+          "bold",
+          "bottomMargin",
+          "checked",
+          "clip",
+          "color",
+          "delegate",
+          "fill",
+          "fillHeight",
+          "fillWidth",
+          "flat",
+          "height",
+          "id",
+          "left",
+          "leftMargin",
+          "leftPadding",
+          "margins",
+          "model"
+        ],
+        "ok": true
+      },
+      "signal_handlers": {
+        "count": 0,
+        "handlers": [],
+        "ok": false
+      },
+      "model_view": {
+        "has_ListView": true,
+        "has_ListModel": true,
+        "has_delegate": true,
+        "has_model_binding": true,
+        "ok": true
+      }
+    },
+    "ok": true,
+    "screenshot": {
+      "ok": true,
+      "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\deep_verify\\qml_screenshot.png",
+      "size_bytes": 31196
+    }
+  },
+  "WinUI3": {
+    "checks": {
+      "xml_parse": {
+        "ok": true,
+        "open_tags": 77,
+        "close_tags": 31,
+        "self_closing": 46,
+        "unclosed_remaining": 0,
+        "method": "regex tag balance + cleaned lxml parse"
+      },
+      "namespaces": {
+        "xaml_presentation": true,
+        "x_ns": true,
+        "muxc_ns": true,
+        "ok": true
+      },
+      "controls": {
+        "found": {
+          "muxc:NavigationView": 1,
+          "muxc:NavigationViewItem": 7,
+          "muxc:ToggleSwitch": 3,
+          "FontIcon": 3,
+          "Slider": 3,
+          "TextBlock": 9,
+          "TextBox": 1,
+          "Button": 1,
+          "Border": 2,
+          "Grid": 9,
+          "StackPanel": 3,
+          "ScrollViewer": 1,
+          "RowDefinition": 2,
+          "ColumnDefinition": 19,
+          "Page": 1
+        },
+        "total_unique": 15,
+        "total_instances": 65,
+        "ok": true
+      },
+      "layout": {
+        "has_Grid": true,
+        "has_RowDefinitions": true,
+        "has_ColumnDefinitions": true,
+        "has_StackPanel": true,
+        "has_ScrollViewer": true,
+        "ok": true
+      },
+      "properties": {
+        "total_unique": 33,
+        "winui3_specific": [
+          "IsOn",
+          "IsSelected",
+          "SelectionMode",
+          "PaneDisplayMode",
+          "IsBackButtonVisible",
+          "OnContent",
+          "OffContent",
+          "PlaceholderText",
+          "CornerRadius",
+          "Glyph",
+          "VerticalScrollBarVisibility"
+        ],
+        "winui3_count": 11,
+        "ok": true
+      },
+      "events": {
+        "handlers": [],
+        "count": 0,
+        "ok": true
+      },
+      "framework_check": {
+        "winui3_score": 5,
+        "wpf_score": 1,
+        "is_winui3": true,
+        "ok": true
+      }
+    },
+    "ok": true,
+    "screenshot": {
+      "ok": true,
+      "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\deep_verify\\winui3_screenshot.png",
+      "size_bytes": 32595
+    }
+  },
+  "A2UI": {
+    "checks": {
+      "json_parse": {
+        "total_lines": 37,
+        "parsed_count": 37,
+        "errors": [],
+        "ok": true
+      },
+      "type_coverage": {
+        "types": [
+          "button",
+          "card",
+          "column",
+          "container",
+          "image",
+          "input",
+          "list",
+          "row",
+          "text"
+        ],
+        "count": 9,
+        "ok": true
+      },
+      "parent_chain": {
+        "total_ids": 37,
+        "orphan_parents": [],
+        "ok": true
+      },
+      "tree_structure": {
+        "root_count": 1,
+        "root_ids": [
+          "root"
+        ],
+        "total_nodes": 37,
+        "max_depth": 7,
+        "ok": true
+      },
+      "props_coverage": {
+        "unique_props": [
+          "accentColor",
+          "activeColor",
+          "alignItems",
+          "alt",
+          "backgroundColor",
+          "border",
+          "borderBottom",
+          "borderRadius",
+          "borderRight",
+          "boxShadow",
+          "boxSizing",
+          "checked",
+          "color",
+          "cursor",
+          "flex",
+          "fontSize",
+          "fontWeight",
+          "gap",
+          "height",
+          "inputType",
+          "itemBorderRadius",
+          "itemPadding",
+          "itemStatuses",
+          "items",
+          "justifyContent",
+          "max",
+          "min",
+          "overflow",
+          "overflowY",
+          "padding",
+          "placeholder",
+          "prefixIcon",
+          "primaryColor",
+          "selectedBackgroundColor",
+          "selectedColor",
+          "selectedItem",
+          "src",
+          "value",
+          "width"
+        ],
+        "count": 39,
+        "ok": true
+      },
+      "text_content": {
+        "text_node_count": 11,
+        "texts": [
+          "声音与显示",
+          "×",
+          "设置",
+          "搜索设置项",
+          "企业服务配置、声音与显示、摄像机、壁纸、Wi-Fi、智慧功能、高级设置",
+          "扬声器",
+          "音量",
+          "提示音量",
+          "按键音",
+          "麦克风",
+          "亮度"
+        ],
+        "ok": true
+      },
+      "interactive_elements": {
+        "count": 8,
+        "types": [
+          "button",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input"
+        ],
+        "input_types": [
+          null,
+          "switch",
+          "range",
+          "range",
+          "switch",
+          "switch",
+          "range"
+        ],
+        "ok": true
+      }
+    },
+    "ok": true,
+    "screenshot": {
+      "ok": true,
+      "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\deep_verify\\a2ui_screenshot.png",
+      "size_bytes": 28611
+    }
+  }
+}

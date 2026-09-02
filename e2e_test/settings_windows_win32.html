@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: #f3f3f3;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 0 16px 0;
+        }
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+        .setting-row label {
+            flex: 1;
+        }
+        .setting-row select {
+            min-width: 120px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 16px;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #006cbd;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 22px;
+        }
+        .toggle-switch input { display: none; }
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: #ccc;
+            border-radius: 22px;
+            transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 2px;
+            top: 2px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        input:checked + .toggle-slider {
+            background: #0078d4;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+    </style>
+</head>
+<body>
+    <h1>Settings</h1>
+    <div class="setting-row">
+        <label for="dark-mode">Dark Mode</label>
+        <div class="toggle-switch">
+            <input type="checkbox" id="dark-mode">
+            <span class="toggle-slider"></span>
+        </div>
+    </div>
+    <div class="setting-row">
+        <label for="notifications">Notifications</label>
+        <div class="toggle-switch">
+            <input type="checkbox" id="notifications" checked>
+            <span class="toggle-slider"></span>
+        </div>
+    </div>
+    <div class="setting-row">
+        <label for="language">Language</label>
+        <select id="language">
+            <option>English</option>
+            <option>Chinese</option>
+            <option>Japanese</option>
+        </select>
+    </div>
+    <button onclick="alert('Settings saved')">Save</button>
+</body>
+</html>

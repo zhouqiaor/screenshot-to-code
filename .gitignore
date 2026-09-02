@@ -1,0 +1,87 @@
+.aider*
+node_modules
+
+# Project-related files
+
+# Run logs
+run_logs/
+backend/local_assets/*
+backend/image_generation/eval_sets/*
+backend/image_generation/eval_results/*
+
+# Weird Docker setup related files
+backend/backend/*
+
+# Env vars
+frontend/.env.local
+.env
+
+# Mac files
+.DS_Store
+
+#Rodney
+.rodney
+
+# Walkthrough demo videos
+walkthrough/
+
+# ── Android / Kotlin build artifacts (per GitHub official templates) ──
+# Gradle
+.gradle/
+**/build/
+
+# APK & AAB
+*.apk
+*.aab
+*.apk.aligned
+*.apk.idsig
+
+# Keystore
+*.keystore
+*.jks
+
+# Compiled classes & DEX
+*.class
+*.dex
+*.kotlin_module
+
+# AAPT-generated
+R.java
+
+# Build metadata
+class_list.txt
+output-metadata.json
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Kotlin plugin data
+.kotlin/
+
+# ── E2E build test artifacts ──
+# AAPT2 .flat files
+*.flat
+# Compiled zip from aapt2
+**/compiled*.zip
+# aapt2 extracted flat dir
+**/flat_extract/
+**/flat_out*/
+# Qt QML build dir
+**/qt_qml_full/build/
+# .obj files
+*.obj
+# WinUI3 obj dir (NuGet cache + generated)
+**/template_build_test/winui3/obj/
+
+# Broken git dir
+.git.broken/
+
+# Misc temp files
+nul
+aqtinstall.log
+*.bak

@@ -1,0 +1,11 @@
+{"id":"root","type":"column","children":["title","row_notif","row_dark","label_lang","dropdown_lang","btn_save"]}
+{"id":"title","type":"text","children":[],"props":{"text":"Settings","bold":true,"size":24}}
+{"id":"row_notif","type":"row","children":["text_notif","switch_notif"]}
+{"id":"text_notif","type":"text","children":[],"props":{"text":"Enable notifications"}}
+{"id":"switch_notif","type":"switch","children":[],"props":{"checked":true}}
+{"id":"row_dark","type":"row","children":["text_dark","switch_dark"]}
+{"id":"text_dark","type":"text","children":[],"props":{"text":"Dark theme"}}
+{"id":"switch_dark","type":"switch","children":[],"props":{"checked":false}}
+{"id":"label_lang","type":"text","children":[],"props":{"text":"Language"}}
+{"id":"dropdown_lang","type":"dropdown","children":[],"props":{"options":["English","简体中文"],"selectedIndex":0}}
+{"id":"btn_save","type":"button","children":[],"props":{"text":"Save","primary":true}}

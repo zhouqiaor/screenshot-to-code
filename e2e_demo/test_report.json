@@ -1,0 +1,83 @@
+{
+  "test_id": "e2e_demo_5stacks",
+  "timestamp": "2026-09-01T00:16:00+08:00",
+  "llm_model": "doubao-seed-evolving",
+  "llm_tokens": {
+    "input": 1547,
+    "output": 6799,
+    "total": 8346
+  },
+  "screenshot_source": "captures/settings_page_initial.png",
+  "stacks": {
+    "android_xml": {
+      "file": "llm_llm_android_xml.xml",
+      "chars": 1553,
+      "validation": "PASS",
+      "errors": 0,
+      "warnings": 0,
+      "render_method": "Android Studio / ADB render (skeleton, no compile)",
+      "error_details": [],
+      "warning_details": []
+    },
+    "android_compose": {
+      "file": "llm_llm_android_compose.kt",
+      "chars": 2209,
+      "validation": "PASS",
+      "errors": 0,
+      "warnings": 0,
+      "render_method": "Android Studio Compose preview (skeleton, no compile)",
+      "error_details": [],
+      "warning_details": []
+    },
+    "qt_qml": {
+      "file": "llm_llm_qt_qml.qml",
+      "chars": 1353,
+      "validation": "PASS",
+      "errors": 0,
+      "warnings": 0,
+      "render_method": "Qt Creator QML preview (skeleton, no compile)",
+      "error_details": [],
+      "warning_details": []
+    },
+    "html": {
+      "file": "llm_llm_windows_html.html",
+      "chars": 2961,
+      "validation": "PASS",
+      "errors": 0,
+      "warnings": 0,
+      "render_method": "Browser render (self-contained, compilable)",
+      "error_details": [],
+      "warning_details": []
+    },
+    "a2ui": {
+      "file": "llm_llm_a2ui.jsonl",
+      "chars": 943,
+      "validation": "PASS",
+      "errors": 0,
+      "warnings": 3,
+      "render_method": "JSONL text parse (no visual renderer yet)",
+      "error_details": [],
+      "warning_details": [
+        {
+          "line": 5,
+          "col": 1,
+          "message": "Unknown type 'switch'. Expected one of: ['button', 'card', 'column', 'container', 'image', 'input', 'list', 'row', 'stack', 'text'].",
+          "severity": "warning"
+        },
+        {
+          "line": 8,
+          "col": 1,
+          "message": "Unknown type 'switch'. Expected one of: ['button', 'card', 'column', 'container', 'image', 'input', 'list', 'row', 'stack', 'text'].",
+          "severity": "warning"
+        },
+        {
+          "line": 10,
+          "col": 1,
+          "message": "Unknown type 'dropdown'. Expected one of: ['button', 'card', 'column', 'container', 'image', 'input', 'list', 'row', 'stack', 'text'].",
+          "severity": "warning"
+        }
+      ]
+    }
+  },
+  "summary": "5/5 stacks passed validate_code"
+}

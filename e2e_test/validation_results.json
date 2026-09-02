@@ -1,0 +1,45 @@
+{
+  "android_xml": {
+    "ok": true,
+    "stack": "android_xml",
+    "errors": [],
+    "warnings": []
+  },
+  "android_compose": {
+    "ok": true,
+    "stack": "android_compose",
+    "errors": [],
+    "warnings": []
+  },
+  "qt_qml": {
+    "ok": true,
+    "stack": "qt_qml",
+    "errors": [],
+    "warnings": []
+  },
+  "a2ui": {
+    "ok": true,
+    "stack": "a2ui",
+    "errors": [],
+    "warnings": [
+      {
+        "line": 5,
+        "col": 1,
+        "message": "Unknown type 'switch'. Expected one of: ['button', 'card', 'column', 'container', 'image', 'input', 'list', 'row', 'stack', 'text'].",
+        "severity": "warning"
+      },
+      {
+        "line": 8,
+        "col": 1,
+        "message": "Unknown type 'dropdown'. Expected one of: ['button', 'card', 'column', 'container', 'image', 'input', 'list', 'row', 'stack', 'text'].",
+        "severity": "warning"
+      }
+    ]
+  },
+  "windows": {
+    "ok": true,
+    "stack": "html",
+    "errors": [],
+    "warnings": []
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "timestamp": "2026-09-01T20:15:16+08:00",
+  "all_pass": false,
+  "environment": {
+    "edge": true,
+    "aapt2": true,
+    "android_jar": true,
+    "qt": false,
+    "dotnet": false
+  },
+  "stacks": {
+    "Kotlin Compose": {
+      "ok": true,
+      "checks": {
+        "validate_code": {
+          "ok": true,
+          "errors": [],
+          "warnings": []
+        },
+        "bracket_balance": {
+          "ok": true,
+          "errors": []
+        },
+        "imports": {
+          "ok": true,
+          "missing": [],
+          "total_imports": 40
+        },
+        "composable_annotations": {
+          "count": 1,
+          "ok": true
+        },
+        "functions": {
+          "names": [
+            "SoundDisplaySettings"
+          ],
+          "count": 1,
+          "ok": true
+        }
+      },
+      "screenshot": {
+        "ok": true,
+        "method": "Edge headless --screenshot",
+        "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\unified_kt_screenshot.png",
+        "size_bytes": 22113
+      }
+    },
+    "Android XML": {
+      "ok": true,
+      "checks": {
+        "validate_code": {
+          "ok": true,
+          "errors": [],
+          "warnings": []
+        },
+        "xml_parse": {
+          "ok": true,
+          "root_tag": "LinearLayout",
+          "attr_count": 4
+        },
+        "namespaces": {
+          "ok": true
+        },
+        "elements": {
+          "count": 46,
+          "ok": true
+        },
+        "aapt2_compile": {
+          "ok": true,
+          "exit_code": 0,
+          "output_files": [],
+          "stderr": ""
+        }
+      },
+      "screenshot": {
+        "ok": true,
+        "method": "Edge headless --screenshot",
+        "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\unified_xml_screenshot.png",
+        "size_bytes": 17617
+      }
+    },
+    "Qt QML": {
+      "ok": true,
+      "checks": {
+        "validate_code": {
+          "ok": true,
+          "errors": [],
+          "warnings": []
+        },
+        "brace_balance": {
+          "ok": true,
+          "errors": []
+        },
+        "imports": {
+          "total": 4,
+          "list": [
+            "QtQuick",
+            "QtQuick.Controls",
+            "QtQuick.Layouts",
+            "QtQuick.Controls.Material"
+          ],
+          "ok": true
+        },
+        "root_element": {
+          "has_ApplicationWindow": true,
+          "ok": true
+        },
+        "properties": {
+          "count": 59,
+          "ok": true
+        }
+      },
+      "screenshot": {
+        "ok": true,
+        "method": "Edge headless --screenshot",
+        "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\unified_qml_screenshot.png",
+        "size_bytes": 9909
+      }
+    },
+    "Windows HTML": {
+      "ok": false,
+      "checks": {
+        "validate_code": {
+          "ok": false,
+          "errors": [
+            {
+              "line": 1,
+              "col": 1,
+              "message": "HTML parse error: Tag aside invalid, line 269, column 31 (<string>, line 269)",
+              "severity": "error"
+            }
+          ],
+          "warnings": []
+        },
+        "structure": {
+          "doctype": true,
+          "html": true,
+          "head": true,
+          "body": true,
+          "style": true,
+          "ok": true
+        },
+        "self_contained": {
+          "external_refs": [],
+          "ok": true
+        },
+        "css": {
+          "rule_count": 36,
+          "ok": true
+        },
+        "interactive_elements": {
+          "inputs": 7,
+          "buttons": 1
+        }
+      },
+      "screenshot": {
+        "ok": true,
+        "method": "Edge headless --screenshot",
+        "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\unified_html_screenshot.png",
+        "size_bytes": 26604
+      }
+    },
+    "A2UI JSONL": {
+      "ok": true,
+      "checks": {
+        "validate_code": {
+          "ok": true,
+          "errors": [],
+          "warnings": []
+        },
+        "json_parse": {
+          "total_lines": 37,
+          "parsed_count": 37,
+          "errors": [],
+          "ok": true
+        },
+        "type_coverage": {
+          "types_used": [
+            "button",
+            "card",
+            "column",
+            "container",
+            "image",
+            "input",
+            "list",
+            "row",
+            "text"
+          ],
+          "count": 9,
+          "ok": true
+        },
+        "parent_chain": {
+          "total_ids": 37,
+          "orphan_parents": [],
+          "ok": true
+        }
+      },
+      "screenshot": {
+        "ok": true,
+        "method": "Edge headless --screenshot",
+        "output": "C:\\Code\\screenshot-to-code\\e2e_demo\\run_20260901\\unified_a2ui_screenshot.png",
+        "size_bytes": 28181
+      }
+    }
+  }
+}
