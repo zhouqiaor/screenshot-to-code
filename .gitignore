@@ -85,3 +85,16 @@ captures/
 nul
 aqtinstall.log
 *.bak
+
+# ── Fork / E2E 漏网项（2026-09-02 补，详见 design-docs/fork-normalization-plan.md §3.3）──
+# 高危：0_review.txt / ocr_logs2.zip 此前未忽略，可被 git add 提交
+0_review.txt
+ocr_logs2.zip
+ocr_logs2/
+e2e_runs/
+e2e_demo/run_*/
+e2e_demo/screenshots/
+outputs/
+backend/scripts_tmp/
+backend/e2e/run_*/
+.bak_e2e_run_*/
