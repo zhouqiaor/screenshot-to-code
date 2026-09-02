@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E2E 5-Stack Generation Report - 2026-09-01</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { background: #f5f5f5; color: #212121; padding: 24px; line-height: 1.6; }
+h1 { font-size: 22px; margin-bottom: 8px; }
+h2 { font-size: 18px; margin: 24px 0 12px; }
+h3 { font-size: 15px; margin: 16px 0 8px; }
+.meta { color: #666; font-size: 13px; margin-bottom: 24px; }
+.card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid #e0e0e0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.metric { background: #f5f7fa; border-radius: 8px; padding: 12px; }
+.metric-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.metric-value { font-size: 20px; font-weight: 500; color: #1677ff; }
+.metric-value.green { color: #0F6E56; }
+.metric-value.red { color: #A32D2D; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 8px 12px; background: #f5f7fa; font-weight: 500; border-bottom: 2px solid #e0e0e0; }
+td { padding: 8px 12px; border-bottom: 1px solid #eee; }
+.pass { color: #0F6E56; font-weight: 500; }
+.fail { color: #A32D2D; font-weight: 500; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+.badge-pass { background: #E1F5EE; color: #0F6E56; }
+.badge-eom { background: #FAEEDA; color: #854F0B; }
+.badge-fail { background: #FCEBEB; color: #A32D2D; }
+code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: "JetBrains Mono", monospace; }
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #e0e0e0; }
+.timeline-item { position: relative; margin-bottom: 16px; }
+.timeline-item::before { content: ''; position: absolute; left: -20px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: #1677ff; }
+.timeline-item.fail::before { background: #A32D2D; }
+.timeline-item.pass::before { background: #0F6E56; }
+.timeline-time { font-size: 12px; color: #888; }
+.timeline-title { font-size: 14px; font-weight: 500; }
+.timeline-detail { font-size: 13px; color: #555; margin-top: 4px; }
+.summary-box { background: #E1F5EE; border: 1px solid #0F6E56; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; }
+.summary-box h2 { color: #0F6E56; margin: 0 0 8px; }
+</style>
+</head>
+<body>
+
+<h1>E2E 5-Stack Generation Report</h1>
+<p class="meta">
+  日期: 2026-09-01 17:00 - 19:15 (GMT+8) | 
+  API Key: REDACTED |
+  模型: doubao-seed-2-1-turbo-260628 |
+  截图来源: ADB 200.47.91.1 (Android 设置-声音与显示)
+</p>
+
+<div class="summary-box">
+  <h2>5/5 栈全部生成 + 验证通过</h2>
+  <p>Kotlin Compose · Android XML · Qt QML · Windows HTML · A2UI JSONL</p>
+</div>
+
+<h2>关键指标</h2>
+<div class="grid">
+  <div class="metric"><div class="metric-label">总 API 调用次数</div><div class="metric-value">27</div></div>
+  <div class="metric"><div class="metric-label">成功调用</div><div class="metric-value green">8</div></div>
+  <div class="metric"><div class="metric-label">失败调用</div><div class="metric-value red">19</div></div>
+  <div class="metric"><div class="metric-label">总消耗 Token</div><div class="metric-value">58,618</div></div>
+  <div class="metric"><div class="metric-label">总费用 (CNY)</div><div class="metric-value">¥0.85</div></div>
+  <div class="metric"><div class="metric-label">验证通过率</div><div class="metric-value green">100%</div></div>
+</div>
+
+<h2>doubao-seed-1-6-vision-250815 问题分析</h2>
+<div class="card">
+  <table>
+    <tr><th>检查项</th><th>结果</th><th>说明</th></tr>
+    <tr><td>模型在 /models 列表中</td><td class="pass">存在</td><td>130 个模型中包含</td></tr>
+    <tr><td>/chat/completions 调用</td><td class="fail">404</td><td>InvalidEndpointOrModel.NotFound</td></tr>
+    <tr><td>/responses 调用</td><td class="fail">404</td><td>InvalidEndpointOrModel.NotFound</td></tr>
+    <tr><td>带图片 payload 调用</td><td class="fail">404</td><td>非 payload 问题</td></tr>
+    <tr><td>EOM 日期</td><td><span class="badge badge-eom">2026-07-10</span></td><td>停止新购，无法新建接入点</td></tr>
+    <tr><td>EOS 日期</td><td><span class="badge badge-fail">2026-09-21</span></td><td>正式下线，距今 20 天</td></tr>
+    <tr><td>根因</td><td colspan="2">模型已过 EOM（停止新购），新 API Key 无法创建预置接入点。官方文档示例未更新，实际模型已进入下线流程。</td></tr>
+    <tr><td>替代方案</td><td colspan="2">doubao-seed-2-1-turbo-260628 已验证支持视觉多模态（/chat/completions + image_url → 200 OK）</td></tr>
+  </table>
+</div>
+
+<h2>API 调用时间线</h2>
+<div class="card">
+  <div class="timeline">
+    <div class="timeline-item fail">
+      <div class="timeline-time">17:02</div>
+      <div class="timeline-title">旧 Key 测试 15 个模型</div>
+      <div class="timeline-detail">14 × 404 (endpoint 未创建) + 1 × 200 (seed-2-1-turbo)。消耗 144 tokens</div>
+    </div>
+    <div class="timeline-item fail">
+      <div class="timeline-time">17:08-17:19</div>
+      <div class="timeline-title">旧 Key AccountOverdueError</div>
+      <div class="timeline-detail">8 × 403 (欠费) + 1 × timeout。0 tokens 消耗</div>
+    </div>
+    <div class="timeline-item pass">
+      <div class="timeline-time">18:10</div>
+      <div class="timeline-title">新 Key 模型可用性测试</div>
+      <div class="timeline-detail">确认 4 个模型可用。doubao-seed-1-6-vision-250815 全部端点 404</div>
+    </div>
+    <div class="timeline-item pass">
+      <div class="timeline-time">18:25-18:31</div>
+      <div class="timeline-title">合并 5 栈生成 (246s)</div>
+      <div class="timeline-detail">900 in / 26206 out tokens。KOTLIN ✅ XML ✅ QML ✅ HTML 截断 A2UI 缺失</div>
+    </div>
+    <div class="timeline-item pass">
+      <div class="timeline-time">18:55-19:10</div>
+      <div class="timeline-title">补充生成 A2UI + HTML</div>
+      <div class="timeline-detail">A2UI: 792+18467 tokens ✅ | HTML: 814+11295 tokens ✅</div>
+    </div>
+    <div class="timeline-item pass">
+      <div class="timeline-time">19:15</div>
+      <div class="timeline-title">validate_code 验证 5/5 PASS</div>
+      <div class="timeline-detail">所有栈零 errors 零 warnings</div>
+    </div>
+  </div>
+</div>
+
+<h2>5 栈生成详情</h2>
+<div class="card">
+  <table>
+    <tr><th>栈</th><th>文件</th><th>大小</th><th>调用</th><th>tokens (in/out)</th><th>验证</th></tr>
+    <tr><td>Kotlin Compose</td><td>llm_android_compose.kt</td><td>16,410 chars</td><td>合并调用</td><td>900 / 26206*</td><td><span class="badge badge-pass">PASS</span></td></tr>
+    <tr><td>Android XML</td><td>llm_android_xml.xml</td><td>16,533 chars</td><td>合并调用</td><td>900 / 26206*</td><td><span class="badge badge-pass">PASS</span></td></tr>
+    <tr><td>Qt QML</td><td>llm_qt_qml.qml</td><td>8,414 chars</td><td>合并调用</td><td>900 / 26206*</td><td><span class="badge badge-pass">PASS</span></td></tr>
+    <tr><td>Windows HTML</td><td>llm_windows_html.html</td><td>12,357 chars</td><td>补充调用</td><td>814 / 11295</td><td><span class="badge badge-pass">PASS</span></td></tr>
+    <tr><td>A2UI JSONL</td><td>llm_a2ui.jsonl</td><td>5,930 chars</td><td>补充调用</td><td>792 / 18467</td><td><span class="badge badge-pass">PASS</span></td></tr>
+  </table>
+  <p style="font-size:12px;color:#888;margin-top:8px">* 合并调用的 26206 output tokens 由 KOTLIN/XML/QML/HTML(截断) 共享</p>
+</div>
+
+<h2>Token 消耗汇总</h2>
+<div class="card">
+  <table>
+    <tr><th>调用</th><th>Input</th><th>Output</th><th>Total</th><th>费用 (CNY)</th></tr>
+    <tr><td>模型测试 (6 次)</td><td>~200</td><td>~400</td><td>~600</td><td>¥0.007</td></tr>
+    <tr><td>合并 5 栈生成</td><td>900</td><td>26,206</td><td>27,106</td><td>¥0.3958</td></tr>
+    <tr><td>A2UI 补充</td><td>792</td><td>18,467</td><td>19,259</td><td>¥0.2774</td></tr>
+    <tr><td>HTML 补充</td><td>814</td><td>11,295</td><td>12,109</td><td>¥0.1721</td></tr>
+    <tr style="font-weight:500;background:#f5f7fa"><td>合计</td><td>2,706</td><td>56,368</td><td>58,618</td><td>¥0.8466</td></tr>
+  </table>
+</div>
+
+<h2>关键教训</h2>
+<div class="card">
+  <ol style="padding-left:20px;line-height:2">
+    <li><b>doubao-seed-1-6-vision-250815 已 EOM</b>：2026-07-10 停止新购，无法新建接入点。官方文档示例未更新</li>
+    <li><b>doubao-seed-2-1-turbo-260628 支持视觉</b>：通过 /chat/completions + image_url 成功识别图片内容</li>
+    <li><b>/responses 端点</b>：新版 Ark API 支持 /responses，但 EOM 模型在两个端点都返回 404</li>
+    <li><b>max_tokens 8000 不够 5 栈</b>：实际消耗 26206 output tokens，需拆分为多次调用</li>
+    <li><b>1+N 策略有效</b>：1 次 vision 分析截图 → N 次文本调用生成代码，节省 token</li>
+    <li><b>raw httpx 规避 SDK crash</b>：OpenAI SDK 在大 payload 时可能静默崩溃</li>
+    <li><b>CreateEndpoint API 需 IAM 鉴权</b>：Ark API Key 无法调用，需 VOLCENGINE_ACCESS_KEY + SECRET_KEY</li>
+  </ol>
+</div>
+
+<h2>生成文件清单</h2>
+<div class="card">
+  <table>
+    <tr><th>文件</th><th>说明</th><th>大小</th></tr>
+    <tr><td>ui_description.json</td><td>vision 分析截图的 JSON 结果</td><td>2,311 bytes</td></tr>
+    <tr><td>llm_android_compose.kt</td><td>Kotlin Jetpack Compose 代码</td><td>17,039 bytes</td></tr>
+    <tr><td>llm_android_xml.xml</td><td>Android XML Layout 代码</td><td>17,254 bytes</td></tr>
+    <tr><td>llm_qt_qml.qml</td><td>Qt QML 代码</td><td>8,925 bytes</td></tr>
+    <tr><td>llm_windows_html.html</td><td>自包含 HTML 代码</td><td>12,913 bytes</td></tr>
+    <tr><td>llm_a2ui.jsonl</td><td>A2UI JSONL 代码</td><td>6,203 bytes</td></tr>
+    <tr><td>generation_report.json</td><td>生成报告</td><td>-</td></tr>
+    <tr><td>validation_report.json</td><td>验证报告</td><td>-</td></tr>
+    <tr><td>e2e_5stack_report.html</td><td>本报告</td><td>-</td></tr>
+  </table>
+</div>
+
+</body>
+</html>

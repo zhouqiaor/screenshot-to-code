@@ -74,3 +74,12 @@ OPENAI_ONLY_MODELS = (
     Llm.GPT_5_5_HIGH,
     Llm.GPT_5_5_LOW,
 )
+
+# Doubao (via Volcano Ark OpenAI-compatible endpoint).
+# Used when OPENAI_API_KEY is actually an Ark API key and
+# OPENAI_BASE_URL points to ark.cn-beijing.volces.com.
+# These models trigger the raw-httpx fallback in openai.py
+# to avoid the SDK silent-crash on large request bodies.
+DOUBAO_MODELS = (
+    Llm.DOUBAO_SEED_2_1_TURBO,
+)

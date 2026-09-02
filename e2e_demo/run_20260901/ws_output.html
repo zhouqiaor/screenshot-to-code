@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投屏码 - 设置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        /* Custom toggle switch */
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .toggle.on {
+            background-color: #2563eb;
+        }
+        
+        .toggle.off {
+            background-color: #d1d5db;
+        }
+        
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .toggle.on::after {
+            left: 22px;
+        }
+        
+        .toggle.off::after {
+            left: 2px;
+        }
+        
+        /* Custom slider */
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 10px;
+            border-radius: 5px;
+            background: #e5e7eb;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .slider-blue {
+            background: linear-gradient(to right, #2563eb var(--value, 60%), #e5e7eb var(--value, 60%));
+        }
+    </style>
+</head>
+<body class="w-screen h-screen relative">
+    <!-- Background -->
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/mountainsunset/1920/1080');">
+        <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(30, 58, 138, 0.3) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.4) 100%);"></div>
+    </div>
+    
+    <!-- Top Status Bar -->
+    <div class="absolute top-0 left-0 right-0 flex justify-center pt-3 z-10">
+        <div class="bg-black/40 backdrop-blur-sm text-white px-4 py-1.5 rounded-lg text-sm flex items-center gap-3">
+            <span class="font-medium tracking-wide">NJRC-PAOE</span>
+            <span class="text-white/70">|</span>
+            <i class="fas fa-microphone-slash text-white/80"></i>
+            <i class="fas fa-video text-white/80"></i>
+            <span class="font-medium">16:55</span>
+        </div>
+    </div>
+    
+    <!-- 投屏码 Title -->
+    <div class="absolute top-20 left-0 right-0 flex justify-center z-10">
+        <h1 class="text-white text-2xl font-normal tracking-wider">投屏码</h1>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="absolute inset-0 flex items-center justify-center z-20">
+        <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-2xl w-[700px] h-[480px] flex overflow-hidden">
+            
+            <!-- Sidebar -->
+            <div class="w-[280px] bg-gray-50/80 border-r border-gray-200/50 flex flex-col p-5">
+                <h2 class="text-xl font-semibold text-gray-800 mb-5">设置</h2>
+                
+                <!-- Search -->
+                <div class="relative mb-4">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" placeholder="搜索设置项" class="w-full pl-9 pr-3 py-2.5 bg-white rounded-full text-sm text-gray-600 placeholder-gray-400 border border-gray-100 focus:outline-none focus:border-blue-300">
+                </div>
+                
+                <!-- Menu Items -->
+                <div class="flex flex-col gap-1">
+                    <!-- 企业服务配置 -->
+                    <div class="flex items-center px-3 py-3 rounded-lg hover:bg-gray-100/80 cursor-pointer">
+                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-building text-white text-sm"></i>
+                        </div>
+                        <span class="text-gray-700 text-sm flex-1">企业服务配置</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                    
+                    <!-- 声音与显示 (active) -->
+                    <div class="flex items-center px-3 py-3 rounded-lg bg-blue-50 border border-blue-100 cursor-pointer">
+                        <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-volume-up text-white text-sm"></i>
+                        </div>
+                        <span class="text-indigo-700 text-sm font-medium flex-1">声音与显示</span>
+                        <i class="fas fa-chevron-right text-indigo-300 text-xs"></i>
+                    </div>
+                    
+                    <!-- 摄像机 -->
+                    <div class="flex items-center px-3 py-3 rounded-lg hover:bg-gray-100/80 cursor-pointer">
+                        <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-video text-white text-sm"></i>
+                        </div>
+                        <span class="text-gray-700 text-sm flex-1">摄像机</span>
+                        <span class="text-gray-400 text-xs mr-2">已开启</span>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                    
+                    <!-- 壁纸 -->
+                    <div class="flex items-center px-3 py-3 rounded-lg hover:bg-gray-100/80 cursor-pointer">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-image text-white text-sm"></i>
+                        </div>
+                        <span class="text-gray-700 text-sm flex-1">壁纸</span>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                    
+                    <!-- Wi-Fi -->
+                    <div class="flex items-center px-3 py-3 rounded-lg hover:bg-gray-100/80 cursor-pointer">
+                        <div class="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-wifi text-white text-sm"></i>
+                        </div>
+                        <span class="text-gray-700 text-sm flex-1">Wi-Fi</span>
+                        <span class="text-gray-400 text-xs mr-2">未连接</span>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                    
+                    <!-- 智慧功能 -->
+                    <div class="flex items-center px-3 py-3 rounded-lg hover:bg-gray-100/80 cursor-pointer">
+                        <div class="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-magic text-white text-sm"></i>
+                        </div>
+                        <span class="text-gray-700 text-sm flex-1">智慧功能</span>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                    
+                    <!-- 高级设置 -->
+                    <div class="flex items-center px-3 py-3 rounded-lg hover:bg-gray-100/80 cursor-pointer">
+                        <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-cog text-white text-sm"></i>
+                        </div>
+                        <span class="text-gray-700 text-sm flex-1">高级设置</span>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="flex-1 flex flex-col">
+                <!-- Header with close button -->
+                <div class="flex justify-end p-4">
+                    <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Content -->
+                <div class="flex-1 px-6 pb-6 overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">声音与显示</h3>
+                    
+                    <!-- 扬声器 Section -->
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-3">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-gray-800 font-medium">扬声器</span>
+                            <div class="toggle on" onclick="this.classList.toggle('on'); this.classList.toggle('off');"></div>
+                        </div>
+                        
+                        <!-- 音量 -->
+                        <div class="mb-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-500 text-sm">音量</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-volume-down text-gray-400"></i>
+                                <input type="range" class="slider slider-blue flex-1" min="0" max="100" value="60" style="--value: 60%;" oninput="this.style.setProperty('--value', this.value + '%')">
+                            </div>
+                        </div>
+                        
+                        <!-- 提示音量 -->
+                        <div class="mb-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-500 text-sm">提示音量</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-volume-off text-gray-400"></i>
+                                <input type="range" class="slider slider-blue flex-1" min="0" max="100" value="95" style="--value: 95%;" oninput="this.style.setProperty('--value', this.value + '%')">
+                            </div>
+                        </div>
+                        
+                        <!-- 按键音 -->
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-gray-700 text-sm">按键音</span>
+                            <div class="toggle on" onclick="this.classList.toggle('on'); this.classList.toggle('off');"></div>
+                        </div>
+                        
+                        <!-- 麦克风 -->
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 text-sm">麦克风</span>
+                            <div class="toggle off" onclick="this.classList.toggle('on'); this.classList.toggle('off');"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 亮度 Section -->
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-gray-500 text-sm">亮度</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-sun text-gray-400"></i>
+                            <input type="range" class="slider slider-blue flex-1" min="0" max="100" value="75" style="--value: 75%;" oninput="this.style.setProperty('--value', this.value + '%')">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pagination Dots -->
+    <div class="absolute bottom-24 left-0 right-0 flex justify-center z-10">
+        <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+            <div class="w-5 h-2.5 rounded-full bg-white"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+        </div>
+    </div>
+    
+    <!-- Bottom Bar -->
+    <div class="absolute bottom-6 right-8 flex items-center gap-6 z-10">
+        <div class="flex items-center gap-2 text-white/90 cursor-pointer hover:text-white">
+            <div class="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <i class="fas fa-question text-sm"></i>
+            </div>
+            <span class="text-sm">新手指引</span>
+        </div>
+        <div class="flex items-center gap-2 text-white/90 cursor-pointer hover:text-white relative">
+            <div class="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <i class="fas fa-cog text-sm"></i>
+            </div>
+            <span class="text-sm">设置</span>
+            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
+        </div>
+        <div class="flex items-center gap-2 text-white/90 cursor-pointer hover:text-white">
+            <div class="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <i class="fas fa-power-off text-sm"></i>
+            </div>
+            <span class="text-sm">电源</span>
+        </div>
+    </div>
+</body>
+</html>

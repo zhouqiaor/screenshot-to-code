@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置界面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+        .bg-wallpaper {
+            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background-color: #2563eb;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background-color: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(22px);
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 16px;
+            border-radius: 9999px;
+            background: linear-gradient(to right, #2563eb 0%, #2563eb var(--value, 50%), #e5e7eb var(--value, 50%), #e5e7eb 100%);
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-wallpaper min-h-screen overflow-hidden">
+    <!-- 顶部状态栏 -->
+    <div class="absolute top-3 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-sm text-white px-4 py-1.5 rounded-lg text-lg font-medium flex items-center gap-3 z-50">
+        <span>NJRC-PAOE</span>
+        <span class="text-white/70">|</span>
+        <i class="fas fa-microphone-slash text-white/90"></i>
+        <i class="fas fa-video text-white/90"></i>
+        <span>16:55</span>
+    </div>
+    
+    <!-- 投屏码文字 -->
+    <div class="absolute top-32 left-1/2 -translate-x-1/2 text-white text-3xl font-medium z-10">
+        投屏码
+    </div>
+    
+    <!-- 设置窗口 -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-white/95 backdrop-blur-md rounded-xl shadow-2xl flex overflow-hidden z-20">
+        <!-- 左侧菜单 -->
+        <div class="w-[300px] bg-gray-100/80 p-6 flex flex-col">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">设置</h2>
+            
+            <!-- 搜索框 -->
+            <div class="relative mb-6">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" placeholder="搜索设置项" class="w-full pl-10 pr-4 py-3 rounded-full bg-white border-none outline-none text-gray-600 placeholder-gray-400">
+            </div>
+            
+            <!-- 菜单列表 -->
+            <div class="flex-1 space-y-1">
+                <!-- 企业服务配置 -->
+                <div class="flex items-center px-3 py-3.5 rounded-lg cursor-pointer hover:bg-white/60 transition-colors">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-building text-white text-sm"></i>
+                    </div>
+                    <span class="text-gray-700 font-medium flex-1">企业服务配置</span>
+                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </div>
+                
+                <!-- 声音与显示 -->
+                <div class="flex items-center px-3 py-3.5 rounded-lg cursor-pointer bg-blue-100/80 transition-colors">
+                    <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-volume-up text-white text-sm"></i>
+                    </div>
+                    <span class="text-gray-800 font-medium flex-1">声音与显示</span>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </div>
+                
+                <!-- 摄像机 -->
+                <div class="flex items-center px-3 py-3.5 rounded-lg cursor-pointer hover:bg-white/60 transition-colors">
+                    <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-video text-white text-sm"></i>
+                    </div>
+                    <span class="text-gray-700 font-medium flex-1">摄像机</span>
+                    <span class="text-gray-500 mr-2">已开启</span>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </div>
+                
+                <!-- 壁纸 -->
+                <div class="flex items-center px-3 py-3.5 rounded-lg cursor-pointer hover:bg-white/60 transition-colors">
+                    <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-image text-white text-sm"></i>
+                    </div>
+                    <span class="text-gray-700 font-medium flex-1">壁纸</span>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </div>
+                
+                <!-- Wi-Fi -->
+                <div class="flex items-center px-3 py-3.5 rounded-lg cursor-pointer hover:bg-white/60 transition-colors">
+                    <div class="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-wifi text-white text-sm"></i>
+                    </div>
+                    <span class="text-gray-700 font-medium flex-1">Wi-Fi</span>
+                    <span class="text-gray-500 mr-2">未连接</span>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </div>
+                
+                <!-- 智慧功能 -->
+                <div class="flex items-center px-3 py-3.5 rounded-lg cursor-pointer hover:bg-white/60 transition-colors">
+                    <div class="w-8 h-8 bg-teal-400 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-th text-white text-sm"></i>
+                    </div>
+                    <span class="text-gray-700 font-medium flex-1">智慧功能</span>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </div>
+                
+                <!-- 高级设置 -->
+                <div class="flex items-center px-3 py-3.5 rounded-lg cursor-pointer hover:bg-white/60 transition-colors">
+                    <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-box text-white text-sm"></i>
+                    </div>
+                    <span class="text-gray-700 font-medium flex-1">高级设置</span>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右侧详情 -->
+        <div class="flex-1 bg-gray-100/50 p-6 flex flex-col">
+            <!-- 关闭按钮 -->
+            <button class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+            
+            <h3 class="text-xl font-bold text-gray-800 mb-5 mt-2">声音与显示</h3>
+            
+            <!-- 声音设置卡片 -->
+            <div class="bg-white rounded-xl p-5 mb-4 shadow-sm">
+                <!-- 扬声器 -->
+                <div class="flex items-center justify-between mb-6">
+                    <span class="text-lg font-medium text-gray-800">扬声器</span>
+                    <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                </div>
+                
+                <!-- 音量 -->
+                <div class="mb-6">
+                    <div class="text-sm text-gray-500 mb-3">音量</div>
+                    <div class="flex items-center gap-4">
+                        <i class="fas fa-volume-off text-gray-400 text-lg"></i>
+                        <input type="range" class="slider flex-1" style="--value: 60%" value="60" min="0" max="100">
+                    </div>
+                </div>
+                
+                <!-- 提示音量 -->
+                <div class="mb-6">
+                    <div class="text-sm text-gray-500 mb-3">提示音量</div>
+                    <div class="flex items-center gap-4">
+                        <i class="fas fa-bullhorn text-gray-400 text-lg"></i>
+                        <input type="range" class="slider flex-1" style="--value: 90%" value="90" min="0" max="100">
+                    </div>
+                </div>
+                
+                <!-- 按键音 -->
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-700">按键音</span>
+                    <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                </div>
+                
+                <!-- 麦克风 -->
+                <div class="flex items-center justify-between pt-4">
+                    <span class="text-gray-700">麦克风</span>
+                    <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+                </div>
+            </div>
+            
+            <!-- 亮度设置卡片 -->
+            <div class="bg-white rounded-xl p-5 shadow-sm">
+                <div class="text-sm text-gray-500 mb-3">亮度</div>
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-sun text-gray-400 text-lg"></i>
+                    <input type="range" class="slider flex-1" style="--value: 75%" value="75" min="0" max="100">
+                </div>
+            </div>
+            
+            <!-- 分页指示器 -->
+            <div class="flex justify-center items-center gap-2 mt-auto pt-4">
+                <div class="w-3 h-3 rounded-full bg-gray-400"></div>
+                <div class="w-8 h-3 rounded-full bg-white shadow-sm"></div>
+                <div class="w-3 h-3 rounded-full bg-gray-400"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部按钮 -->
+    <div class="absolute bottom-6 right-6 flex items-center gap-6 z-30">
+        <button class="flex items-center gap-2 text-white/90 hover:text-white transition-colors">
+            <div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                <i class="fas fa-question"></i>
+            </div>
+            <span class="text-lg font-medium">新手指引</span>
+        </button>
+        
+        <button class="flex items-center gap-2 text-white/90 hover:text-white transition-colors relative">
+            <div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                <i class="fas fa-cog"></i>
+            </div>
+            <span class="text-lg font-medium">设置</span>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+        </button>
+        
+        <button class="flex items-center gap-2 text-white/90 hover:text-white transition-colors">
+            <div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                <i class="fas fa-power-off"></i>
+            </div>
+            <span class="text-lg font-medium">电源</span>
+        </button>
+    </div>
+    
+    <script>
+        // 更新滑块进度
+        document.querySelectorAll('.slider').forEach(slider => {
+            slider.addEventListener('input', function() {
+                this.style.setProperty('--value', this.value + '%');
+            });
+        });
+    </script>
+</body>
+</html>

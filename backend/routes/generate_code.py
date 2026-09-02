@@ -11,6 +11,7 @@ from starlette.websockets import WebSocketDisconnect
 from websockets.exceptions import ConnectionClosedOK, ConnectionClosedError
 from config import (
     ANTHROPIC_API_KEY,
+    ANTHROPIC_BASE_URL,
     GEMINI_API_KEY,
     IS_DEBUG_ENABLED,
     IS_PROD,
@@ -421,6 +422,7 @@ class ModelSelectionStage:
         openai_api_key: str | None,
         anthropic_api_key: str | None,
         gemini_api_key: str | None = None,
+        openai_base_url: str | None = None,
     ) -> List[Llm]:
         """Select appropriate models based on available API keys"""
         try:
@@ -432,6 +434,7 @@ class ModelSelectionStage:
                 openai_api_key,
                 anthropic_api_key,
                 gemini_api_key,
+                openai_base_url,
             )
 
             # Print the variant models (one per line)
@@ -456,6 +459,7 @@ class ModelSelectionStage:
         openai_api_key: str | None,
         anthropic_api_key: str | None,
         gemini_api_key: str | None,
+        openai_base_url: str | None = None,
     ) -> List[Llm]:
         """Simple model cycling that scales with num_variants"""
 
@@ -487,7 +491,12 @@ class ModelSelectionStage:
         elif anthropic_api_key:
             models = list(ANTHROPIC_ONLY_MODELS)
         elif openai_api_key:
-            models = list(OPENAI_ONLY_MODELS)
+            # When OPENAI_BASE_URL points to Volcano Ark, prefer doubao models.
+            if openai_base_url and "volces.com" in openai_base_url:
+                from routes.model_choice_sets import DOUBAO_MODELS
+                models = list(DOUBAO_MODELS)
+            else:
+                models = list(OPENAI_ONLY_MODELS)
         else:
             raise Exception("No OpenAI or Anthropic key")
 
@@ -555,6 +564,7 @@ class AgenticGenerationStage:
         openai_api_key: str | None,
         openai_base_url: str | None,
         anthropic_api_key: str | None,
+        anthropic_base_url: str | None,
         gemini_api_key: str | None,
         replicate_api_key: str | None,
         should_generate_images: bool,
@@ -571,6 +581,7 @@ class AgenticGenerationStage:
         self.openai_api_key = openai_api_key
         self.openai_base_url = openai_base_url
         self.anthropic_api_key = anthropic_api_key
+        self.anthropic_base_url = anthropic_base_url
         self.gemini_api_key = gemini_api_key
         self.replicate_api_key = replicate_api_key
         self.should_generate_images = should_generate_images
@@ -646,6 +657,7 @@ class AgenticGenerationStage:
                 openai_api_key=self.openai_api_key,
                 openai_base_url=self.openai_base_url,
                 anthropic_api_key=self.anthropic_api_key,
+                anthropic_base_url=self.anthropic_base_url,
                 gemini_api_key=self.gemini_api_key,
                 replicate_api_key=self.replicate_api_key,
                 should_generate_images=self.should_generate_images,
@@ -815,6 +827,7 @@ class CodeGenerationMiddleware(Middleware):
                 openai_api_key=context.extracted_params.openai_api_key,
                 anthropic_api_key=context.extracted_params.anthropic_api_key,
                 gemini_api_key=context.extracted_params.gemini_api_key,
+                openai_base_url=context.extracted_params.openai_base_url,
             )
             if IS_DEBUG_ENABLED:
                 await context.send_message(
@@ -830,6 +843,7 @@ class CodeGenerationMiddleware(Middleware):
                 openai_api_key=context.extracted_params.openai_api_key,
                 openai_base_url=context.extracted_params.openai_base_url,
                 anthropic_api_key=context.extracted_params.anthropic_api_key,
+                anthropic_base_url=ANTHROPIC_BASE_URL,
                 gemini_api_key=context.extracted_params.gemini_api_key,
                 replicate_api_key=context.extracted_params.replicate_api_key,
                 should_generate_images=context.extracted_params.should_generate_images,

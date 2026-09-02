@@ -7,10 +7,9 @@ import { useState } from "react";
 import { LuSmartphone } from "react-icons/lu";
 import { toast } from "react-hot-toast";
 import { captureViaAdb, fetchAdbDevices, type AdbCaptureResult } from "../../lib/adb-api";
-import type { Stack } from "../../lib/stacks";
 
 interface Props {
-  stack: Stack;
+  stack: string;
   onCaptureComplete: (result: AdbCaptureResult) => void;
 }
 
@@ -21,7 +20,7 @@ function AdbCaptureButton({ stack, onCaptureComplete }: Props) {
   const [devices, setDevices] = useState<string[]>([]);
 
   // Only show for Android Compose stack
-  if (stack !== Stack.ANDROID_COMPOSE) {
+  if (stack !== "android_compose") {
     return null;
   }
 

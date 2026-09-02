@@ -1,0 +1,129 @@
+[
+  {
+    "name": "Doubao-Seed-2.1-turbo",
+    "model_id": "doubao-seed-2-1-turbo-260628",
+    "status": "OK",
+    "http": 200,
+    "time_sec": 4.0,
+    "tokens_in": 48,
+    "tokens_out": 96,
+    "actual_model": "doubao-seed-2-1-turbo-260628",
+    "vision": true,
+    "remaining": 268378,
+    "in_price": 0.003,
+    "out_price": 0.015,
+    "output_preview": "OK"
+  },
+  {
+    "name": "GLM-5.2",
+    "model_id": "glm-5.2",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "DeepSeek-V4-pro",
+    "model_id": "deepseek-v4-pro",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "Doubao-Seed-1.8",
+    "model_id": "doubao-seed-1-8-250915",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "GLM-4.7",
+    "model_id": "glm-4-7",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "DeepSeek-V3.2",
+    "model_id": "deepseek-v3-2-250628",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "Doubao-Seed-Code",
+    "model_id": "doubao-seed-code-250915",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "Doubao-Seed-1.6-vision",
+    "model_id": "doubao-seed-1-6-vision-250815",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.3
+  },
+  {
+    "name": "Doubao-Seed-1.6-flash",
+    "model_id": "doubao-seed-1-6-flash-250828",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.3
+  },
+  {
+    "name": "Doubao-Seed-1.6",
+    "model_id": "doubao-seed-1-6-250815",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "Doubao-1.5-vision-lite",
+    "model_id": "doubao-1-5-vision-lite-250328",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "Doubao-1.5-vision-pro-32k",
+    "model_id": "doubao-1-5-vision-pro-32k-250328",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "Doubao-1.5-pro-32k",
+    "model_id": "doubao-1-5-pro-32k-250328",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "Doubao-pro-32k",
+    "model_id": "doubao-pro-32k-250328",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  },
+  {
+    "name": "Doubao-lite-32k",
+    "model_id": "doubao-lite-32k-250328",
+    "status": "FAIL",
+    "http": 404,
+    "error": "InvalidEndpointOrModel.NotFound",
+    "time_sec": 0.2
+  }
+]

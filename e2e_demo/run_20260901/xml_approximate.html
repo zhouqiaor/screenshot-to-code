@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Android XML Preview (Android XML Approximate)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: "Segoe UI", Roboto, "Microsoft YaHei", sans-serif; background: #f5f5f5; display: flex; justify-content: center; padding: 20px; }
+.android-window { width: 900px; max-width: 100%; background: #f5f5f5; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); overflow: hidden; }
+.note { padding: 8px 12px; background: #fff3e0; border-left: 3px solid #ff9800; font-size: 12px; color: #666; }
+.android-layout { display: flex; padding: 16px; gap: 12px; }
+.android-text { font-size: 14px; color: #212121; padding: 4px 0; }
+.android-btn { padding: 8px 24px; background: #1677ff; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
+.android-input { padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; width: 100%; }
+.android-checkbox, .android-switch { display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 8px 0; }
+.android-seekbar { width: 100%; }
+.android-card { background: white; border-radius: 12px; padding: 16px; margin: 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.android-scroll { max-height: 400px; overflow-y: auto; }
+.android-generic { padding: 8px; }
+</style></head>
+<body>
+<div class="android-window">
+  <div class="note">Android XML approximate render — structural preview only (no Android runtime)</div>
+  <div class="android-layout" style="flex-direction:column"><div class="android-layout" style="flex-direction:row"><button class="android-btn">×</button></div><div class="android-layout" style="flex-direction:row"><div class="android-layout" style="flex-direction:column"><span class="android-text">设置</span><div class="android-layout" style="flex-direction:column"><div class="android-layout" style="flex-direction:row"><span class="android-text">企业服务配置</span></div><div class="android-layout" style="flex-direction:row"><span class="android-text">声音与显示</span></div><div class="android-layout" style="flex-direction:row"><span class="android-text">摄像机</span></div><div class="android-layout" style="flex-direction:row"><span class="android-text">壁纸</span><span class="android-text">已设置</span></div><div class="android-layout" style="flex-direction:row"><span class="android-text">Wi-Fi</span><span class="android-text">已连接</span></div><div class="android-layout" style="flex-direction:row"><span class="android-text">智慧功能</span></div><div class="android-layout" style="flex-direction:row"><span class="android-text">高级设置</span></div></div></div><div class="android-scroll"><div class="android-layout" style="flex-direction:column"><span class="android-text">声音与显示</span><div class="android-layout" style="flex-direction:column"><div class="android-layout" style="flex-direction:row"><span class="android-text">扬声器</span></div><div class="android-layout" style="flex-direction:row"><input type="range" class="android-seekbar" /></div><div class="android-layout" style="flex-direction:row"><input type="range" class="android-seekbar" /></div><div class="android-layout" style="flex-direction:row"><span class="android-text">按键音</span></div><div class="android-layout" style="flex-direction:row"><span class="android-text">麦克风</span></div></div><div class="android-layout" style="flex-direction:row"><input type="range" class="android-seekbar" /></div></div></div></div></div>
+</div>
+</body></html>

@@ -1,0 +1,37 @@
+{
+  "total_stacks": 5,
+  "valid": 5,
+  "failed": 0,
+  "results": [
+    {
+      "stack": "Kotlin Compose",
+      "valid": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "stack": "Android XML",
+      "valid": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "stack": "Qt QML",
+      "valid": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "stack": "Windows HTML",
+      "valid": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "stack": "A2UI JSONL",
+      "valid": true,
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

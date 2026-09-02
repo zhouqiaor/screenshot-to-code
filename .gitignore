@@ -62,3 +62,26 @@ captures/
 
 # Kotlin plugin data
 .kotlin/
+
+# ── E2E build test artifacts ──
+# AAPT2 .flat files
+*.flat
+# Compiled zip from aapt2
+**/compiled*.zip
+# aapt2 extracted flat dir
+**/flat_extract/
+**/flat_out*/
+# Qt QML build dir
+**/qt_qml_full/build/
+# .obj files
+*.obj
+# WinUI3 obj dir (NuGet cache + generated)
+**/template_build_test/winui3/obj/
+
+# Broken git dir
+.git.broken/
+
+# Misc temp files
+nul
+aqtinstall.log
+*.bak

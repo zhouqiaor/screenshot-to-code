@@ -81,12 +81,6 @@ MODEL_PRICING: Dict[str, ModelPricing] = {
     "doubao-seed-1.6-vision": ModelPricing(
         input=0.111, output=1.111, cache_read=0.022
     ),
-    "doubao-seed-2.0-mini": ModelPricing(
-        input=0.028, output=0.278, cache_read=0.006
-    ),
-    "doubao-seed-2.0-code": ModelPricing(
-        input=0.444, output=2.222, cache_read=0.089
-    ),
     # --- Qwen (via DashScope Anthropic-compatible endpoint) ---
     # Verified against help.aliyun.com/zh/model-studio/qwen3-7-max on
     # 2026-08-31. CNY per million tokens → USD/M at 7.2 CNY/USD.

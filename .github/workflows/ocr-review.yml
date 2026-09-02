@@ -31,29 +31,42 @@ jobs:
       - name: Install OpenCodeReview
         run: npm install -g @alibaba-group/open-code-review
 
-      - name: Configure LLM provider (Volcano Engine Ark)
+      - name: Configure LLM provider
         env:
-          ARK_API_KEY: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
+          LLM_API_KEY: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
+          OCR_PROVIDER: ${{ vars.OCR_LLM_PROVIDER }}
+          OCR_MODEL: ${{ vars.OCR_LLM_MODEL }}
         run: |
-          if [ -z "$ARK_API_KEY" ]; then
+          if [ -z "$LLM_API_KEY" ]; then
             echo "::warning::OCR_LLM_AUTH_TOKEN secret is not configured."
             exit 0
           fi
-          # volcengine is a built-in provider with protocol=openai
-          # base URL is preset to https://ark.cn-beijing.volces.com/api/v3
-          ocr config set provider volcengine
-          ocr config set model "${{ vars.OCR_LLM_MODEL }}"
-          ocr config set providers.volcengine.api_key "$ARK_API_KEY"
+          if [ -z "$OCR_PROVIDER" ]; then
+            OCR_PROVIDER="volcengine"
+          fi
+          if [ -z "$OCR_MODEL" ]; then
+            OCR_MODEL="doubao-seed-2-1-turbo-260628"
+          fi
+          echo "Using provider=$OCR_PROVIDER model=$OCR_MODEL"
+          # volcengine: protocol=openai, base=https://ark.cn-beijing.volces.com/api/v3
+          # dashscope: protocol=openai, base=https://dashscope.aliyuncs.com/compatible-mode/v1
+          ocr config set provider "$OCR_PROVIDER"
+          ocr config set model "$OCR_MODEL"
+          ocr config set "providers.$OCR_PROVIDER.api_key" "$LLM_API_KEY"
           # verify config
           ocr llm test
 
       - name: Run OCR review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OCR_PROVIDER: ${{ vars.OCR_LLM_PROVIDER }}
+          OCR_MODEL: ${{ vars.OCR_LLM_MODEL }}
         run: |
+          PROVIDER="${OCR_PROVIDER:-volcengine}"
+          MODEL="${OCR_MODEL:-doubao-seed-2-1-turbo-260628}"
           ocr review \
-            --provider volcengine \
-            --model "${{ vars.OCR_LLM_MODEL }}" \
+            --provider "$PROVIDER" \
+            --model "$MODEL" \
             --from origin/${{ github.base_ref }} \
             --to origin/${{ github.head_ref }} \
             --format json \

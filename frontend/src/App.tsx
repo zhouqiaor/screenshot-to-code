@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { generateCode } from "./generateCode";
-import { AppState, AppTheme, EditorTheme, Settings, DesignSystem } from "./types";
+import { AppState, AppTheme, EditorTheme, Settings } from "./types";
 import { NEW_DESIGN_SYSTEM_CONTENT } from "./lib/design-systems";
 import { IS_RUNNING_ON_CLOUD } from "./config";
 import { OnboardingNote } from "./components/messages/OnboardingNote";
