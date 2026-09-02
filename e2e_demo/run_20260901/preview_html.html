@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>投屏设置界面</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    /* Custom toggle switch */
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #e5e7eb;
+      transition: .2s;
+      border-radius: 24px;
+    }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    input:checked + .toggle-slider {
+      background-color: #2563eb;
+    }
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Custom range slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #2563eb 0%, #2563eb var(--value), #e5e7eb var(--value), #e5e7eb 100%);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      border: none;
+    }
+  </style>
+</head>
+<body class="m-0 overflow-hidden font-sans">
+  <!-- Background wallpaper -->
+  <div class="w-screen h-screen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+    
+    <!-- Top status bar -->
+    <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-gray-800/90 text-white px-4 py-1.5 rounded-lg flex items-center gap-3 text-sm font-medium">
+      <span>NJRC-PAOE</span>
+      <span class="text-gray-400">|</span>
+      <i class="fas fa-microphone-slash text-gray-300"></i>
+      <i class="fas fa-desktop text-gray-300"></i>
+      <span>16:55</span>
+    </div>
+
+    <!-- Screen cast code title -->
+    <div class="absolute top-24 left-1/2 -translate-x-1/2 text-white text-2xl font-medium tracking-wide">
+      投屏码
+    </div>
+
+    <!-- Settings window -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[900px] h-[80vh] max-h-[550px] bg-gray-50 rounded-xl shadow-2xl flex flex-col md:flex-row overflow-hidden">
+      <!-- Left sidebar -->
+      <div class="w-full md:w-80 bg-gray-100 p-4 md:p-6 flex flex-col overflow-y-auto">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">设置</h2>
+        
+        <!-- Search bar -->
+        <div class="relative mb-6">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+          <input type="text" placeholder="搜索设置项" class="w-full pl-10 pr-4 py-2 rounded-full bg-white border-none outline-none text-sm text-gray-700 placeholder-gray-400">
+        </div>
+
+        <!-- Menu list -->
+        <div class="flex flex-col gap-1">
+          <!-- Enterprise service config -->
+          <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-200 cursor-pointer transition">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm">
+                <i class="fas fa-briefcase"></i>
+              </div>
+              <span class="text-gray-700 text-sm">
+                企业服务配置
+                <span class="inline-block w-2 h-2 bg-red-500 rounded-full ml-1 align-middle"></span>
+              </span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+          </div>
+
+          <!-- Sound & Display (active) -->
+          <div class="flex items-center justify-between p-3 rounded-lg bg-indigo-50 cursor-pointer transition">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm">
+                <i class="fas fa-volume-up"></i>
+              </div>
+              <span class="text-indigo-700 font-medium text-sm">声音与显示</span>
+            </div>
+            <i class="fas fa-chevron-right text-indigo-400 text-xs"></i>
+          </div>
+
+          <!-- Camera -->
+          <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-200 cursor-pointer transition">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm">
+                <i class="fas fa-video"></i>
+              </div>
+              <span class="text-gray-700 text-sm">摄像机</span>
+            </div>
+            <span class="text-gray-500 text-xs">已开启</span>
+          </div>
+
+          <!-- Wallpaper -->
+          <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-200 cursor-pointer transition">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm">
+                <i class="fas fa-image"></i>
+              </div>
+              <span class="text-gray-700 text-sm">壁纸</span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+          </div>
+
+          <!-- Wi-Fi -->
+          <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-200 cursor-pointer transition">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center text-white text-sm">
+                <i class="fas fa-wifi"></i>
+              </div>
+              <span class="text-gray-700 text-sm">Wi-Fi</span>
+            </div>
+            <span class="text-gray-500 text-xs">未连接</span>
+          </div>
+
+          <!-- Smart features -->
+          <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-200 cursor-pointer transition">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-teal-400 flex items-center justify-center text-white text-sm">
+                <i class="fas fa-th"></i>
+              </div>
+              <span class="text-gray-700 text-sm">智慧功能</span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+          </div>
+
+          <!-- Advanced settings -->
+          <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-200 cursor-pointer transition">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm">
+                <i class="fas fa-cogs"></i>
+              </div>
+              <span class="text-gray-700 text-sm">高级设置</span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right content panel -->
+      <div class="flex-1 p-4 md:p-6 relative overflow-y-auto">
+        <!-- Close button -->
+        <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition z-10">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <h3 class="text-xl font-semibold text-gray-800 mb-6">声音与显示</h3>
+
+        <!-- Speaker section -->
+        <div class="bg-white rounded-lg p-4 mb-4">
+          <!-- Speaker toggle -->
+          <div class="flex items-center justify-between mb-4">
+            <span class="font-medium text-gray-800">扬声器</span>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Volume slider -->
+          <div class="mb-4">
+            <p class="text-xs text-gray-500 mb-2">音量</p>
+            <div class="flex items-center gap-4">
+              <i class="fas fa-volume-down text-gray-400 w-5 text-center"></i>
+              <input type="range" min="0" max="100" value="60" class="flex-1" style="--value: 60%;">
+            </div>
+          </div>
+
+          <!-- Notification volume slider -->
+          <div class="mb-4">
+            <p class="text-xs text-gray-500 mb-2">提示音量</p>
+            <div class="flex items-center gap-4">
+              <i class="fas fa-volume-up text-gray-400 w-5 text-center"></i>
+              <input type="range" min="0" max="100" value="100" class="flex-1" style="--value: 100%;">
+            </div>
+          </div>
+
+          <!-- Key tone toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-700">按键音</span>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Microphone section -->
+        <div class="bg-white rounded-lg p-4 mb-4">
+          <div class="flex items-center justify-between">
+            <span class="font-medium text-gray-800">麦克风</span>
+            <label class="toggle">
+              <input type="checkbox">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Brightness section -->
+        <div class="bg-white rounded-lg p-4">
+          <p class="font-medium text-gray-800 mb-3">亮度</p>
+          <div class="flex items-center gap-4">
+            <i class="fas fa-sun text-gray-400 w-5 text-center"></i>
+            <input type="range" min="0" max="100" value="80" class="flex-1" style="--value: 80%;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop indicator dots -->
+    <div class="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2">
+      <div class="w-2 h-2 rounded-full bg-gray-400/70"></div>
+      <div class="w-2 h-2 rounded-full bg-white"></div>
+      <div class="w-2 h-2 rounded-full bg-gray-400/70"></div>
+    </div>
+
+    <!-- Bottom right action buttons -->
+    <div class="absolute bottom-6 right-6 flex gap-2 md:gap-4 text-white">
+      <button class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition">
+        <i class="fas fa-question-circle text-lg"></i>
+        <span class="text-sm hidden sm:inline">新手指引</span>
+      </button>
+      <button class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition relative">
+        <i class="fas fa-cog text-lg"></i>
+        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
+        <span class="text-sm hidden sm:inline">设置</span>
+      </button>
+      <button class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition">
+        <i class="fas fa-power-off text-lg"></i>
+        <span class="text-sm hidden sm:inline">电源</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Update slider fill progress on interaction
+    document.querySelectorAll('input[type="range"]').forEach(slider => {
+      slider.addEventListener('input', function() {
+        this.style.setProperty('--value', this.value + '%');
+      });
+    });
+  </script>
+</body>
+</html>

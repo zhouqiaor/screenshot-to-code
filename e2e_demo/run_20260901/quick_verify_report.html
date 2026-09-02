@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>快速验证报告 — 2026-09-01 21:28:45</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI','Microsoft YaHei',sans-serif; background:#f0f2f5; color:#1a1a2e; line-height:1.6; }
+.header { background:linear-gradient(135deg,#1677ff,#0958d9); color:#fff; padding:30px 20px; text-align:center; }
+.header h1 { font-size:24px; margin-bottom:4px; }
+.summary { display:flex; justify-content:center; gap:20px; margin-top:12px; }
+.summary-item { background:rgba(255,255,255,0.15); padding:6px 16px; border-radius:6px; font-size:13px; }
+.container { max-width:900px; margin:0 auto; padding:20px; }
+.stack { background:#fff; border-radius:8px; padding:20px; margin-bottom:16px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border-left:4px solid #28a745; }
+.stack.fail { border-left-color:#dc3545; }
+.stack h3 { font-size:17px; margin-bottom:12px; }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge.pass { background:#d4edda; color:#155724; }
+.badge.fail { background:#f8d7da; color:#721c24; }
+.level { padding:6px 0; font-size:13px; }
+.level.pass { color:#155724; }
+.level.fail { color:#721c24; }
+.screenshot { margin-top:12px; }
+.screenshot img { width:100%; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+</style></head>
+<body>
+<div class="header">
+    <h1>快速验证报告</h1>
+    <p>2026-09-01 21:28:45 | 设备: 200.47.91.1:5555</p>
+    <div class="summary">
+        <span class="summary-item">✅ 通过: 0</span>
+        <span class="summary-item">❌ 失败: 5</span>
+        <span class="summary-item">总计: 5</span>
+    </div>
+</div>
+<div class="container">
+        <div class="stack fail">
+            <h3>Kotlin Compose <span class="badge fail">❌ FAIL</span></h3>
+            <div class="level pass"><span class="badge">✅</span> <b>L1_syntax</b> errors=0 warnings=0 braces=41/41 parens=116/116 bracket_balanced=True</div><div class="level fail"><span class="badge">❌</span> <b>L2_compile</b> </div><div class="level fail"><span class="badge">❌</span> <b>L3_screenshot</b> size=0</div><div class="level fail"><span class="badge">❌</span> <b>L4_device</b> </div>
+            
+        </div>
+        <div class="stack fail">
+            <h3>Android XML <span class="badge fail">❌ FAIL</span></h3>
+            <div class="level pass"><span class="badge">✅</span> <b>L1_syntax</b> errors=0</div><div class="level pass"><span class="badge">✅</span> <b>L2_compile</b> exit_code=0</div><div class="level fail"><span class="badge">❌</span> <b>L3_screenshot</b> size=0</div><div class="level pass"><span class="badge">✅</span> <b>L4_device</b> size=116022</div>
+            
+        </div>
+        <div class="stack fail">
+            <h3>Qt QML <span class="badge fail">❌ FAIL</span></h3>
+            <div class="level pass"><span class="badge">✅</span> <b>L1_syntax</b> imports=4 components=48 brace_balanced=True</div><div class="level fail"><span class="badge">❌</span> <b>L3_screenshot</b> size=0</div>
+            
+        </div>
+        <div class="stack fail">
+            <h3>Windows HTML <span class="badge fail">❌ FAIL</span></h3>
+            <div class="level fail"><span class="badge">❌</span> <b>L1_syntax</b> errors=1 note=lxml HTML4 DTD may false-positive on HTML5 semantic tags</div><div class="level fail"><span class="badge">❌</span> <b>L3_screenshot</b> size=0</div>
+            
+        </div>
+        <div class="stack fail">
+            <h3>A2UI <span class="badge fail">❌ FAIL</span></h3>
+            <div class="level pass"><span class="badge">✅</span> <b>L1_syntax</b> lines=37 types=9</div><div class="level pass"><span class="badge">✅</span> <b>L2_parse</b> tree_depth=7</div><div class="level fail"><span class="badge">❌</span> <b>L3_screenshot</b> size=0</div>
+            
+        </div></div>
+</body></html>

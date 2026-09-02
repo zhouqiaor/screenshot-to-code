@@ -61,8 +61,7 @@ class Llm(Enum):
     DOUBAO_SEED_1_6_FLASH = "doubao-seed-1.6-flash"
     DOUBAO_SEED_1_8 = "doubao-seed-1.8"
     DOUBAO_SEED_1_6_VISION = "doubao-seed-1.6-vision"
-    DOUBAO_SEED_2_0_MINI = "doubao-seed-2.0-mini"
-    DOUBAO_SEED_2_0_CODE = "doubao-seed-2.0-code"
+    DOUBAO_SEED_2_1_TURBO = "doubao-seed-2.1-turbo"
 
 
 class Completion(TypedDict):
@@ -131,8 +130,7 @@ MODEL_PROVIDER: dict[Llm, str] = {
     Llm.DOUBAO_SEED_1_6_FLASH: "openai",
     Llm.DOUBAO_SEED_1_8: "openai",
     Llm.DOUBAO_SEED_1_6_VISION: "openai",
-    Llm.DOUBAO_SEED_2_0_MINI: "openai",
-    Llm.DOUBAO_SEED_2_0_CODE: "openai",
+    Llm.DOUBAO_SEED_2_1_TURBO: "openai",
 }
 
 # Convenience sets for membership checks
@@ -179,8 +177,7 @@ OPENAI_MODEL_CONFIG: dict[Llm, dict[str, str]] = {
     Llm.DOUBAO_SEED_1_6_FLASH: {"api_name": "doubao-seed-1.6-flash"},
     Llm.DOUBAO_SEED_1_8: {"api_name": "doubao-seed-1.8"},
     Llm.DOUBAO_SEED_1_6_VISION: {"api_name": "doubao-seed-1.6-vision"},
-    Llm.DOUBAO_SEED_2_0_MINI: {"api_name": "doubao-seed-2.0-mini"},
-    Llm.DOUBAO_SEED_2_0_CODE: {"api_name": "doubao-seed-2.0-code"},
+    Llm.DOUBAO_SEED_2_1_TURBO: {"api_name": "doubao-seed-2-1-turbo-260628"},
 }
 
 

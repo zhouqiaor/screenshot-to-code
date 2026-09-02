@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>设置 - 声音与显示</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',Roboto,sans-serif; background:#f5f5f5; width:960px; height:600px; overflow:hidden; display:flex; flex-direction:column; }
+.top-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:#fff; border-bottom:1px solid #e8e8e8; }
+.main { display:flex; flex:1; overflow:hidden; }
+.sidebar { width:240px; background:#fff; border-right:1px solid #e8e8e8; padding:16px; display:flex; flex-direction:column; gap:16px; }
+.content { flex:1; padding:24px 32px; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
+.card { background:#fff; border-radius:12px; padding:8px 0; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
+.card-title { padding:14px 20px; font-size:18px; font-weight:700; border-bottom:1px solid #f0f0f0; }
+input[type="range"] { height:4px; -webkit-appearance:none; background:#e0e0e0; border-radius:2px; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#1677ff; }
+.sidebar-title { font-size:20px; font-weight:700; }
+.search-box { width:100%; padding:8px 12px; border:1px solid #d9d9d9; border-radius:6px; font-size:14px; }
+.close-btn { width:32px; height:32px; border:none; background:transparent; font-size:20px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+    <span style="font-size:18px;font-weight:600;">设置 - 声音与显示</span>
+    <button class="close-btn">×</button>
+</div>
+<div class="main">
+    <div class="sidebar">
+        <div class="sidebar-title">设置</div>
+        <input type="text" placeholder="搜索设置项" class="search-box"/>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+            
+        <div style="padding:10px 12px;border-radius:6px;background:transparent;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#212121;font-weight:normal;font-size:14px;">企业服务配置</span>
+            
+        </div>
+        <div style="padding:10px 12px;border-radius:6px;background:#1677ff20;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#1677ff;font-weight:500;font-size:14px;">声音与显示</span>
+            
+        </div>
+        <div style="padding:10px 12px;border-radius:6px;background:transparent;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#212121;font-weight:normal;font-size:14px;">摄像机</span>
+            
+        </div>
+        <div style="padding:10px 12px;border-radius:6px;background:transparent;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#212121;font-weight:normal;font-size:14px;">壁纸</span>
+            <span style="color:#999;font-size:12px;">已设置</span>
+        </div>
+        <div style="padding:10px 12px;border-radius:6px;background:transparent;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#212121;font-weight:normal;font-size:14px;">Wi-Fi</span>
+            <span style="color:#999;font-size:12px;">已连接</span>
+        </div>
+        <div style="padding:10px 12px;border-radius:6px;background:transparent;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#212121;font-weight:normal;font-size:14px;">智慧功能</span>
+            
+        </div>
+        <div style="padding:10px 12px;border-radius:6px;background:transparent;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#212121;font-weight:normal;font-size:14px;">高级设置</span>
+            
+        </div>
+        </div>
+    </div>
+    <div class="content">
+        <div style="font-size:28px;font-weight:700;margin-bottom:8px;">声音与显示</div>
+        <div class="card">
+            
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid #f0f0f0;">
+            <span style="font-size:14px;font-weight:500;">×</span>
+            <input type="checkbox" checked style="accent-color:#1677ff;width:44px;height:22px;"/>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid #f0f0f0;">
+            <span style="font-size:14px;font-weight:500;">\uD83D\uDD0A</span>
+            <input type="checkbox" checked style="accent-color:#1677ff;width:44px;height:22px;"/>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid #f0f0f0;">
+            <span style="font-size:14px;font-weight:500;">麦克风</span>
+            <input type="checkbox"  style="accent-color:#1677ff;width:44px;height:22px;"/>
+        </div>
+            
+        <div style="display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid #f0f0f0;gap:8px;">
+            <span style="font-size:14px;font-weight:500;width:80px;">×</span>
+            <input type="range" value="70" style="flex:1;accent-color:#1677ff;"/>
+        </div>
+        <div style="display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid #f0f0f0;gap:8px;">
+            <span style="font-size:14px;font-weight:500;width:80px;">\uD83D\uDD14</span>
+            <input type="range" value="50" style="flex:1;accent-color:#1677ff;"/>
+        </div>
+        <div style="display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid #f0f0f0;gap:8px;">
+            <span style="font-size:14px;font-weight:500;width:80px;">按键音</span>
+            <input type="range" value="80" style="flex:1;accent-color:#1677ff;"/>
+        </div>
+        </div>
+        <div class="card">
+            <div style="display:flex;align-items:center;padding:14px 20px;gap:8px;">
+                <span style="font-size:18px;">☀</span>
+                <input type="range" value="80" style="flex:1;accent-color:#1677ff;"/>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

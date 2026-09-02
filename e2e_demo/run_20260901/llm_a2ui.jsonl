@@ -1,0 +1,37 @@
+{"id":"root","type":"column","parent":null,"props":{"width":"100%","height":"100vh","backgroundColor":"#f5f5f5","color":"#212121","primaryColor":"#1677ff"}}
+{"id":"topBar","type":"row","parent":"root","props":{"padding":"12px 20px","justifyContent":"space-between","alignItems":"center","backgroundColor":"#ffffff","borderBottom":"1px solid #e8e8e8"}}
+{"id":"pageTitle","type":"text","parent":"topBar","text":"声音与显示","props":{"fontSize":"18px","fontWeight":600}}
+{"id":"closeBtn","type":"button","parent":"topBar","text":"×","props":{"width":"32px","height":"32px","border":"none","backgroundColor":"transparent","fontSize":"20px","cursor":"pointer","borderRadius":"4px"}}
+{"id":"mainRow","type":"row","parent":"root","props":{"flex":1,"overflow":"hidden"}}
+{"id":"sidebar","type":"column","parent":"mainRow","props":{"width":"240px","backgroundColor":"#ffffff","borderRight":"1px solid #e8e8e8","padding":"16px","gap":"16px"}}
+{"id":"sidebarTitle","type":"text","parent":"sidebar","text":"设置","props":{"fontSize":"20px","fontWeight":700}}
+{"id":"searchInput","type":"input","parent":"sidebar","text":"搜索设置项","props":{"placeholder":"搜索设置项","prefixIcon":"search","padding":"8px 12px","border":"1px solid #d9d9d9","borderRadius":"6px","width":"100%","boxSizing":"border-box"}}
+{"id":"navList","type":"list","parent":"sidebar","text":"企业服务配置、声音与显示、摄像机、壁纸、Wi-Fi、智慧功能、高级设置","props":{"items":["企业服务配置","声音与显示","摄像机","壁纸","Wi-Fi","智慧功能","高级设置"],"selectedItem":"声音与显示","itemStatuses":{"企业服务配置":"已配置","Wi-Fi":"已连接"},"itemPadding":"10px 12px","itemBorderRadius":"6px","selectedBackgroundColor":"#e6f4ff","selectedColor":"#1677ff","gap":"4px"}}
+{"id":"contentCol","type":"column","parent":"mainRow","props":{"flex":1,"padding":"24px 32px","gap":"16px","overflowY":"auto"}}
+{"id":"soundCard","type":"card","parent":"contentCol","props":{"backgroundColor":"#ffffff","borderRadius":"12px","padding":"8px 0","boxShadow":"0 1px 2px rgba(0,0,0,0.05)"}}
+{"id":"speakerSwitchRow","type":"row","parent":"soundCard","props":{"justifyContent":"space-between","alignItems":"center","padding":"14px 20px","borderBottom":"1px solid #f0f0f0"}}
+{"id":"speakerLabel","type":"text","parent":"speakerSwitchRow","text":"扬声器","props":{"fontSize":"14px","fontWeight":500}}
+{"id":"speakerSwitch","type":"input","parent":"speakerSwitchRow","props":{"inputType":"switch","checked":true,"activeColor":"#1677ff","width":"44px","height":"22px","borderRadius":"11px"}}
+{"id":"volumeSliderRow","type":"row","parent":"soundCard","props":{"justifyContent":"space-between","alignItems":"center","padding":"14px 20px","borderBottom":"1px solid #f0f0f0"}}
+{"id":"volumeLabel","type":"text","parent":"volumeSliderRow","text":"音量","props":{"fontSize":"14px","fontWeight":500,"width":"80px"}}
+{"id":"volumeControlRow","type":"row","parent":"volumeSliderRow","props":{"flex":1,"alignItems":"center","gap":"8px"}}
+{"id":"volumeIcon","type":"image","parent":"volumeControlRow","props":{"src":"icon-volume-high.svg","width":"16px","height":"16px","alt":"音量图标"}}
+{"id":"volumeSlider","type":"input","parent":"volumeControlRow","props":{"inputType":"range","min":0,"max":100,"value":70,"accentColor":"#1677ff","flex":1}}
+{"id":"notificationVolumeSliderRow","type":"row","parent":"soundCard","props":{"justifyContent":"space-between","alignItems":"center","padding":"14px 20px","borderBottom":"1px solid #f0f0f0"}}
+{"id":"notificationVolumeLabel","type":"text","parent":"notificationVolumeSliderRow","text":"提示音量","props":{"fontSize":"14px","fontWeight":500,"width":"80px"}}
+{"id":"notificationVolumeControlRow","type":"row","parent":"notificationVolumeSliderRow","props":{"flex":1,"alignItems":"center","gap":"8px"}}
+{"id":"notificationVolumeIcon","type":"image","parent":"notificationVolumeControlRow","props":{"src":"icon-notification.svg","width":"16px","height":"16px","alt":"提示音图标"}}
+{"id":"notificationVolumeSlider","type":"input","parent":"notificationVolumeControlRow","props":{"inputType":"range","min":0,"max":100,"value":50,"accentColor":"#1677ff","flex":1}}
+{"id":"keyToneSwitchRow","type":"row","parent":"soundCard","props":{"justifyContent":"space-between","alignItems":"center","padding":"14px 20px","borderBottom":"1px solid #f0f0f0"}}
+{"id":"keyToneLabel","type":"text","parent":"keyToneSwitchRow","text":"按键音","props":{"fontSize":"14px","fontWeight":500}}
+{"id":"keyToneSwitch","type":"input","parent":"keyToneSwitchRow","props":{"inputType":"switch","checked":true,"activeColor":"#1677ff","width":"44px","height":"22px","borderRadius":"11px"}}
+{"id":"micSwitchRow","type":"row","parent":"soundCard","props":{"justifyContent":"space-between","alignItems":"center","padding":"14px 20px"}}
+{"id":"micLabel","type":"text","parent":"micSwitchRow","text":"麦克风","props":{"fontSize":"14px","fontWeight":500}}
+{"id":"micSwitch","type":"input","parent":"micSwitchRow","props":{"inputType":"switch","checked":false,"activeColor":"#1677ff","width":"44px","height":"22px","borderRadius":"11px"}}
+{"id":"spacer","type":"container","parent":"contentCol","props":{"flex":1}}
+{"id":"displayCard","type":"card","parent":"contentCol","props":{"backgroundColor":"#ffffff","borderRadius":"12px","padding":"8px 0","boxShadow":"0 1px 2px rgba(0,0,0,0.05)"}}
+{"id":"brightnessSliderRow","type":"row","parent":"displayCard","props":{"justifyContent":"space-between","alignItems":"center","padding":"14px 20px"}}
+{"id":"brightnessLabel","type":"text","parent":"brightnessSliderRow","text":"亮度","props":{"fontSize":"14px","fontWeight":500,"width":"80px"}}
+{"id":"brightnessControlRow","type":"row","parent":"brightnessSliderRow","props":{"flex":1,"alignItems":"center","gap":"8px"}}
+{"id":"brightnessIcon","type":"image","parent":"brightnessControlRow","props":{"src":"icon-sun.svg","width":"16px","height":"16px","alt":"亮度图标"}}
+{"id":"brightnessSlider","type":"input","parent":"brightnessControlRow","props":{"inputType":"range","min":0,"max":100,"value":60,"accentColor":"#1677ff","flex":1}}

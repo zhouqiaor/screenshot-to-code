@@ -1,0 +1,79 @@
+{
+  "Kotlin Compose": {
+    "L1_syntax": {
+      "ok": true,
+      "errors": 0,
+      "warnings": 0,
+      "braces": "41/41",
+      "parens": "116/116",
+      "bracket_balanced": true
+    },
+    "L2_compile": {},
+    "L3_screenshot": {
+      "ok": false,
+      "size": 0
+    },
+    "L4_device": {},
+    "ok": false
+  },
+  "Android XML": {
+    "L1_syntax": {
+      "ok": true,
+      "errors": 0
+    },
+    "L2_compile": {
+      "ok": true,
+      "exit_code": 0
+    },
+    "L3_screenshot": {
+      "ok": false,
+      "size": 0
+    },
+    "L4_device": {
+      "ok": true,
+      "size": 116022
+    },
+    "ok": false
+  },
+  "Qt QML": {
+    "L1_syntax": {
+      "ok": true,
+      "imports": 4,
+      "components": 48,
+      "brace_balanced": true
+    },
+    "L3_screenshot": {
+      "ok": false,
+      "size": 0
+    },
+    "ok": false
+  },
+  "Windows HTML": {
+    "L1_syntax": {
+      "ok": false,
+      "errors": 1,
+      "note": "lxml HTML4 DTD may false-positive on HTML5 semantic tags"
+    },
+    "L3_screenshot": {
+      "ok": false,
+      "size": 0
+    },
+    "ok": false
+  },
+  "A2UI": {
+    "L1_syntax": {
+      "ok": true,
+      "lines": 37,
+      "types": 9
+    },
+    "L2_parse": {
+      "ok": true,
+      "tree_depth": 7
+    },
+    "L3_screenshot": {
+      "ok": false,
+      "size": 0
+    },
+    "ok": false
+  }
+}

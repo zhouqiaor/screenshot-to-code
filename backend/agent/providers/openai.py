@@ -436,8 +436,7 @@ _VOLCANO_ARK_MODELS = {
     "doubao-seed-1.6-flash",
     "doubao-seed-1.8",
     "doubao-seed-1.6-vision",
-    "doubao-seed-2.0-mini",
-    "doubao-seed-2.0-code",
+    "doubao-seed-2-1-turbo-260628",
 }
 
 
