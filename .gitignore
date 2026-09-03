@@ -92,9 +92,17 @@ aqtinstall.log
 ocr_logs2.zip
 ocr_logs2/
 e2e_runs/
+# 持久 host 工程（脱离 e2e_runs，缓存常驻，便于快速重建；脚手架 + 构建缓存不入库）
+e2e_hosts/
 e2e_demo/run_*/
 e2e_demo/screenshots/
 outputs/
 backend/scripts_tmp/
 backend/e2e/run_*/
 .bak_e2e_run_*/
+
+# ── WorkBuddy 本地记忆 / agent 状态（可能含明文密钥，禁止入库）──
+.workbuddy/
+
+# ADB traversal run artifacts
+runs/

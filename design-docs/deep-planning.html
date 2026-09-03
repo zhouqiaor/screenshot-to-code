@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>screenshot-to-code Fork 深度规划方案</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --bg-card-hover: #1c2330;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-muted: #6e7681;
+  --accent: #58a6ff;
+  --accent-dim: #1f6feb;
+  --green: #3fb950;
+  --green-dim: #238636;
+  --red: #f85149;
+  --orange: #d29922;
+  --purple: #bc8cff;
+  --teal: #2dd4bf;
+  --pink: #f778ba;
+  --radius: 8px;
+  --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+  line-height: 1.7;
+  font-size: 15px;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+h2 { font-size: 22px; font-weight: 600; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--accent); }
+h3 { font-size: 18px; font-weight: 600; margin: 28px 0 12px; color: var(--text); }
+h4 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; color: var(--text-dim); }
+p { margin-bottom: 12px; color: var(--text); }
+ul, ol { margin: 8px 0 16px 20px; }
+li { margin-bottom: 6px; }
+.subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 32px; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin: 0 4px; }
+.tag-done { background: var(--green-dim); color: #fff; }
+.tag-wip { background: var(--orange); color: #000; }
+.tag-todo { background: var(--border); color: var(--text-dim); }
+.tag-risk { background: var(--red); color: #fff; }
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 16px 0;
+}
+.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+.card-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+@media (max-width: 768px) { .card-grid, .card-grid-3 { grid-template-columns: 1fr; } }
+.mini-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.mini-card h4 { margin-top: 0; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { padding: 8px 12px; text-align: left; border: 1px solid var(--border); }
+th { background: var(--bg-card); color: var(--accent); font-weight: 600; white-space: nowrap; }
+td { color: var(--text); }
+tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+code { font-family: var(--mono); background: rgba(110,118,129,0.2); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--teal); }
+pre { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; overflow-x: auto; margin: 12px 0; font-size: 13px; }
+pre code { background: none; padding: 0; color: var(--text); }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.badge-green { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+.badge-orange { background: rgba(210,153,34,0.15); color: var(--orange); border: 1px solid rgba(210,153,34,0.3); }
+.badge-red { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+.badge-blue { background: rgba(88,166,255,0.15); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); }
+.badge-purple { background: rgba(188,140,255,0.15); color: var(--purple); border: 1px solid rgba(188,140,255,0.3); }
+.section-num { display: inline-block; width: 32px; height: 32px; line-height: 32px; text-align: center; border-radius: 50%; background: var(--accent-dim); color: #fff; font-weight: 700; margin-right: 8px; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 40px; }
+.toc h3 { margin-top: 0; color: var(--accent); }
+.toc ol { margin-left: 20px; }
+.toc li { margin-bottom: 4px; }
+.toc a { color: var(--text-dim); text-decoration: none; }
+.toc a:hover { color: var(--accent); }
+.metric-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0; }
+.metric { flex: 1; min-width: 140px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; text-align: center; }
+.metric .num { font-size: 24px; font-weight: 700; color: var(--accent); }
+.metric .label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+.flow-arrow { text-align: center; font-size: 24px; color: var(--text-muted); margin: 8px 0; }
+.dfd { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+.dfd-box { padding: 10px 16px; border-radius: var(--radius); border: 1px solid; font-size: 13px; text-align: center; min-width: 100px; }
+.dfd-a { background: rgba(63,185,80,0.1); border-color: rgba(63,185,80,0.3); color: var(--green); }
+.dfd-b { background: rgba(88,166,255,0.1); border-color: rgba(88,166,255,0.3); color: var(--accent); }
+.dfd-c { background: rgba(188,140,255,0.1); border-color: rgba(188,140,255,0.3); color: var(--purple); }
+.dfd-d { background: rgba(210,153,34,0.1); border-color: rgba(210,153,34,0.3); color: var(--orange); }
+.checklist { list-style: none; margin-left: 0; }
+.checklist li { padding-left: 24px; position: relative; }
+.checklist li::before { content: '☐'; position: absolute; left: 0; color: var(--text-muted); }
+.checklist li.done::before { content: '✅'; color: var(--green); }
+.checklist li.wip::before { content: '🔄'; }
+.sprint-table td:first-child { white-space: nowrap; font-weight: 600; }
+.kpi { display: flex; gap: 24px; margin: 16px 0; flex-wrap: wrap; }
+.kpi-item { text-align: center; }
+.kpi-item .val { font-size: 28px; font-weight: 700; }
+.kpi-item .desc { font-size: 12px; color: var(--text-dim); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>screenshot-to-code Fork — 深度规划方案</h1>
+<p class="subtitle">需求分析 · 方案设计 · 架构设计 · 模块设计 · 可测试性 · 体验设计 · 迭代计划<br>
+分支 <code>adb-ui-traversal</code> · 工作区 <code>C:/Code/screenshot-to-code-adb-traversal</code> · 2026-09-03</p>
+
+<div class="toc">
+<h3>目录</h3>
+<ol>
+<li><a href="#sec1">需求分析</a></li>
+<li><a href="#sec2">方案设计</a></li>
+<li><a href="#sec3">架构设计</a></li>
+<li><a href="#sec4">模块设计</a></li>
+<li><a href="#sec5">可测试性</a></li>
+<li><a href="#sec6">体验设计</a></li>
+<li><a href="#sec7">迭代计划</a></li>
+</ol>
+</div>
+
+<!-- ===================== 1. 需求分析 ===================== -->
+<h2 id="sec1"><span class="section-num">1</span>需求分析</h2>
+
+<h3>1.1 核心问题陈述</h3>
+<div class="card">
+<p>screenshot-to-code 原项目的能力是「<strong>单张截图 → 单栈代码</strong>」。fork 要补上的是「<strong>真机多屏采集 → 批量多栈生成 → 渲染验证闭环</strong>」这条全链路。当前卡点不是生成能力（已有 6 栈 + 火山引擎 vision），而是<strong>没有一份干净的数据集</strong>来喂生成、做评测、做回归。</p>
+<p>本质上这是一个<strong>数据工厂</strong>项目：采集管线产出高质量 UI 三元组（截图 + UI 树 + 骨架），生成管线消费它产出代码，验证管线回采渲染截图做比对——三者形成自循环飞轮。</p>
+</div>
+
+<h3>1.2 利益相关者与场景</h3>
+<table>
+<tr><th>角色</th><th>核心诉求</th><th>当前满足度</th></tr>
+<tr><td><strong>开发者（自用）</strong></td><td>从真机一键采集 → 批量生成代码 → 验证质量</td><td><span class="badge badge-orange">部分</span> 采集已跑通，生成已有，验证缺自动化</td></tr>
+<tr><td><strong>研究者（国产模型）</strong></td><td>产出 ⟨s, a, s'⟩ 三元组 + 指令数据，训练/评测国产 GUI 模型</td><td><span class="badge badge-red">未开始</span> 数据碎片化，无跨 run 记忆</td></tr>
+<tr><td><strong>产品验证</strong></td><td>给定截图，生成 6 栈代码并验证可编译/可渲染</td><td><span class="badge badge-orange">部分</span> 5/5 栈生成 PASS，XML 真机 PASS，Compose 阻塞</td></tr>
+</table>
+
+<h3>1.3 功能性需求</h3>
+<div class="card-grid">
+<div class="mini-card">
+<h4>A 段 · 采集</h4>
+<ul>
+<li>自动遍历真机 UI，逐屏采集三元组</li>
+<li>双模导航（D-Pad + Touch）</li>
+<li>状态去重（结构签名 + pHash 双通道）</li>
+<li>黑名单（文本 + 包级）</li>
+<li>跨 run 全局 UTG 记忆</li>
+<li>SoM 标注导出</li>
+<li>LLM 引导探索（可选模式）</li>
+</ul>
+</div>
+<div class="mini-card">
+<h4>B 段 · 生成</h4>
+<ul>
+<li>截图 → 6 栈代码（HTML/XML/Compose/QML/A2UI/WinUI3）</li>
+<li>1 次 vision + N 次纯文本（token 优化）</li>
+<li>元素文档库注入生成 prompt</li>
+<li>多文件输出（Compose: MainActivity.kt + preview.html）</li>
+<li>Token 治理（预算/路由/压缩/监控）</li>
+</ul>
+</div>
+<div class="mini-card">
+<h4>C 段 · 验证</h4>
+<ul>
+<li>生成代码 → 渲染截图</li>
+<li>像素/骨架/语义三层比对</li>
+<li>HTML 栈：浏览器直接渲染</li>
+<li>XML 栈：aapt2 + d8 → APK → 真机截图</li>
+<li>Compose 栈：Compose Driver / CLI 直编</li>
+<li>QML/A2UI/WinUI3 栈：各自验证器</li>
+</ul>
+</div>
+<div class="mini-card">
+<h4>D 段 · 数据工厂</h4>
+<ul>
+<li>⟨s, a, s'⟩ 三元组 → 低阶指令合成</li>
+<li>低阶指令 → 高阶任务合成</li>
+<li>轨迹奖励模型（TRM）质量过滤</li>
+<li>导出训练数据集格式</li>
+<li>对接国产模型 fine-tune</li>
+</ul>
+</div>
+</div>
+
+<h3>1.4 非功能性需求</h3>
+<table>
+<tr><th>维度</th><th>指标</th><th>现状</th></tr>
+<tr><td>零侵入</td><td>不依赖设备装 agent APK（u2 可选，原生 dump 兜底）</td><td><span class="badge badge-green">已满足</span></td></tr>
+<tr><td>成本</td><td>单次全量采集 ≤ ¥1；单栈生成 ≤ ¥0.2</td><td><span class="badge badge-green">达标</span> 5 栈 ¥0.85</td></tr>
+<tr><td>步均耗时</td><td>采集步均 ≤ 12s（u2 fast path）</td><td><span class="badge badge-orange">20.7s</span> 原生 dump</td></tr>
+<tr><td>覆盖率</td><td>目标 App ≥ 80% 界面被采集</td><td><span class="badge badge-orange">待测</span></td></tr>
+<tr><td>跨运行稳定</td><td>同一界面跨 run 签名一致</td><td><span class="badge badge-green">已验证</span></td></tr>
+<tr><td>双杀软兼容</td><td>360 + Defender 环境下不冻结</td><td><span class="badge badge-orange">Gradle 冻结</span> 需 CLI 直编</td></tr>
+<tr><td>许可证合规</td><td>仅集成 MIT/Apache 项目；AGPL/GPL 禁入</td><td><span class="badge badge-green">已核查</span></td></tr>
+</table>
+
+<h3>1.5 约束条件</h3>
+<ul>
+<li><strong>设备约束</strong>：TEQU-S2C 机顶盒（3840×2160 @480dpi, D-Pad 导航, 非触屏）</li>
+<li><strong>硬件约束</strong>：i5-8250U + 8GB RAM + 360/Defender 双杀软</li>
+<li><strong>模型约束</strong>：百炼 glm-5.2 / 火山 doubao-seed-2-1-turbo（已有 key）</li>
+<li><strong>Git 约束</strong>：5 commits 未推送，PR 待 GitHub token</li>
+<li><strong>网络约束</strong>：poetry lock 曾失败，部分依赖未锁版本</li>
+</ul>
+
+<!-- ===================== 2. 方案设计 ===================== -->
+<h2 id="sec2"><span class="section-num">2</span>方案设计</h2>
+
+<h3>2.1 总体策略：三段闭环 + 记忆回路</h3>
+<p>核心判断：MIT/Apache 阵营（DroidRun、Mobile-Agent 家族、UFO2、AndroidWorld、uiautomator2、Fastbot）覆盖了采集→生成→验证全链路所需的所有子系统，<strong>无需自研任何 agent 框架本体</strong>。自研只剩胶水层。</p>
+
+<div class="dfd">
+<div class="dfd-box dfd-a">A 采集<br><small>ADB 遍历器<br>+ 跨 run UTG</small></div>
+<span style="color:var(--text-muted)">→ 三元组数据集 →</span>
+<div class="dfd-box dfd-b">B 生成<br><small>6 栈代码生成<br>+ 元素文档注入</small></div>
+<span style="color:var(--text-muted)">→ 生成代码 →</span>
+<div class="dfd-box dfd-c">C 验证<br><small>渲染截图<br>+ 三层比对</small></div>
+</div>
+<div class="dfd">
+<span style="color:var(--text-muted)">↑ 反馈回路</span>
+<span style="color:var(--purple)">D 数据工厂：⟨s,a,s'⟩ → 指令合成 → 训练数据 → 国产模型 fine-tune</span>
+<span style="color:var(--text-muted)">↻ 飞轮加速</span>
+</div>
+
+<h3>2.2 复用策略：四级分类</h3>
+<table>
+<tr><th>级别</th><th>含义</th><th>执行规则</th></tr>
+<tr><td><strong>L1 整包引入</strong></td><td>直接装依赖/推 jar，走其协议</td><td>能 L1 不 L2；fallback 必须保留</td></tr>
+<tr><td><strong>L2 模块移植</strong></td><td>拷贝源码模块，适配到本仓库</td><td>文件头标注来源 + commit hash</td></tr>
+<tr><td><strong>L3 机制/Prompt 移植</strong></td><td>不拿代码，拿设计（配置格式、prompt 结构）</td><td>必须落到本仓库具体文件</td></tr>
+<tr><td><strong>L4 架构参考</strong></td><td>只对照设计校准自己实现</td><td>不拷代码</td></tr>
+</table>
+
+<h3>2.3 关键设计决策（已验证 + 待验证）</h3>
+<table>
+<tr><th>决策点</th><th>选择</th><th>理由</th><th>状态</th></tr>
+<tr><td>导航方式</td><td>D-Pad 优先 + Touch 兜底</td><td>TV 设备 focused=0，纯 tap 不稳定</td><td><span class="badge badge-green">已验证</span></td></tr>
+<tr><td>状态去重</td><td>结构签名（class|rid|text|desc）</td><td>跨运行实测稳定；pHash 作第二通道</td><td><span class="badge badge-green">已验证</span></td></tr>
+<tr><td>dump 通道</td><td>原生 uiautomator dump 主 + u2 可选</td><td>零侵入优先；u2 不在锁文件</td><td><span class="badge badge-orange">u2 未锁</span></td></tr>
+<tr><td>主窗口选择</td><td>交互内容优先 > 面积</td><td>空壳全屏 decor 会误选</td><td><span class="badge badge-green">已修复</span></td></tr>
+<tr><td>探索策略</td><td>DFS + BACK 回溯 + 按包 seed</td><td>launcher 签名不稳定，seed 更可靠</td><td><span class="badge badge-green">已验证</span></td></tr>
+<tr><td>生成策略</td><td>1 次 vision + N 次纯文本</td><td>节省 ~65% token</td><td><span class="badge badge-green">已验证</span></td></tr>
+<tr><td>Compose 编译</td><td>CLI 直编（绕 Gradle 死锁）</td><td>双杀软冻结 Gradle daemon</td><td><span class="badge badge-orange">KMP 依赖修复中</span></td></tr>
+<tr><td>LLM 引导探索</td><td>DroidRun 编排 + v3 prompt</td><td>Manager/Executor 分层 + LLM-agnostic</td><td><span class="badge badge-red">未开始</span></td></tr>
+<tr><td>元素文档库</td><td>AppAgent 范式 UTG 边蒸馏</td><td>双向：注入生成 prompt + 遍历跳过死路</td><td><span class="badge badge-red">未开始</span></td></tr>
+<tr><td>验证策略</td><td>三层：像素 + 骨架 + 语义</td><td>HTML 直接渲染 / XML 真机 / Compose Driver</td><td><span class="badge badge-orange">HTML/XML OK</span></td></tr>
+</table>
+
+<h3>2.4 许可证红线</h3>
+<table>
+<tr><th>项目</th><th>许可证</th><th>处置</th></tr>
+<tr><td>OmniParser V1/V2 icon_detect 权重</td><td><span class="badge badge-red">AGPL</span></td><td>只用 V3 YOLOv9-E（MIT 链）或自训</td></tr>
+<tr><td>UIHash</td><td><span class="badge badge-red">GPL-3.0</span></td><td>永不集成，仅借鉴思路</td></tr>
+<tr><td>DroidBot</td><td><span class="badge badge-orange">待核实</span></td><td>核实前只做 L4 架构参考</td></tr>
+<tr><td>Operator / Computer Use / AutoGLM</td><td><span class="badge badge-red">闭源</span></td><td>只对照公开技术报告</td></tr>
+<tr><td>DroidRun / MobileAgent / UFO2 / android_world</td><td><span class="badge badge-green">MIT/Apache</span></td><td>可闭源/商用集成</td></tr>
+</table>
+
+<!-- ===================== 3. 架构设计 ===================== -->
+<h2 id="sec3"><span class="section-num">3</span>架构设计</h2>
+
+<h3>3.1 系统架构总览</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                     screenshot-to-code fork                     │
+│                                                                  │
+│  ┌───────────────┐    ┌───────────────┐    ┌───────────────┐   │
+│  │  A 段 · 采集   │───►│  B 段 · 生成   │───►│  C 段 · 验证   │   │
+│  │               │    │               │    │               │   │
+│  │ AdbBackend    │    │ LLM Router    │    │ HTML Renderer │   │
+│  │ Traverser     │    │ 6 栈 Codegen   │    │ XML APK Build │   │
+│  │ Recorder      │    │ Token Manager │    │ Compose Driver│   │
+│  │ Global UTG    │    │ Element Doc   │    │ 3-Layer Diff  │   │
+│  │ SoM Exporter  │    │   Injector    │    │               │   │
+│  └───────────────┘    └───────────────┘    └───────────────┘   │
+│         │                     ▲                     │           │
+│         │    ┌────────────────┴────────────────┐    │           │
+│         └───►│  D 段 · 数据工厂 / 记忆回路      │◄───┘           │
+│              │  global_graph.json (跨 run UTG) │                │
+│              │  element_doc.json (元素文档库)    │                │
+│              │  synthesized_instructions.jsonl  │                │
+│              └─────────────────────────────────┘                │
+└─────────────────────────────────────────────────────────────────┘
+
+LLM 后端：百炼 glm-5.2 / 火山 doubao-seed-2-1-turbo（已有 key）
+设备：TEQU-S2C 3840×2160 D-Pad TV（200.47.94.166:5555）
+</code></pre>
+
+<h3>3.2 分层架构</h3>
+<table>
+<tr><th>层</th><th>模块</th><th>职责</th><th>已有文件</th></tr>
+<tr><td><strong>L0 设备层</strong></td><td>AdbBackend</td><td>adb 连接 / dump / screencap / input（dpad+tap 双模）</td><td><code>adb_traversal.py:207-490</code></td></tr>
+<tr><td rowspan="4"><strong>L1 采集层</strong></td><td>Traverser</td><td>DFS + BACK 回溯 + HOME 兜底 + 按包 seed</td><td><code>adb_traversal.py:980-1460</code></td></tr>
+<tr><td>Recorder</td><td>三元组产物树 + 降采样 + graph.json</td><td><code>adb_traversal.py:837-979</code></td></tr>
+<tr><td>Signature</td><td>结构签名 + 归一化 + pHash（待加）</td><td><code>adb_traversal.py:626-651</code></td></tr>
+<tr><td>Blacklist</td><td>文本黑名单 + 包级黑名单 + 子树感知</td><td><code>adb_traversal.py:662-690</code></td></tr>
+<tr><td rowspan="4"><strong>L2 感知层</strong></td><td>SkeletonParser</td><td>ui_tree.xml → skeleton.json（class/bounds/component_type/fill_ratio）</td><td><code>skeleton_parser.py</code></td></tr>
+<tr><td>ThemeExtractor</td><td>截图 + skeleton → theme.json</td><td><code>theme_extractor.py</code></td></tr>
+<tr><td>SoMExporter（待建）</td><td>数值标签渲染到 768px JPEG → screenshot_som.jpg</td><td>—</td></tr>
+<tr><td>M3APerception（待建）</td><td>元素表 JSON + 截图双输入包（android_world 移植）</td><td>—</td></tr>
+<tr><td rowspan="4"><strong>L3 生成层</strong></td><td>LLMRouter</td><td>模型路由（vision → 纯文本）+ fallback</td><td><code>llm.py</code> + <code>openai.py</code></td></tr>
+<tr><td>CodeGenerator</td><td>6 栈代码生成 + 多文件 AgentFileState</td><td><code>agent/</code></td></tr>
+<tr><td>TokenManager</td><td>预算检查 + prompt 压缩 + Prometheus 监控</td><td><code>costs/</code></td></tr>
+<tr><td>ElementDocInjector（待建）</td><td>元素文档库 → 生成 prompt 上下文注入</td><td>—</td></tr>
+<tr><td rowspan="4"><strong>L4 验证层</strong></td><td>ValidateCode</td><td>6 栈语法验证</td><td><code>validate_code.py</code></td></tr>
+<tr><td>HTMLRenderer</td><td>浏览器直接渲染截图</td><td>已有</td></tr>
+<tr><td>APKBuilder</td><td>aapt2 + d8 → APK → 真机截图</td><td>已有（XML 栈验证）</td></tr>
+<tr><td>ComposeDriver（待接）</td><td>无设备 JVM 截图验证</td><td>—</td></tr>
+<tr><td rowspan="3"><strong>L5 记忆层</strong></td><td>GlobalUTG（待建）</td><td>跨 run graph.json 合并 + 启动时加载</td><td>—</td></tr>
+<tr><td>ElementDocLibrary（待建）</td><td>UTG 边蒸馏 → AppAgent 式文档 + Consolidation</td><td>—</td></tr>
+<tr><td>InstructionSynthesizer（待建）</td><td>⟨s,a,s'⟩ → 低阶/高阶指令 → 训练数据</td><td>—</td></tr>
+</table>
+
+<h3>3.3 数据流</h3>
+<pre><code>真机设备
+  │
+  ▼
+AdbBackend.dump()  ──────────────────►  ui_tree.xml (19KB)
+  │                                       │
+  ├─► screencap → screenshot.png (1MB)    ├─► skeleton_parser ──► skeleton.json
+  │     │                                 │
+  │     └─► _downscale ──► screenshot_768.jpg (50KB)  ◄── LLM 输入
+  │
+  ▼
+Traverser._explore()
+  │
+  ├─► signature_of(root) ──► "dbef6adf8cfb6331"  (状态去重)
+  │
+  ├─► extract_actions(root) ──► [Action(click, bounds, rid), ...]
+  │
+  ├─► _perform(action) ──► AdbBackend.tap/dpad/swipe
+  │
+  └─► _wait_stable() ──► 新状态签名 (循环)
+  │
+  ▼
+Recorder.write_outputs()
+  │
+  ├─► manifest.json  (设备/配置/汇总)
+  ├─► graph.json     (UTG: states + edges)
+  └─► states/<idx>_<sig>/
+        ├── screenshot.png
+        ├── screenshot_768.jpg
+        ├── ui_tree.xml
+        ├── skeleton.json
+        └── meta.json
+  │
+  ▼ (跨 run)
+GlobalUTG.merge()  ──►  global_graph.json
+  │
+  ├─► ElementDocLibrary.distill()  ──►  element_doc.json
+  │                                      (element_id, action_effect, visual_desc)
+  │
+  └─► InstructionSynthesizer()  ──►  instructions.jsonl
+                                       (低阶/高阶指令 → 训练数据)
+</code></pre>
+
+<h3>3.4 关键架构决策记录（ADR）</h3>
+
+<div class="card">
+<h4>ADR-001: 单文件自包含遍历器</h4>
+<p><strong>决策</strong>：遍历器核心逻辑全部在 <code>adb_traversal.py</code>（1528 行），不拆包。</p>
+<p><strong>理由</strong>：worktree 部署简单；双杀软环境下减少文件 I/O；方便设备端调试。</p>
+<p><strong>代价</strong>：文件偏大，但函数边界清晰（7 个 class + 20 个函数），pyright 0 errors。</p>
+<p><strong>复审</strong>：B 段引入 LLM 感知层时应拆出 <code>llm_perception.py</code>，避免单文件膨胀超过 2000 行。</p>
+</div>
+
+<div class="card">
+<h4>ADR-002: 原生 dump 优先 + u2 可选</h4>
+<p><strong>决策</strong>：<code>try: import uiautomator2; except: u2 = None</code>，缺失时静默降级。</p>
+<p><strong>理由</strong>：机顶盒定制 ROM 推 atx-agent 风险高；零侵入是硬约束。</p>
+<p><strong>代价</strong>：原生 dump ~2.9s vs u2 ~0.17s（17×）；但当前步均 20.7s 中 dump 只占 14%，瓶颈在 screencap+pull。</p>
+</div>
+
+<div class="card">
+<h4>ADR-003: 按目标包 seed 而非从 launcher 全量</h4>
+<p><strong>决策</strong>：<code>--package com.device.settings</code> 分别 seed 各目标 App。</p>
+<p><strong>理由</strong>：launcher 签名不稳定（卡片轮播/侧边栏 DOM 变），DFS 从 launcher 出发 depth 预算被 help 链吃光。</p>
+<p><strong>代价</strong>：跨 App 跳转链路丢失（launcher→settings→help 等），需 global UTG 补回。</p>
+</div>
+
+<div class="card">
+<h4>ADR-004: CLI 直编绕 Gradle 死锁</h4>
+<p><strong>决策</strong>：kotlinc 2.0.21 + compose-compiler-plugin → d8 → aapt2 link → 合并 dex → zipalign → apksigner。</p>
+<p><strong>理由</strong>：360+Defender 拦截 native instrumentation agent，Gradle 8.9/8.11.1 daemon 均冻结。</p>
+<p><strong>代价</strong>：KMP 元数据 jar 陷阱（需手动选 -jvm 变体）；build 脚本维护成本高。</p>
+<p><strong>复审</strong>：Gradle 问题修复后应回退到标准构建；Compose Driver（L1）可作为无设备验证的长期方案。</p>
+</div>
+
+<div class="card">
+<h4>ADR-005: 结构签名 + pHash 双通道去重</h4>
+<p><strong>决策</strong>：主通道 = 结构签名（class|resource-id|归一化 text|desc → MD5）；第二通道 = pHash（imagehash，768px JPEG，汉明距离 ≤ 8）。</p>
+<p><strong>理由</strong>：ICSE'20 结论——没有单一算法能抓住所有功能近重复；结构签名盲区是「布局同、内容异」（如列表不同数据页）。</p>
+<p><strong>代价</strong>：新增 imagehash 依赖（MIT，轻量纯 Python）。</p>
+</div>
+
+<!-- ===================== 4. 模块设计 ===================== -->
+<h2 id="sec4"><span class="section-num">4</span>模块设计</h2>
+
+<h3>4.1 模块全景</h3>
+<table>
+<tr><th>模块</th><th>文件</th><th>行数</th><th>状态</th><th>下一步</th></tr>
+<tr><td>AdbBackend</td><td>adb_traversal.py:207-490</td><td>~280</td><td><span class="badge badge-green">稳定</span></td><td>加 scrcpy 帧抓取通道（P2）</td></tr>
+<tr><td>Traverser</td><td>adb_traversal.py:980-1460</td><td>~480</td><td><span class="badge badge-green">稳定</span></td><td>加 <code>--strategy llm</code> 模式</td></tr>
+<tr><td>Recorder</td><td>adb_traversal.py:837-979</td><td>~140</td><td><span class="badge badge-green">稳定</span></td><td>加 pHash 字段输出</td></tr>
+<tr><td>Signature</td><td>adb_traversal.py:626-651</td><td>~25</td><td><span class="badge badge-green">稳定</span></td><td>加 pHash 第二通道</td></tr>
+<tr><td>Blacklist</td><td>adb_traversal.py:662-712</td><td>~50</td><td><span class="badge badge-green">稳定</span></td><td>—</td></tr>
+<tr><td>extract_actions</td><td>adb_traversal.py:713-836</td><td>~120</td><td><span class="badge badge-green">稳定</span></td><td>—</td></tr>
+<tr><td>SkeletonParser</td><td>skeleton_parser.py</td><td>197</td><td><span class="badge badge-green">稳定</span></td><td>—</td></tr>
+<tr><td>ThemeExtractor</td><td>theme_extractor.py</td><td>~250</td><td><span class="badge badge-green">稳定</span></td><td>—</td></tr>
+<tr><td>LLMRouter</td><td>llm.py + openai.py</td><td>—</td><td><span class="badge badge-green">稳定</span></td><td>—</td></tr>
+<tr><td>CodeGenerator</td><td>agent/</td><td>—</td><td><span class="badge badge-green">稳定</span></td><td>—</td></tr>
+<tr><td>TokenManager</td><td>costs/</td><td>—</td><td><span class="badge badge-green">稳定</span></td><td>—</td></tr>
+<tr><td>ValidateCode</td><td>validate_code.py</td><td>—</td><td><span class="badge badge-green">稳定</span></td><td>—</td></tr>
+<tr><td><strong>GlobalUTG</strong></td><td><em>待建</em></td><td>—</td><td><span class="badge badge-red">未开始</span></td><td>P0 优先</td></tr>
+<tr><td><strong>SoMExporter</strong></td><td><em>待建</em></td><td>—</td><td><span class="badge badge-red">未开始</span></td><td>P0 优先</td></tr>
+<tr><td><strong>M3APerception</strong></td><td><em>待建</em></td><td>—</td><td><span class="badge badge-red">未开始</span></td><td>P1</td></tr>
+<tr><td><strong>LLMExplorer</strong></td><td><em>待建</em></td><td>—</td><td><span class="badge badge-red">未开始</span></td><td>P1</td></tr>
+<tr><td><strong>ElementDocLibrary</strong></td><td><em>待建</em></td><td>—</td><td><span class="badge badge-red">未开始</span></td><td>P1</td></tr>
+<tr><td><strong>InstructionSynthesizer</strong></td><td><em>待建</em></td><td>—</td><td><span class="badge badge-red">未开始</span></td><td>P2</td></tr>
+<tr><td><strong>ComposeDriver</strong></td><td><em>待接</em></td><td>—</td><td><span class="badge badge-red">未开始</span></td><td>P1</td></tr>
+<tr><td><strong>WinUI3Collector</strong></td><td><em>待建</em></td><td>—</td><td><span class="badge badge-red">未开始</span></td><td>P2</td></tr>
+</table>
+
+<h3>4.2 待建模块详细设计</h3>
+
+<div class="card">
+<h4>4.2.1 GlobalUTG（跨 run 状态图）</h4>
+<p><strong>目标</strong>：把多次 run 的 <code>graph.json</code> 合并成 <code>global_graph.json</code>，遍历启动时加载——已探过的边直接复用签名，不重复探索。</p>
+<p><strong>接口设计</strong>：</p>
+<pre><code># backend/scripts/global_utg.py（新建）
+class GlobalUTG:
+    def __init__(self, path: Path): ...
+    def load(self) -> dict: ...
+    def merge_run(self, run_graph: dict) -> int:
+        """合并一个 run 的 graph.json，返回新增 state/edge 数"""
+    def has_state(self, sig: str) -> bool: ...
+    def has_edge(self, from_sig: str, action_key: str) -> Optional[str]:
+        """已知边的 to-state 签名，避免重复探索"""
+    def save(self) -> None: ...
+    def export_element_docs(self) -> list[dict]:
+        """UTG 边 → 元素文档初版（无需 LLM）"""
+</code></pre>
+<p><strong>合并规则</strong>：</p>
+<ul>
+<li>state 去重：结构签名相同 → 合并（保留更丰富的 actions/texts）</li>
+<li>edge 去重：from-sig + action.key 相同 → 合并（保留 effective 导航法）</li>
+<li>Consolidation：同一元素跨 run 出现 → 取最新 action_effect</li>
+</ul>
+<p><strong>工作量</strong>：~1 天，纯工程，无外部依赖。</p>
+</div>
+
+<div class="card">
+<h4>4.2.2 SoMExporter（Set-of-Mark 标注导出）</h4>
+<p><strong>目标</strong>：把每个 state 的 actions + bounds 渲染为带数值标签的 <code>screenshot_som.jpg</code>。</p>
+<p><strong>接口设计</strong>：</p>
+<pre><code># backend/scripts/som_exporter.py（新建）
+class SoMExporter:
+    def export(self, screenshot_768: Path, actions: list[Action],
+               out_path: Path) -> Path:
+        """在 768px JPEG 上画框 + 编号，产出 screenshot_som.jpg"""
+        # Pillow: ImageDraw.rectangle + text
+        # 编号 = action 在 actions 列表中的 index
+        # 颜色编码: clickable=绿, focusable=蓝, scrollable=橙
+</code></pre>
+<p><strong>用途</strong>：a) 给 LLM 代码生成用（模型指认「组件 3 是 Grid」比给坐标可靠）；b) 给验证器做语义走查对齐基准。</p>
+<p><strong>工作量</strong>：~半天，Pillow（已有），无新依赖。</p>
+</div>
+
+<div class="card">
+<h4>4.2.3 M3APerception（混合感知格式化）</h4>
+<p><strong>目标</strong>：移植 android_world 的 M3A 感知格式——元素表 JSON + 截图双输入包，是混合感知的标准写法。</p>
+<p><strong>接口设计</strong>：</p>
+<pre><code># backend/capture/llm_perception.py（新建，L2 模块移植）
+class M3APerception:
+    def format(self, state_dir: Path) -> dict:
+        """产出 LLM 输入包：
+        {
+          "screenshot": "<base64 768px JPEG>",
+          "elements": [
+            {"id": 0, "type": "ImageView", "text": "白板",
+             "bounds": [1756,1272,2084,1672], "clickable": true},
+            ...
+          ]
+        }
+        """
+</code></pre>
+<p><strong>来源</strong>：android_world（Apache-2.0），L2 模块移植，文件头标注来源 + commit hash。</p>
+<p><strong>工作量</strong>：小，主要是格式适配。</p>
+</div>
+
+<div class="card">
+<h4>4.2.4 LLMExplorer（LLM 引导探索）</h4>
+<p><strong>目标</strong>：<code>--strategy llm</code> 模式，LLM 对候选 Action 打分（未访问优先 + 语义价值），动作后 LLM 判断「状态变化是否符合预期」。</p>
+<p><strong>接口设计</strong>：</p>
+<pre><code># backend/scripts/llm_explorer.py（新建）
+class LLMExplorer:
+    def __init__(self, backend: AdbBackend, llm_router, cfg): ...
+    def score_actions(self, actions: list[Action], state_meta: dict,
+                      som_path: Path) -> list[tuple[Action, float]]:
+        """LLM 对候选动作打分，返回排序后的 (action, score)"""
+    def reflect(self, before_som: Path, after_som: Path,
+                action: Action) -> dict:
+        """动作后反思：状态变化是否符合预期 → 预筛 action_effect"""
+</code></pre>
+<p><strong>复用来源</strong>：DroidRun Manager/Executor 编排（MIT, L2）+ Mobile-Agent-v3 多角色 prompt（MIT, L3）。</p>
+<p><strong>模型</strong>：百炼 glm-5.2 / 火山 doubao-seed-2-1-turbo（已有 key），不需要 GUI-Owl。</p>
+<p><strong>工作量</strong>：中，需调 prompt + 接 LLM API。</p>
+</div>
+
+<div class="card">
+<h4>4.2.5 ElementDocLibrary（元素文档库）</h4>
+<p><strong>目标</strong>：UTG 边 ⟨s, a, s'⟩ 蒸馏成 AppAgent 式元素文档，注入生成 prompt + 下次遍历跳过死路。</p>
+<p><strong>文档 schema</strong>：</p>
+<pre><code>{
+  "element_id": "settings_btn_3",        // bounds + class 哈希
+  "element_type": "TextView",
+  "visual_description": "设置入口按钮",    // LLM 生成或从 texts 提取
+  "bounds": [950, 390, 2890, 1770],
+  "action_effect": "进入设置列表页",      // from to-state texts 摘要
+  "from_state_sig": "39938a6c...",
+  "to_state_sig": "a1b2c3d4...",
+  "confidence": 0.85,                    // LLM 反思置信度
+  "runs_seen": 3                          // 跨 run 出现次数（Consolidation）
+}
+</code></pre>
+<p><strong>用途</strong>：</p>
+<ul>
+<li><strong>注入生成 prompt</strong>：「点击此按钮进入站点选择页」→ 生成的代码行为与真实 UI 对齐</li>
+<li><strong>遍历跳过死路</strong>：已知死路/危险按钮直接跳过（比 <code>_RISKY_TEXT</code> 黑名单精确得多）</li>
+<li><strong>指令合成</strong>：元素文档 → 低阶指令（「点击设置按钮」）→ 高阶任务（「修改 Wi-Fi 密码」）</li>
+</ul>
+<p><strong>工作量</strong>：中，蒸馏脚本 + LLM 调用 + Consolidation 逻辑。</p>
+</div>
+
+<div class="card">
+<h4>4.2.6 InstructionSynthesizer（指令合成 / 数据工厂）</h4>
+<p><strong>目标</strong>：⟨s, a, s'⟩ 三元组 → 低阶指令 → 高阶任务 → 训练/评测数据（OS-Genesis 路线）。</p>
+<p><strong>流程</strong>：</p>
+<pre><code>三元组 (before_screenshot, action, after_screenshot)
+  │
+  ├─► 低阶指令合成 (LLM)
+  │   "点击屏幕上的'设置'按钮"
+  │
+  ├─► 高阶任务合成 (LLM, 串联多个低阶指令)
+  │   "进入设置并修改 Wi-Fi 密码"
+  │
+  ├─► 轨迹奖励模型 (TRM) 质量过滤
+  │   completion score + coherence score
+  │
+  └─► instructions.jsonl (训练数据导出)
+</code></pre>
+<p><strong>战略价值</strong>：把采集管线升级成数据工厂，匹配 fork 的国产模型定位。</p>
+<p><strong>工作量</strong>：大（战略级），需多轮 LLM 调用 + TRM 评估。</p>
+</div>
+
+<!-- ===================== 5. 可测试性 ===================== -->
+<h2 id="sec5"><span class="section-num">5</span>可测试性</h2>
+
+<h3>5.1 测试金字塔</h3>
+<div class="card-grid-3">
+<div class="mini-card" style="border-top: 3px solid var(--green);">
+<h4>🔴 基座：单元测试</h4>
+<p style="color: var(--green); font-size: 24px; font-weight: 700;">29 passed</p>
+<p>覆盖：签名计算 / 黑名单匹配 / 动作抽取 / bounds 解析 / skeleton 解析 / theme 提取</p>
+<p><strong>目标</strong>：≥ 40 tests，行覆盖 ≥ 80%</p>
+</div>
+<div class="mini-card" style="border-top: 3px solid var(--orange);">
+<h4>🟡 中层：集成测试</h4>
+<p style="color: var(--orange); font-size: 24px; font-weight: 700;">3 runs verified</p>
+<p>覆盖：真机遍历端到端 / graph.json 结构正确性 / 生成代码 validate_code</p>
+<p><strong>目标</strong>：CI 可跑的离线回放测试</p>
+</div>
+<div class="mini-card" style="border-top: 3px solid var(--accent);">
+<h4>🔵 顶层：E2E 验证</h4>
+<p style="color: var(--accent); font-size: 24px; font-weight: 700;">5/5 stacks PASS</p>
+<p>覆盖：截图 → 生成代码 → 渲染截图 → 比对</p>
+<p><strong>目标</strong>：6 栈全通（Compose + WinUI3 待通）</p>
+</div>
+</div>
+
+<h3>5.2 测试策略</h3>
+<table>
+<tr><th>层</th><th>方法</th><th>工具</th><th>状态</th></tr>
+<tr><td>签名/去重</td><td>回放录制的 XML dump → 验证签名稳定性</td><td>pytest + 录制数据</td><td><span class="badge badge-green">已有</span></td></tr>
+<tr><td>黑名单</td><td>构造含黑名单子串的 XML → 验证子树最紧匹配</td><td>pytest</td><td><span class="badge badge-green">已有</span></td></tr>
+<tr><td>动作抽取</td><td>回放 launcher/settings/fileexplore dump → 验证动作数</td><td>pytest</td><td><span class="badge badge-green">已有</span></td></tr>
+<tr><td>遍历端到端</td><td>真机 3 种 seed run → graph.json 结构校验</td><td>手动 + python 脚本</td><td><span class="badge badge-green">已验证</span></td></tr>
+<tr><td>代码生成</td><td>截图 → validate_code 6 栈语法检查</td><td>validate_code.py</td><td><span class="badge badge-green">5/5 PASS</span></td></tr>
+<tr><td>HTML 验证</td><td>生成 HTML → 浏览器渲染 → 截图比对</td><td>Playwright</td><td><span class="badge badge-green">已有</span></td></tr>
+<tr><td>XML 验证</td><td>aapt2 + d8 → APK → 真机截图</td><td>adb install + screencap</td><td><span class="badge badge-green">已验证</span></td></tr>
+<tr><td>Compose 验证</td><td>CLI 直编 → APK → 真机截图</td><td>build_compose_apk.py</td><td><span class="badge badge-orange">KMP 修复中</span></td></tr>
+<tr><td>GlobalUTG</td><td>合并 3+ run 的 graph.json → 验证去重正确性</td><td>pytest</td><td><span class="badge badge-red">待建</span></td></tr>
+<tr><td>SoM 导出</td><td>回放 state → 验证标注位置正确</td><td>pytest + Pillow</td><td><span class="badge badge-red">待建</span></td></tr>
+<tr><td>LLM 探索</td><td>mock LLM → 验证打分/反思逻辑</td><td>pytest + mock</td><td><span class="badge badge-red">待建</span></td></tr>
+<tr><td>元素文档</td><td>回放 UTG 边 → 验证蒸馏正确性</td><td>pytest</td><td><span class="badge badge-red">待建</span></td></tr>
+<tr><td>OCR CI</td><td>PR 触发 → dashscope/glm-5.2 审查</td><td>OCR workflow</td><td><span class="badge badge-green">已验证</span></td></tr>
+</table>
+
+<h3>5.3 测试数据管理</h3>
+<div class="card">
+<ul>
+<li><strong>录制数据</strong>：从真机 run 中选取 3-5 个代表性 state（launcher / settings / fileexplore），将 <code>ui_tree.xml</code> + <code>meta.json</code> 存入 <code>tests/fixtures/</code>，作为单元测试的回放数据</li>
+<li><strong>离线回放</strong>：所有单元测试不需要设备连接——从 fixtures 加载 XML，验证签名/动作抽取/黑名单逻辑</li>
+<li><strong>CI 集成</strong>：pytest + pyright 在 PR 时自动跑（已有 OCR workflow 可扩展）</li>
+<li><strong>回归基线</strong>：每次修复 bug 后，新增对应测试用例锁定（如 <code>test_is_blacklisted_pkg_substring</code>）</li>
+</ul>
+</div>
+
+<h3>5.4 质量门</h3>
+<table>
+<tr><th>指标</th><th>门槛</th><th>当前</th></tr>
+<tr><td>pyright</td><td>0 errors</td><td><span class="badge badge-green">✅ 0 errors</span></td></tr>
+<tr><td>pytest</td><td>全 pass</td><td><span class="badge badge-green">✅ 29 passed</span></td></tr>
+<tr><td>代码生成</td><td>validate_code 6 栈 0 错</td><td><span class="badge badge-green">✅ 5/5</span></td></tr>
+<tr><td>真机遍历</td><td>3 seed 全部完成无 abort</td><td><span class="badge badge-green">✅ 3/3</span></td></tr>
+<tr><td>悬空边</td><td>0 条</td><td><span class="badge badge-green">✅ 0</span></td></tr>
+<tr><td>死胡同占位</td><td>黑名单 App 均 captured=False</td><td><span class="badge badge-green">✅</span></td></tr>
+</table>
+
+<!-- ===================== 6. 体验设计 ===================== -->
+<h2 id="sec6"><span class="section-num">6</span>体验设计</h2>
+
+<h3>6.1 用户体验目标</h3>
+<div class="card-grid">
+<div class="mini-card">
+<h4>🚀 一键采集</h4>
+<p><code>python -m scripts.adb_traversal -d &lt;device&gt; --seed-all</code></p>
+<p>自动 seed 桌面/设置/文件管理器，跑完全量遍历，产出数据集 + 全局 UTG。用户不需要懂 DFS/签名/黑名单。</p>
+</div>
+<div class="mini-card">
+<h4>📊 可视化报告</h4>
+<p>遍历结束后自动打开 HTML 报告：状态图缩略图墙 + UTG 拓扑图 + 覆盖率统计 + 异常状态标注。</p>
+</div>
+<div class="mini-card">
+<h4>🔄 增量采集</h4>
+<p>加载 global_graph.json → 只探新状态 → 合并 → 保存。第二次跑只需要几分钟而不是全量 30min。</p>
+</div>
+<div class="mini-card">
+<h4>🎨 生成预览</h4>
+<p>选中一个 state → 一键生成 6 栈代码 → 浏览器内并排预览原始截图与渲染结果。</p>
+</div>
+</div>
+
+<h3>6.2 错误处理体验</h3>
+<table>
+<tr><th>场景</th><th>当前行为</th><th>目标体验</th></tr>
+<tr><td>设备离线</td><td>立即报错退出</td><td>等待重连 3 次 → 提示 IP 是否变更</td></tr>
+<tr><td>dump 失败</td><td>重试 + 容错（已修复）</td><td>✅ 已达标——跳过分支而非中止</td></tr>
+<tr><td>签名漂移</td><td>re-root 容错（已修复）</td><td>✅ 已达标</td></tr>
+<tr><td>黑名单 App 闯入</td><td>记 0 动作死胡同</td><td>✅ 已达标</td></tr>
+<tr><td>LLM 超时</td><td>—</td><td>降级到规则策略 + 标记该步未引导</td></tr>
+<tr><td>预算耗尽</td><td>正常退出 + manifest</td><td>✅ 已达标</td></tr>
+</table>
+
+<h3>6.3 开发者体验（DX）</h3>
+<ul>
+<li><strong>CLI 自文档化</strong>：<code>--help</code> 列出所有参数 + 示例命令</li>
+<li><strong>进度可观测</strong>：实时输出当前状态/深度/动作数/步数（已有）</li>
+<li><strong>产物自描述</strong>：<code>manifest.json</code> 记录完整配置和汇总（已有）</li>
+<li><strong>日志可回放</strong>：<code>graph.json</code> 可离线分析（已有）</li>
+<li><strong>测试可回放</strong>：fixtures 数据离线跑（已有）</li>
+<li><strong>质量门自动化</strong>：pyright + pytest + validate_code（已有）</li>
+</ul>
+
+<!-- ===================== 7. 迭代计划 ===================== -->
+<h2 id="sec7"><span class="section-num">7</span>迭代计划</h2>
+
+<h3>7.1 Sprint 总览</h3>
+<table class="sprint-table">
+<tr><th>Sprint</th><th>主题</th><th>交付物</th><th>依赖</th><th>预估</th><th>状态</th></tr>
+<tr><td>S0</td><td>提交 & 推送</td><td>5 commits → PR + OCR</td><td>GitHub token</td><td>—</td><td><span class="badge badge-orange">待 token</span></td></tr>
+<tr><td>S1</td><td>数据集基线</td><td>3 seed 合并 → global_graph.json + 覆盖率报告</td><td>S0</td><td>1 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S2</td><td>感知增强</td><td>SoM 导出 + pHash 第二通道</td><td>S1</td><td>1.5 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S3</td><td>跨 run 记忆</td><td>GlobalUTG + 启动时加载 + 增量采集</td><td>S1</td><td>1 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S4</td><td>元素文档库</td><td>UTG 边蒸馏 → element_doc.json + 生成 prompt 注入</td><td>S3</td><td>2 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S5</td><td>M3A 感知移植</td><td>android_world M3A 格式化 → LLM 输入包</td><td>S2</td><td>1 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S6</td><td>LLM 引导探索</td><td><code>--strategy llm</code> + DroidRun 编排 + v3 prompt</td><td>S5</td><td>3 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S7</td><td>Compose 验证</td><td>KMP 修复 → CLI 直编 → APK → 截图</td><td>—</td><td>2 天</td><td><span class="badge badge-orange">修复中</span></td></tr>
+<tr><td>S8</td><td>验证器集成</td><td>Compose Driver + Roborazzi AI 断言</td><td>S7</td><td>2 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S9</td><td>语义走查</td><td>GUI-Critic-R1 prompt → 渲染前后比对验证器</td><td>S8</td><td>2 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S10</td><td>WinUI3 采集</td><td>UFO2 UIA 模块 → WinUI3 栈采集 + 验证</td><td>—</td><td>3 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S11</td><td>指令合成</td><td>⟨s,a,s'⟩ → 低阶/高阶指令 → instructions.jsonl</td><td>S4+S6</td><td>3 天</td><td><span class="badge badge-red">待开始</span></td></tr>
+<tr><td>S12</td><td>数据飞轮</td><td>指令数据 → 国产模型 fine-tune → 评测</td><td>S11</td><td>战略级</td><td><span class="badge badge-red">待开始</span></td></tr>
+</table>
+
+<h3>7.2 Sprint 详细设计</h3>
+
+<h4>S1 · 数据集基线（1 天）</h4>
+<div class="card">
+<p><strong>目标</strong>：用已验证的 3 个 seed run（launcher / settings / fileexplore）合并出首个可用数据集。</p>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li>写 <code>merge_graphs.py</code>：读 3 份 <code>graph.json</code> → 签名去重合并 → <code>global_graph.json</code></li>
+<li>统计覆盖率：目标 App 界面数 / 唯一边数 / 悬空状态数</li>
+<li>生成 HTML 覆盖率报告：状态缩略图墙 + UTG 拓扑图</li>
+<li>质量门：零悬空 + 目标 App 全覆盖</li>
+</ol>
+<p><strong>验收标准</strong>：≥ 10 个真实状态（captured=True），0 条悬空边，3 个目标 App 均覆盖。</p>
+</div>
+
+<h4>S2 · 感知增强（1.5 天）</h4>
+<div class="card">
+<p><strong>目标</strong>：SoM 标注导出 + pHash 第二签名通道。</p>
+<ol>
+<li><strong>SoM 导出</strong>（半天）：新建 <code>som_exporter.py</code>，Pillow 在 768px JPEG 上画框 + 编号，产出 <code>screenshot_som.jpg</code></li>
+<li><strong>pHash 通道</strong>（1 天）：<code>meta.json</code> 加 <code>phash</code> 字段；去重规则升级为「结构签名相同 且 pHash 汉明距离 ≤ 8 → 同状态」</li>
+<li>回放所有已有 state 补算 pHash</li>
+<li>新增 3 个单测：SoM 位置正确性 / pHash 一致性 / 近重复检测</li>
+</ol>
+<p><strong>验收标准</strong>：每个 state 目录含 <code>screenshot_som.jpg</code> + <code>meta.json</code> 有 <code>phash</code> 字段；pytest ≥ 32。</p>
+</div>
+
+<h4>S3 · 跨 run 记忆（1 天）</h4>
+<div class="card">
+<p><strong>目标</strong>：GlobalUTG 模块，遍历启动时加载，已探过的边不重复探索。</p>
+<ol>
+<li>新建 <code>global_utg.py</code>：<code>GlobalUTG</code> 类 + <code>merge_run()</code> + <code>has_edge()</code></li>
+<li>遍历器启动时 <code>global_utg.load()</code>，<code>_explore</code> 中查 <code>has_edge(sig, action.key)</code> → 跳过已知边</li>
+<li>遍历结束后 <code>global_utg.merge_run(graph)</code> + <code>save()</code></li>
+<li>新增 <code>--incremental</code> CLI 参数</li>
+<li>新增 2 个单测：合并正确性 / 增量跳过</li>
+</ol>
+<p><strong>验收标准</strong>：第二次遍历同 App 状态数 ≤ 首次的 30%；global_graph.json 随 run 增长。</p>
+</div>
+
+<h4>S4 · 元素文档库（2 天）</h4>
+<div class="card">
+<p><strong>目标</strong>：UTG 边蒸馏成 AppAgent 式元素文档，注入生成 prompt。</p>
+<ol>
+<li>新建 <code>element_doc.py</code>：<code>distill(graph) → element_doc.json</code></li>
+<li><code>element_id</code> ← bounds+class 哈希；<code>action_effect</code> ← to-state texts 摘要（初版无需 LLM）</li>
+<li>Consolidation：同一元素跨 run 出现 → 取最新 action_effect</li>
+<li>生成 prompt 注入：在 codegen prompt 中追加「此界面元素的行为文档」段落</li>
+<li>可选：用 doubao vision 生成 <code>visual_description</code>（每 run 人工看 3-5 条）</li>
+</ol>
+<p><strong>验收标准</strong>：≥ 20 条元素文档；生成代码中按钮行为与真实 UI 对齐率 ≥ 80%。</p>
+</div>
+
+<h4>S5-S6 · M3A + LLM 引导探索（4 天）</h4>
+<div class="card">
+<p><strong>目标</strong>：从「盲 DFS」升级为「LLM 引导探索」。</p>
+<ol>
+<li><strong>S5（1 天）</strong>：移植 android_world M3A 格式化 → <code>llm_perception.py</code>，产出元素表 JSON + 截图双输入包</li>
+<li><strong>S6（3 天）</strong>：<code>--strategy llm</code> 模式：
+  <ul>
+  <li>候选动作打分：LLM 看元素表 + SoM 截图 → 对每个 Action 输出探索价值分数</li>
+  <li>动作后反思：前后截图对比 → LLM 判断「状态变化是否符合预期」→ 预筛 action_effect</li>
+  <li>复用 DroidRun Manager/Executor 编排结构（MIT, L2）</li>
+  <li>复用 Mobile-Agent-v3 多角色 prompt（MIT, L3）</li>
+  </ul>
+</li>
+<li>mock LLM 单测 + 真机小规模验证</li>
+</ol>
+<p><strong>验收标准</strong>：LLM 引导模式比盲 DFS 多覆盖 ≥ 30% 状态；动作后反思准确率 ≥ 70%。</p>
+</div>
+
+<h4>S7-S9 · 验证栈（6 天）</h4>
+<div class="card">
+<ol>
+<li><strong>S7（2 天）</strong>：Compose KMP 依赖修复 → CLI 直编 → APK → 真机截图
+  <ul>
+  <li>用 Gradle 缓存的 -jvm 真实 jar 覆盖 3 个元数据 jar</li>
+  <li>删除 2 个纯桩 jar（activity-ktx / lifecycle-common-java8）</li>
+  <li>重跑构建 + 装机 + 截图</li>
+  </ul>
+</li>
+<li><strong>S8（2 天）</strong>：Compose Driver（L1 接入）+ Roborazzi AI 断言
+  <ul>
+  <li>Gradle Settings Plugin + HTTP 端点（/screenshot /printTree /click）</li>
+  <li>无设备 JVM 截图验证</li>
+  <li>Roborazzi 截图 + 火山引擎做语义断言</li>
+  </ul>
+</li>
+<li><strong>S9（2 天）</strong>：GUI-Critic-R1 prompt 改造为渲染前后语义比对验证器
+  <ul>
+  <li>对生成 UI 做 SoM 标注 → LLM 逐元素回答「与真机截图语义是否一致」</li>
+  <li>结构化差异报告：元素级匹配/缺失/多余</li>
+  </ul>
+</li>
+</ol>
+<p><strong>验收标准</strong>：6 栈全通验证（HTML/XML 已通 + Compose 新通 + QML/A2UI/WinUI3 各自通）。</p>
+</div>
+
+<h4>S10 · WinUI3 采集/验证（3 天）</h4>
+<div class="card">
+<p><strong>目标</strong>：用 UFO2 UIA 模块（MIT, L2）做 WinUI3 栈采集 + 验证，省掉自研 Windows UIA 管线。</p>
+<ol>
+<li>从 UFO2 <code>ufo/</code> 目录摘取 UIA 检测 + 控制自动化模块</li>
+<li>适配到本仓库的 <code>ScreenshotRenderer</code> Protocol</li>
+<li>新建 winui3 栈的采集器和验证器</li>
+</ol>
+</div>
+
+<h4>S11-S12 · 数据工厂（战略级）</h4>
+<div class="card">
+<p><strong>目标</strong>：把采集管线升级成国产 GUI 模型训练数据工厂。</p>
+<ol>
+<li><strong>S11（3 天）</strong>：⟨s,a,s'⟩ → 低阶指令（「点击白板图标」）→ 高阶任务（「新建白板并退出」）→ TRM 质量过滤 → <code>instructions.jsonl</code></li>
+<li><strong>S12（战略级）</strong>：指令数据 → 国产模型 fine-tune → AndroidWorld 评测 → 迭代</li>
+</ol>
+<p><strong>战略价值</strong>：Mobile-Agent-v3 的「自我进化轨迹生产」与本 fork 的 OS-Genesis 任务合成汇合于同一点——把遍历数据升级为国产 GUI 模型训练数据工厂，这是 fork 差异化定位的最大杠杆。</p>
+</div>
+
+<h3>7.3 依赖关系图</h3>
+<pre><code>S0 (提交&推送) ──────────────────────────────────────────────►
+ │
+ ├──► S1 (数据集基线) ──┬──► S2 (感知增强) ──► S5 (M3A 移植) ──► S6 (LLM 引导) ──┐
+ │                       │                                                      │
+ │                       └──► S3 (跨 run 记忆) ──► S4 (元素文档库) ──────────────┤
+ │                                                                              │
+ │                                                                              ▼
+ │                                                        S11 (指令合成) ──► S12 (数据飞轮)
+ │
+ ├──► S7 (Compose 验证) ──► S8 (验证器集成) ──► S9 (语义走查) ────────────────────►
+ │
+ └──► S10 (WinUI3 采集) ─────────────────────────────────────────────────────────►
+
+可并行：S2//S3 // S7 // S10
+硬依赖：B 段(S4-S6) 依赖 A 段(S1-S3) 数据集
+不阻塞：C 段(S7-S10) 不依赖 A/B，可随时插入
+</code></pre>
+
+<h3>7.4 里程碑与 KPI</h3>
+<div class="kpi">
+<div class="kpi-item"><div class="val" style="color: var(--green);">✅</div><div class="desc">A 段采集<br>已验证</div></div>
+<div class="kpi-item"><div class="val" style="color: var(--green);">✅</div><div class="desc">5/5 栈生成<br>已验证</div></div>
+<div class="kpi-item"><div class="val" style="color: var(--green);">✅</div><div class="desc">XML 真机<br>已验证</div></div>
+<div class="kpi-item"><div class="val" style="color: var(--orange);">⏳</div><div class="desc">Compose 验证<br>修复中</div></div>
+<div class="kpi-item"><div class="val" style="color: var(--red);">○</div><div class="desc">全局 UTG<br>S1</div></div>
+<div class="kpi-item"><div class="val" style="color: var(--red);">○</div><div class="desc">元素文档库<br>S4</div></div>
+<div class="kpi-item"><div class="val" style="color: var(--red);">○</div><div class="desc">LLM 引导<br>S6</div></div>
+<div class="kpi-item"><div class="val" style="color: var(--red);">○</div><div class="desc">数据工厂<br>S12</div></div>
+</div>
+
+<h3>7.5 风险登记册</h3>
+<table>
+<tr><th>风险</th><th>概率</th><th>影响</th><th>缓解</th></tr>
+<tr><td>u2 常驻服务在 TEQU-S2C 不可用</td><td>中</td><td>低（原生 dump 兜底）</td><td>已保留 fallback</td></tr>
+<tr><td>launcher 签名持续不稳定</td><td>高</td><td>中（跨 run 去重受影响）</td><td>按包 seed 绕过；pHash 第二通道</td></tr>
+<tr><td>doubao vision 元素文档质量低</td><td>中</td><td>中（生成 prompt 误导）</td><td>每 run 人工抽查 3-5 条</td></tr>
+<tr><td>Gradle 死锁无法修复</td><td>高</td><td>中（Compose 验证阻塞）</td><td>CLI 直编 + Compose Driver 绕过</td></tr>
+<tr><td>双杀软删 worktree 元数据</td><td>中</td><td>低（可修复）</td><td>已掌握修复方法（3 步重建）</td></tr>
+<tr><td>poetry lock 网络失败</td><td>中</td><td>低（依赖未锁但可用）</td><td>u2 保持 try/except，不硬依赖</td></tr>
+<tr><td>LLM 引导探索成本超预算</td><td>低</td><td>中（回退盲 DFS）</td><td>结构化输入省 12× token；DroidRun 经验 $0.075/任务</td></tr>
+</table>
+
+<h3>7.6 当前完成度总览</h3>
+<div class="card">
+<h4>A 段 · 采集</h4>
+<table>
+<tr><th>步骤</th><th>内容</th><th>状态</th></tr>
+<tr><td>A0</td><td>遍历器核心（1528 行）</td><td><span class="badge badge-green">✅ 完成</span> commit 239eccc</td></tr>
+<tr><td>A1</td><td>u2 可行性实测</td><td><span class="badge badge-orange">已实现 try/except</span> 未在锁文件</td></tr>
+<tr><td>A2</td><td>Fastbot 黑名单机制</td><td><span class="badge badge-green">✅ 已落地</span> 文本+包级+子树感知</td></tr>
+<tr><td>A3</td><td>全量遍历跑数据集</td><td><span class="badge badge-green">✅ 3 seed 验证</span> 14 states / 12 edges</td></tr>
+<tr><td>A4</td><td>全局 UTG</td><td><span class="badge badge-red">○ S1 待开始</span></td></tr>
+<tr><td>A5</td><td>SoM 导出</td><td><span class="badge badge-red">○ S2 待开始</span></td></tr>
+<tr><td>A6</td><td>pHash 第二通道</td><td><span class="badge badge-red">○ S2 待开始</span></td></tr>
+</table>
+
+<h4>B 段 · 生成</h4>
+<table>
+<tr><th>步骤</th><th>内容</th><th>状态</th></tr>
+<tr><td>B0</td><td>6 栈代码生成</td><td><span class="badge badge-green">✅ 5/5 PASS</span> ¥0.85 / 58K tokens</td></tr>
+<tr><td>B1</td><td>Token 治理</td><td><span class="badge badge-green">✅ 已落地</span> budget/router/compressor/metrics</td></tr>
+<tr><td>B2</td><td>元素文档库蒸馏</td><td><span class="badge badge-red">○ S4 待开始</span></td></tr>
+<tr><td>B3</td><td>M3A 感知移植</td><td><span class="badge badge-red">○ S5 待开始</span></td></tr>
+<tr><td>B4</td><td>LLM 引导探索</td><td><span class="badge badge-red">○ S6 待开始</span></td></tr>
+</table>
+
+<h4>C 段 · 验证</h4>
+<table>
+<tr><th>步骤</th><th>内容</th><th>状态</th></tr>
+<tr><td>C0</td><td>validate_code 6 栈</td><td><span class="badge badge-green">✅ 已落地</span></td></tr>
+<tr><td>C1</td><td>HTML 栈验证</td><td><span class="badge badge-green">✅ 已验证</span></td></tr>
+<tr><td>C2</td><td>XML 栈真机验证</td><td><span class="badge badge-green">✅ APK 31KB + 截图</span></td></tr>
+<tr><td>C3</td><td>Compose 栈验证</td><td><span class="badge badge-orange">⏳ KMP 修复中</span></td></tr>
+<tr><td>C4</td><td>Compose Driver 接入</td><td><span class="badge badge-red">○ S8 待开始</span></td></tr>
+<tr><td>C5</td><td>Roborazzi AI 断言</td><td><span class="badge badge-red">○ S8 待开始</span></td></tr>
+<tr><td>C6</td><td>语义走查验证器</td><td><span class="badge badge-red">○ S9 待开始</span></td></tr>
+<tr><td>C7</td><td>WinUI3 采集/验证</td><td><span class="badge badge-red">○ S10 待开始</span></td></tr>
+</table>
+
+<h4>D 段 · 数据工厂</h4>
+<table>
+<tr><th>步骤</th><th>内容</th><th>状态</th></tr>
+<tr><td>D1</td><td>指令合成</td><td><span class="badge badge-red">○ S11 待开始</span></td></tr>
+<tr><td>D2</td><td>数据飞轮</td><td><span class="badge badge-red">○ S12 战略级</span></td></tr>
+</table>
+</div>
+
+<h2 style="margin-top: 60px;">总结</h2>
+<div class="card">
+<p><strong>当前位置</strong>：A 段采集已验证（3 seed 全通、pyright 0 errors、pytest 29 passed），5 commits 待推送（待 GitHub token）。B 段生成已有 5/5 栈 PASS。C 段验证 HTML/XML 已通、Compose 修复中。</p>
+<p><strong>下一步优先级</strong>：</p>
+<ol>
+<li><strong>S0</strong>：提交推送（待 token）</li>
+<li><strong>S1</strong>：合并 3 seed → 首个数据集 + 覆盖率报告（1 天）</li>
+<li><strong>S2+S3</strong>：SoM 导出 + pHash + GlobalUTG（2.5 天，可并行）</li>
+<li><strong>S4</strong>：元素文档库 → 生成 prompt 注入（2 天，A→B 的连接点）</li>
+<li><strong>S7</strong>：Compose 验证修复（2 天，可并行）</li>
+</ol>
+<p><strong>核心判断</strong>：MIT/Apache 阵营覆盖全链路，无需自研 agent 框架本体；自研只剩胶水层。先跑通干净遍历 → 补全局 UTG 跨 run 记忆 → 再谈 LLM 引导探索。</p>
+<p><strong>最大杠杆</strong>：把遍历数据升级为国产 GUI 模型训练数据工厂（S11-S12），这是 fork 差异化定位的战略级机会。</p>
+</div>
+
+</div>
+</body>
+</html>
