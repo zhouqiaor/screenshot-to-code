@@ -10,19 +10,27 @@ VIDEO_VARIANT_MODELS = (
 
 # Image (Create)
 
+# Refreshed 2026-07-27 from judged evals on the jun-21 set (see the
+# "Jul 24 session" matrix): sol max is the quality anchor (8.2/10 avg),
+# opus 5 medium the best non-anchor (7.8), 3.1 pro the third take (7.2),
+# and 3-flash high the fast slot (zero failures across the set).
 ALL_KEYS_MODELS_DEFAULT = (
-    Llm.CLAUDE_OPUS_4_8_MEDIUM,
-    Llm.GPT_5_5_LOW,
+    Llm.CLAUDE_OPUS_5_MEDIUM,
     Llm.GEMINI_3_FLASH_PREVIEW_HIGH,
     Llm.GEMINI_3_1_PRO_PREVIEW_HIGH,
+    Llm.GPT_5_6_SOL_MAX,
 )
 
 # Text (Create)
 
+# Refreshed 2026-07-27 from the "Text evals v1" session (8 briefs x 7
+# models): sol high and opus 5 high replace gpt-5.5 high and opus 4.8 high
+# at similar cost/latency; 3-flash minimal keeps the fast slot (48s median,
+# $0.05/brief) and 3.1-pro low stays for now.
 ALL_KEYS_MODELS_TEXT_CREATE = (
     Llm.GEMINI_3_FLASH_PREVIEW_MINIMAL,
-    Llm.GPT_5_5_HIGH,
-    Llm.CLAUDE_OPUS_4_8_HIGH,
+    Llm.GPT_5_6_SOL_HIGH,
+    Llm.CLAUDE_OPUS_5_HIGH,
     Llm.GEMINI_3_1_PRO_PREVIEW_LOW,
 )
 
@@ -30,7 +38,7 @@ ALL_KEYS_MODELS_TEXT_CREATE = (
 
 ALL_KEYS_MODELS_UPDATE = (
     Llm.GEMINI_3_FLASH_PREVIEW_MINIMAL,
-    Llm.GPT_5_4_MINI_LOW,
+    Llm.GPT_5_6_TERRA_LOW,
 )
 
 # Key subset fallbacks.
@@ -65,4 +73,13 @@ ANTHROPIC_ONLY_MODELS = (
 OPENAI_ONLY_MODELS = (
     Llm.GPT_5_5_HIGH,
     Llm.GPT_5_5_LOW,
+)
+
+# Doubao (via Volcano Ark OpenAI-compatible endpoint).
+# Used when OPENAI_API_KEY is actually an Ark API key and
+# OPENAI_BASE_URL points to ark.cn-beijing.volces.com.
+# These models trigger the raw-httpx fallback in openai.py
+# to avoid the SDK silent-crash on large request bodies.
+DOUBAO_MODELS = (
+    Llm.DOUBAO_SEED_2_1_TURBO,
 )

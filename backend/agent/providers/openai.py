@@ -2,10 +2,12 @@
 import base64
 import copy
 import json
+import logging
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
+import httpx
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -16,12 +18,16 @@ from agent.providers.base import (
     ProviderTurn,
     StreamEvent,
 )
-from agent.providers.pricing import MODEL_PRICING
-from agent.providers.token_usage import TokenUsage
+from costs.pricing import MODEL_PRICING
+from costs.token_usage import TokenUsage
 from agent.state import ensure_str
 from agent.tools import CanonicalToolDefinition, ToolCall, parse_json_arguments
+from agent.tools.seed_tool_call import parse_seed_tool_call_content
+from fs_logging.agent_runs import AgentRunRecorder
 from fs_logging.prompt_reports import PromptReportLogger
 from llm import Llm, get_openai_api_name, get_openai_reasoning_effort
+
+logger = logging.getLogger(__name__)
 
 
 def _convert_message_to_responses_input(
@@ -55,7 +61,11 @@ def _convert_message_to_responses_input(
 
 
 def _get_image_detail_for_model(model: Llm) -> str:
-    if get_openai_api_name(model) == "gpt-5.5":
+    if get_openai_api_name(model) in {
+        "gpt-5.5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+    }:
         return "original"
     return "high"
 
@@ -411,6 +421,188 @@ def _build_provider_turn(state: OpenAIResponsesParseState) -> ProviderTurn:
     )
 
 
+# ---------------------------------------------------------------------------
+# Raw httpx fallback for Volcano Ark / doubao-seed-evolving.
+#
+# The OpenAI Python SDK (AsyncOpenAI) silently crashes when the request body
+# is large (>10KB text + 165KB image data URL). The process is killed with no
+# exception, no traceback, and no output from faulthandler. The workaround is
+# to bypass the SDK entirely and POST directly via httpx.
+# ---------------------------------------------------------------------------
+
+# Models known to trigger the SDK silent crash — use raw httpx for these.
+_VOLCANO_ARK_MODELS = {
+    "doubao-seed-evolving",
+    "doubao-seed-1.6-flash",
+    "doubao-seed-1.8",
+    "doubao-seed-1.6-vision",
+    "doubao-seed-2-1-turbo-260628",
+}
+
+
+def _is_volcano_ark_model(model: Llm) -> bool:
+    """Check if the model is served via Volcano Ark and may need raw httpx."""
+    return get_openai_api_name(model) in _VOLCANO_ARK_MODELS
+
+
+def _convert_responses_input_to_chat_messages(
+    input_items: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """Convert Responses-API input items back to chat/completions messages.
+
+    The Responses API uses a flat list of items with ``role`` and ``content``
+    fields. The chat/completions API uses the same structure but with
+    ``image_url`` parts instead of ``input_image`` and ``text`` parts instead
+    of ``input_text``.
+    """
+    messages: List[Dict[str, Any]] = []
+    for item in input_items:
+        if not isinstance(item, dict):
+            continue
+        item_type = item.get("type", "")
+        # Skip non-message items (function_call_output, etc. are handled
+        # separately by being converted to tool result messages)
+        if item_type in ("function_call", "custom_tool_call"):
+            # Previous assistant tool call — represent as assistant message
+            messages.append({
+                "role": "assistant",
+                "content": None,
+                "tool_calls": [{
+                    "id": item.get("call_id") or item.get("id", ""),
+                    "type": "function",
+                    "function": {
+                        "name": item.get("name", ""),
+                        "arguments": item.get("arguments", ""),
+                    },
+                }],
+            })
+            continue
+        if item_type == "function_call_output":
+            messages.append({
+                "role": "tool",
+                "tool_call_id": item.get("call_id", ""),
+                "content": _stringify_output(item.get("output", "")),
+            })
+            continue
+
+        role = item.get("role", "user")
+        content = item.get("content")
+        item_tool_calls = item.get("tool_calls")
+
+        # Handle synthetic assistant message with tool_calls (from raw httpx
+        # fallback path in append_tool_results)
+        if role == "assistant" and item_tool_calls:
+            chat_tool_calls: List[Dict[str, Any]] = []
+            for tc in item_tool_calls:
+                if not isinstance(tc, dict):
+                    continue
+                tc_id = tc.get("call_id") or tc.get("id", "")
+                tc_name = tc.get("name", "")
+                tc_args = tc.get("arguments", "")
+                if isinstance(tc_args, dict):
+                    tc_args = json.dumps(tc_args, ensure_ascii=False)
+                chat_tool_calls.append({
+                    "id": tc_id,
+                    "type": "function",
+                    "function": {
+                        "name": tc_name,
+                        "arguments": tc_args,
+                    },
+                })
+            messages.append({
+                "role": "assistant",
+                "content": content if isinstance(content, str) and content else None,
+                "tool_calls": chat_tool_calls,
+            })
+            continue
+
+        if isinstance(content, str):
+            messages.append({"role": role, "content": content})
+        elif isinstance(content, list):
+            parts: List[Dict[str, Any]] = []
+            for part in content:
+                if not isinstance(part, dict):
+                    continue
+                ptype = part.get("type", "")
+                if ptype == "input_text":
+                    parts.append({"type": "text", "text": part.get("text", "")})
+                elif ptype == "input_image":
+                    image_url = part.get("image_url", "")
+                    parts.append({
+                        "type": "image_url",
+                        "image_url": {
+                            "url": image_url,
+                            "detail": part.get("detail", "high"),
+                        },
+                    })
+            if parts:
+                messages.append({"role": role, "content": parts})
+    return messages
+
+
+def _stringify_output(output: Any) -> str:
+    """Convert a function_call_output ``output`` field to a string for the
+    chat/completions ``tool`` message ``content`` field."""
+    if isinstance(output, str):
+        return output
+    if isinstance(output, list):
+        # Extract text parts from the list
+        texts: List[str] = []
+        for part in output:
+            if isinstance(part, dict):
+                if part.get("type") == "input_text":
+                    texts.append(part.get("text", ""))
+        return "\n".join(texts) if texts else json.dumps(output)
+    return json.dumps(output)
+
+
+def _build_turn_from_raw_chat_response(
+    response_data: Dict[str, Any],
+) -> ProviderTurn:
+    """Build a ProviderTurn from a raw chat/completions response.
+
+    Handles both standard ``tool_calls`` field and ``<seed:tool_call>`` XML
+    embedded in the message content.
+    """
+    choices = response_data.get("choices", [])
+    assistant_text = ""
+    tool_calls: List[ToolCall] = []
+
+    if choices:
+        message = choices[0].get("message", {})
+        assistant_text = message.get("content") or ""
+
+        # Try standard tool_calls field first
+        std_tool_calls = message.get("tool_calls", [])
+        if std_tool_calls:
+            for tc in std_tool_calls:
+                func = tc.get("function", {})
+                args_raw = func.get("arguments", "{}")
+                args, error = parse_json_arguments(args_raw)
+                if error:
+                    args = {"INVALID_JSON": ensure_str(args_raw)}
+                tool_calls.append(ToolCall(
+                    id=tc.get("id", f"call-{uuid.uuid4().hex[:6]}"),
+                    name=func.get("name", "unknown_tool"),
+                    arguments=args,
+                ))
+        elif assistant_text:
+            # Try <seed:tool_call> XML extraction
+            seed_calls = parse_seed_tool_call_content(assistant_text)
+            for sc in seed_calls:
+                tool_calls.append(ToolCall(
+                    id=sc["id"],
+                    name=sc["name"],
+                    arguments=sc["arguments"],
+                ))
+
+    return ProviderTurn(
+        assistant_text=assistant_text,
+        tool_calls=tool_calls,
+        assistant_turn=[],  # raw chat mode doesn't use Responses output items
+    )
+
+
 class OpenAIProviderSession(ProviderSession):
     def __init__(
         self,
@@ -418,11 +610,20 @@ class OpenAIProviderSession(ProviderSession):
         model: Llm,
         prompt_messages: List[ChatCompletionMessageParam],
         tools: List[Dict[str, Any]],
+        recorder: Optional[AgentRunRecorder] = None,
+        # Raw httpx fallback credentials (extracted from the AsyncOpenAI client
+        # by the factory when the model is known to trigger SDK silent crashes,
+        # e.g. doubao-seed-evolving on Volcano Ark).
+        fallback_api_key: Optional[str] = None,
+        fallback_base_url: Optional[str] = None,
     ):
         self._client = client
         self._model = model
         self._tools = tools
         self._total_usage = TokenUsage()
+        self._recorder = recorder
+        self._fallback_api_key = fallback_api_key
+        self._fallback_base_url = fallback_base_url
         self._prompt_report_logger = PromptReportLogger(
             provider="openai",
             model=model,
@@ -433,6 +634,144 @@ class OpenAIProviderSession(ProviderSession):
             _convert_message_to_responses_input(message, image_detail=image_detail)
             for message in prompt_messages
         ]
+
+    async def _stream_turn_raw_httpx(self, on_event: EventSink) -> ProviderTurn:
+        """Fallback: bypass the OpenAI SDK and POST directly via httpx.
+
+        This is needed because ``AsyncOpenAI.responses.create()`` silently
+        crashes (process killed, no exception) when the request body is large
+        (>10KB text + 165KB image data URL) on Volcano Ark.
+
+        Uses the ``chat/completions`` endpoint instead of the Responses API.
+        The model returns ``<seed:tool_call>`` XML in the message content
+        instead of standard ``tool_calls`` — this is handled by
+        :func:`parse_seed_tool_call_content`.
+        """
+        api_key = self._fallback_api_key
+        base_url = self._fallback_base_url
+        if not api_key or not base_url:
+            raise RuntimeError(
+                "Raw httpx fallback requires api_key and base_url, but they "
+                "were not provided. Pass fallback_api_key and fallback_base_url "
+                "to OpenAIProviderSession."
+            )
+
+        model_name = get_openai_api_name(self._model)
+        chat_messages = _convert_responses_input_to_chat_messages(self._input_items)
+
+        # Build tools in chat/completions format (not Responses format)
+        chat_tools: List[Dict[str, Any]] = []
+        for tool in self._tools:
+            chat_tools.append({
+                "type": "function",
+                "function": {
+                    "name": tool.get("name", ""),
+                    "description": tool.get("description", ""),
+                    "parameters": tool.get("parameters", {}),
+                },
+            })
+
+        body: Dict[str, Any] = {
+            "model": model_name,
+            "messages": chat_messages,
+            "max_tokens": 50000,
+        }
+        if chat_tools:
+            body["tools"] = chat_tools
+            body["tool_choice"] = "auto"
+
+        url = f"{base_url.rstrip('/')}/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+
+        body_json = json.dumps(body)
+        logger.info(
+            "[raw-httpx fallback] POST %s | model=%s | body=%d bytes",
+            url,
+            model_name,
+            len(body_json),
+        )
+        if self._recorder is not None:
+            self._recorder.record_llm_request("openai-raw-httpx", model_name, body)
+
+        self._prompt_report_logger.record_request(body)
+
+        timeout = httpx.Timeout(900.0, connect=30.0)
+        async with httpx.AsyncClient(timeout=timeout) as http_client:
+            resp = await http_client.post(
+                url,
+                content=body_json.encode("utf-8"),
+                headers=headers,
+            )
+
+            if resp.status_code != 200:
+                error_text = resp.text[:1000]
+                logger.error(
+                    "[raw-httpx fallback] HTTP %d: %s",
+                    resp.status_code,
+                    error_text,
+                )
+                raise RuntimeError(
+                    f"Raw httpx fallback failed: HTTP {resp.status_code}: {error_text}"
+                )
+
+            data = resp.json()
+            # Extract usage
+            usage_data = data.get("usage", {})
+            input_tokens = usage_data.get("prompt_tokens", 0) or 0
+            output_tokens = usage_data.get("completion_tokens", 0) or 0
+            total_tokens = usage_data.get("total_tokens", 0) or 0
+            # Volcano Ark puts reasoning tokens in completion_tokens_details
+            details = usage_data.get("completion_tokens_details", {})
+            reasoning_tokens = details.get("reasoning_tokens", 0) or 0
+
+            turn_usage = TokenUsage(
+                input=input_tokens,
+                output=output_tokens,
+                cache_read=0,
+                cache_write=0,
+                total=total_tokens,
+            )
+            self._prompt_report_logger.record_usage(turn_usage)
+            self._total_usage.accumulate(turn_usage)
+
+            # Build the turn
+            turn = _build_turn_from_raw_chat_response(data)
+
+            # Emit streaming events for the assistant text
+            if turn.assistant_text:
+                await on_event(StreamEvent(
+                    type="assistant_delta",
+                    text=turn.assistant_text,
+                ))
+            # Emit tool call deltas
+            for tc in turn.tool_calls:
+                await on_event(StreamEvent(
+                    type="tool_call_delta",
+                    tool_call_id=tc.id,
+                    tool_name=tc.name,
+                    tool_arguments=json.dumps(tc.arguments, ensure_ascii=False),
+                ))
+
+            logger.info(
+                "[raw-httpx fallback] OK | input=%d output=%d "
+                "reasoning=%d tool_calls=%d",
+                input_tokens,
+                output_tokens,
+                reasoning_tokens,
+                len(turn.tool_calls),
+            )
+
+            if self._recorder is not None:
+                self._recorder.record_llm_response(
+                    turn.assistant_text,
+                    turn.tool_calls,
+                    turn_usage,
+                )
+
+            return turn
 
     async def stream_turn(self, on_event: EventSink) -> ProviderTurn:
         model_name = get_openai_api_name(self._model)
@@ -451,17 +790,73 @@ class OpenAIProviderSession(ProviderSession):
             params["reasoning"] = {"effort": reasoning_effort, "summary": "auto"}
 
         self._prompt_report_logger.record_request(params)
+        if self._recorder is not None:
+            self._recorder.record_llm_request("openai", model_name, params)
 
-        state = OpenAIResponsesParseState()
-        stream = await self._client.responses.create(**params)  # type: ignore
-        async for event in stream:  # type: ignore
-            await parse_event(event, state, on_event)
+        # Volcano Ark / doubao models are known to silently crash the SDK
+        # when the request body is large. Skip the SDK entirely for these.
+        use_raw_httpx = _is_volcano_ark_model(self._model)
 
-        if state.turn_usage is not None:
-            self._prompt_report_logger.record_usage(state.turn_usage)
-            self._total_usage.accumulate(state.turn_usage)
+        if not use_raw_httpx:
+            state = OpenAIResponsesParseState()
+            try:
+                stream = await self._client.responses.create(**params)  # type: ignore
+                event_count = 0
+                async for event in stream:  # type: ignore
+                    event_count += 1
+                    await parse_event(event, state, on_event)
 
-        return _build_provider_turn(state)
+                # Detect silent crash: if we got zero events and this is a
+                # model known to silently crash on large request bodies,
+                # attempt raw httpx fallback. For standard OpenAI models,
+                # an empty stream is unusual but not necessarily a crash
+                # (e.g. in tests with fake clients).
+                if event_count == 0 and _is_volcano_ark_model(self._model):
+                    logger.warning(
+                        "[sdk] responses.create() returned 0 events for "
+                        "model=%s — attempting raw httpx fallback",
+                        model_name,
+                    )
+                    if self._fallback_api_key and self._fallback_base_url:
+                        return await self._stream_turn_raw_httpx(on_event)
+                    raise RuntimeError(
+                        f"OpenAI SDK returned 0 events for model={model_name} "
+                        "and no raw httpx fallback is configured."
+                    )
+
+                if state.turn_usage is not None:
+                    self._prompt_report_logger.record_usage(state.turn_usage)
+                    self._total_usage.accumulate(state.turn_usage)
+
+                turn = _build_provider_turn(state)
+                if self._recorder is not None:
+                    self._recorder.record_llm_response(
+                        turn.assistant_text, turn.tool_calls, state.turn_usage
+                    )
+                return turn
+
+            except Exception as exc:
+                # If the SDK raised an exception and we have fallback creds,
+                # try the raw httpx path before propagating the error.
+                if self._fallback_api_key and self._fallback_base_url:
+                    logger.warning(
+                        "[sdk] responses.create() raised %s: %s — "
+                        "attempting raw httpx fallback",
+                        type(exc).__name__,
+                        exc,
+                    )
+                    return await self._stream_turn_raw_httpx(on_event)
+                raise
+        else:
+            # Volcano Ark / doubao models: skip the SDK entirely to avoid
+            # the silent crash on large request bodies.
+            return await self._stream_turn_raw_httpx(on_event)
+
+    def total_cost_usd(self) -> float | None:
+        pricing = MODEL_PRICING.get(get_openai_api_name(self._model))
+        if pricing is None:
+            return None
+        return self._total_usage.cost(pricing)
 
     @staticmethod
     def _image_ref(part: Any) -> str | None:
@@ -481,6 +876,24 @@ class OpenAIProviderSession(ProviderSession):
         assistant_output_items = turn.assistant_turn or []
         if assistant_output_items:
             self._input_items.extend(assistant_output_items)
+        elif turn.assistant_text or turn.tool_calls:
+            # Raw httpx fallback mode: assistant_turn is empty, but we have
+            # text and/or tool_calls. Add a synthetic assistant message item
+            # so the conversation history stays consistent when converting
+            # to chat/completions format.
+            self._input_items.append({
+                "role": "assistant",
+                "content": turn.assistant_text or "",
+                "tool_calls": [
+                    {
+                        "type": "function_call",
+                        "call_id": tc.id,
+                        "name": tc.name,
+                        "arguments": json.dumps(tc.arguments, ensure_ascii=False),
+                    }
+                    for tc in turn.tool_calls
+                ],
+            })
 
         image_detail = _get_image_detail_for_model(self._model)
         tool_output_items: List[Dict[str, Any]] = []

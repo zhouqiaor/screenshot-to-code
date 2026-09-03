@@ -1,0 +1,158 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "E2E 验证报告数据契约",
+  "description": "build_report.py 的输入。对应 design-docs/e2e-verification-sop.md §5。所有相对路径以 --base-dir 为基准（默认为数据文件所在目录）。",
+  "type": "object",
+  "required": ["title", "matrix"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "报告标题"
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "副标题，建议含 run_id、模型、设备、时间"
+    },
+    "footer": {
+      "type": "string",
+      "description": "页脚，留空则自动填生成时间与模板路径"
+    },
+
+    "metrics": {
+      "type": "array",
+      "description": "章节①指标仪表盘",
+      "items": {
+        "type": "object",
+        "required": ["value", "label"],
+        "properties": {
+          "value": { "type": ["string", "number"], "description": "主数值，如 5/5" },
+          "label": { "type": "string", "description": "指标名，如 语法层通过" },
+          "sub":   { "type": "string", "description": "补充说明" },
+          "tone":  { "type": "string", "enum": ["ok", "warn", "bad", ""], "description": "着色：ok绿/warn黄/bad红，留空为蓝" }
+        }
+      }
+    },
+
+    "matrix": {
+      "type": "array",
+      "description": "章节②验证矩阵。expected/action/result 三列缺一则报告不可复核，生成器会告警。",
+      "items": {
+        "type": "object",
+        "required": ["layer", "item", "expected", "action", "result", "status"],
+        "properties": {
+          "layer":    { "type": "string", "description": "L0 生成 / L1 语法 / L2 构建 / L3 运行" },
+          "item":     { "type": "string", "description": "验证项名称" },
+          "expected": { "type": "string", "description": "预期结果（做这件事前就该写死）" },
+          "action":   { "type": "string", "description": "实际执行的命令/脚本" },
+          "result":   { "type": "string", "description": "实际观测结果，需带证据（文件名/数量/耗时）" },
+          "status":   { "$ref": "#/definitions/status" }
+        }
+      }
+    },
+    "matrix_note": {
+      "type": "string",
+      "description": "验证矩阵下方的结论 callout"
+    },
+
+    "screenshot_groups": {
+      "type": "array",
+      "description": "章节③截图对比。图片会被 base64 内嵌（自包含单文件硬要求）。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "note":  { "type": "string" },
+          "shots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["caption", "path"],
+              "properties": {
+                "caption": { "type": "string", "description": "图题" },
+                "path":    { "type": "string", "description": "图片路径（相对 base-dir 或绝对）" },
+                "meta":    { "type": "string", "description": "分辨率/设备/时间等" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "root_causes": {
+      "type": "array",
+      "description": "章节④根因分析。用于区分 FAIL（代码问题）与 BLOCKED（环境问题）。",
+      "items": {
+        "type": "object",
+        "required": ["layer", "symptom", "cause", "status"],
+        "properties": {
+          "layer":   { "type": "string" },
+          "symptom": { "type": "string", "description": "可观测症状（报错原文）" },
+          "cause":   { "type": "string", "description": "根因" },
+          "status":  { "$ref": "#/definitions/status" },
+          "fix":     { "type": "string", "description": "修复手段" }
+        }
+      }
+    },
+
+    "artifacts": {
+      "type": "array",
+      "description": "章节⑤产物清单。size/sha256 留空则由生成器自动读文件补算（SOP §4.4）。",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path":     { "type": "string", "description": "产物路径" },
+          "desc":     { "type": "string" },
+          "size":     { "type": "string", "description": "留空自动补算" },
+          "sha256":   { "type": "string", "description": "留空自动补算前 12 位" },
+          "built_at": { "type": "string", "description": "ISO8601 带时区，如 2026-09-03T13:05:00+08:00" }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "description": "运行环境键值对，渲染为 pre 块",
+      "additionalProperties": { "type": ["string", "number"] }
+    },
+
+    "references": {
+      "type": "array",
+      "description": "章节⑥业界参考",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name":     { "type": "string", "description": "来源，如 Test Pyramid / Android CTS" },
+          "practice": { "type": "string", "description": "业界做法" },
+          "applied":  { "type": "string", "description": "本项目怎么落地" }
+        }
+      }
+    },
+
+    "next_steps": {
+      "type": "array",
+      "description": "章节⑦下一步。字符串或对象。",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": {
+              "priority": { "type": "string", "enum": ["P0", "P1", "P2", "P3"] },
+              "text":     { "type": "string" },
+              "done":     { "type": "boolean" }
+            }
+          }
+        ]
+      }
+    }
+  },
+
+  "definitions": {
+    "status": {
+      "type": "string",
+      "enum": ["pass", "fail", "blocked", "degraded", "na"],
+      "description": "严格对应 SOP §1.1：pass=预期达成且有产物；fail=根因在被测代码；blocked=根因在环境/工具链；degraded=降级手段达成等价结论；na=该栈不适用。禁止把 blocked 写成 pass。"
+    }
+  }
+}

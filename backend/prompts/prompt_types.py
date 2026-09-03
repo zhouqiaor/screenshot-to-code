@@ -38,6 +38,8 @@ Stack = Literal[
     "bootstrap",
     "ionic_tailwind",
     "vue_tailwind",
+    # Fork extensions (Android/desktop stacks)
+    "android_compose",
 ]
 
 

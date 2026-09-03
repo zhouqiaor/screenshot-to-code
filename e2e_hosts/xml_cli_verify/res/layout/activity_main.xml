@@ -1,0 +1,765 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#222222">
+
+    <!-- 顶部状态栏 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:background="@drawable/bg_status_capsule">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BPUJ-UYJO"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="normal"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="16dp"
+            android:background="#FFFFFF"
+            android:layout_marginHorizontal="12dp"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_mic_off_white"
+            android:contentDescription="麦克风静音"
+            android:layout_marginEnd="12dp"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_cast_white"
+            android:contentDescription="显示投屏"
+            android:layout_marginEnd="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15:40"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- 中间内容区 -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- 设置弹窗 -->
+        <FrameLayout
+            android:id="@+id/settings_dialog"
+            android:layout_width="720dp"
+            android:layout_height="520dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/bg_dialog_white"
+            android:elevation="8dp">
+
+            <!-- 关闭按钮 -->
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_close_gray"
+                android:contentDescription="关闭"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"/>
+
+            <!-- 左右分栏容器 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <!-- 左栏：分类导航 -->
+                <LinearLayout
+                    android:layout_width="240dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="#FFFFFF">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="设置"
+                        android:textColor="#000000"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- 搜索框 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_search_gray"
+                        android:paddingHorizontal="12dp"
+                        android:layout_marginBottom="16dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_search_gray"
+                            android:contentDescription="搜索"
+                            android:layout_marginEnd="8dp"/>
+
+                        <EditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="搜索设置项"
+                            android:textColorHint="#999999"
+                            android:textSize="14sp"
+                            android:inputType="text"/>
+                    </LinearLayout>
+
+                    <!-- 分类列表 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- 企业服务配置 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="8dp"
+                            android:layout_marginBottom="4dp">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:src="@drawable/ic_business_white"
+                                android:background="@drawable/circle_blue"
+                                android:contentDescription="企业服务配置"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="企业服务配置"
+                                android:textColor="#000000"
+                                android:textSize="15sp"
+                                android:layout_marginStart="12dp"/>
+
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:background="@drawable/circle_red"
+                                android:layout_marginEnd="8dp"/>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_arrow_right_gray"
+                                android:contentDescription="更多"/>
+                        </LinearLayout>
+
+                        <!-- 声音与显示 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="8dp"
+                            android:layout_marginBottom="4dp">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:src="@drawable/ic_volume_white"
+                                android:background="@drawable/circle_purple"
+                                android:contentDescription="声音与显示"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="声音与显示"
+                                android:textColor="#000000"
+                                android:textSize="15sp"
+                                android:layout_marginStart="12dp"/>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_arrow_right_gray"
+                                android:contentDescription="更多"/>
+                        </LinearLayout>
+
+                        <!-- 摄像机 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="8dp"
+                            android:layout_marginBottom="4dp">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:src="@drawable/ic_camera_white"
+                                android:background="@drawable/circle_orange"
+                                android:contentDescription="摄像机"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="摄像机"
+                                android:textColor="#000000"
+                                android:textSize="15sp"
+                                android:layout_marginStart="12dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="已开启"
+                                android:textColor="#999999"
+                                android:textSize="13sp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_arrow_right_gray"
+                                android:contentDescription="更多"/>
+                        </LinearLayout>
+
+                        <!-- 壁纸 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="8dp"
+                            android:layout_marginBottom="4dp">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:src="@drawable/ic_wallpaper_white"
+                                android:background="@drawable/circle_green"
+                                android:contentDescription="壁纸"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="壁纸"
+                                android:textColor="#000000"
+                                android:textSize="15sp"
+                                android:layout_marginStart="12dp"/>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_arrow_right_gray"
+                                android:contentDescription="更多"/>
+                        </LinearLayout>
+
+                        <!-- Wi-Fi（选中项） -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="8dp"
+                            android:layout_marginBottom="4dp"
+                            android:background="#E3F2FD">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:src="@drawable/ic_wifi_white"
+                                android:background="@drawable/circle_light_blue"
+                                android:contentDescription="Wi-Fi"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Wi-Fi"
+                                android:textColor="#000000"
+                                android:textSize="15sp"
+                                android:layout_marginStart="12dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="未连接"
+                                android:textColor="#999999"
+                                android:textSize="13sp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_arrow_right_gray"
+                                android:contentDescription="更多"/>
+                        </LinearLayout>
+
+                        <!-- 智慧功能 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="8dp"
+                            android:layout_marginBottom="4dp">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:src="@drawable/ic_smart_white"
+                                android:background="@drawable/circle_teal"
+                                android:contentDescription="智慧功能"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="智慧功能"
+                                android:textColor="#000000"
+                                android:textSize="15sp"
+                                android:layout_marginStart="12dp"/>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_arrow_right_gray"
+                                android:contentDescription="更多"/>
+                        </LinearLayout>
+
+                        <!-- 高级设置 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="8dp">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:src="@drawable/ic_settings_white"
+                                android:background="@drawable/circle_dark_green"
+                                android:contentDescription="高级设置"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="高级设置"
+                                android:textColor="#000000"
+                                android:textSize="15sp"
+                                android:layout_marginStart="12dp"/>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_arrow_right_gray"
+                                android:contentDescription="更多"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 分隔线 -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#F0F0F0"/>
+
+                <!-- 右栏：Wi-Fi详情（可滚动） -->
+                <ScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="#F8F9FA">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Wi-Fi"
+                            android:textColor="#000000"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="16dp"/>
+
+                        <!-- 当前网络信息卡片 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_card_white"
+                            android:padding="16dp"
+                            android:layout_marginBottom="16dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="当前设备使用网络"
+                                android:textColor="#000000"
+                                android:textSize="15sp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="有线网络"
+                                android:textColor="#999999"
+                                android:textSize="14sp"/>
+                        </LinearLayout>
+
+                        <!-- 网络开关组卡片 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_card_white"
+                            android:layout_marginBottom="16dp">
+
+                            <!-- Wi-Fi开关 -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="16dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Wi-Fi"
+                                    android:textColor="#000000"
+                                    android:textSize="15sp"/>
+
+                                <Switch
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:checked="true"
+                                    android:thumbTint="#FFFFFF"
+                                    android:trackTint="#2196F3"/>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="#F0F0F0"
+                                android:layout_marginStart="16dp"/>
+
+                            <!-- WLAN直连开关 -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="16dp">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="WLAN直连"
+                                        android:textColor="#000000"
+                                        android:textSize="15sp"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="开启后，设备之间可通过WLAN直连方式进行搜索连接。"
+                                        android:textColor="#999999"
+                                        android:textSize="12sp"
+                                        android:layout_marginTop="4dp"/>
+                                </LinearLayout>
+
+                                <Switch
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:checked="true"
+                                    android:thumbTint="#FFFFFF"
+                                    android:trackTint="#2196F3"/>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="#F0F0F0"
+                                android:layout_marginStart="16dp"/>
+
+                            <!-- WLAN直连兼容模式开关 -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="16dp">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="WLAN直连兼容模式"
+                                        android:textColor="#000000"
+                                        android:textSize="15sp"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="开启后，DFS信道（Dynamic Frequency Selection, 52-144信道）的热点将被屏蔽，WLAN直连业务兼容性可得到优化。"
+                                        android:textColor="#999999"
+                                        android:textSize="12sp"
+                                        android:layout_marginTop="4dp"/>
+                                </LinearLayout>
+
+                                <Switch
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:checked="false"
+                                    android:thumbTint="#FFFFFF"
+                                    android:trackTint="#E0E0E0"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- 可用Wi-Fi标题 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="可用Wi-Fi"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="12dp"/>
+
+                        <!-- 可用Wi-Fi列表卡片 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_card_white">
+
+                            <!-- Wi-Fi条目1 -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="16dp">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Device_ap_697875"
+                                        android:textColor="#000000"
+                                        android:textSize="15sp"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="加密"
+                                        android:textColor="#999999"
+                                        android:textSize="12sp"
+                                        android:layout_marginTop="4dp"/>
+                                </LinearLayout>
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_wifi_full_black"
+                                    android:contentDescription="Wi-Fi信号"/>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="#F0F0F0"
+                                android:layout_marginStart="16dp"/>
+
+                            <!-- Wi-Fi条目2（部分显示） -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:paddingHorizontal="16dp"
+                                android:paddingTop="12dp"
+                                android:paddingBottom="16dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Device_ap_33042"
+                                    android:textColor="#000000"
+                                    android:textSize="15sp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- 桌面分页指示器 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/settings_dialog"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="#80888888"
+                android:layout_marginEnd="6dp"/>
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="#FFFFFF"
+                android:layout_marginEnd="6dp"/>
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="#80888888"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!-- 底部快捷操作栏 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="24dp">
+
+        <!-- 新手指引按钮 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginEnd="24dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_help_white_circle"
+                android:contentDescription="新手指引"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="新手指引"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:layout_marginStart="6dp"/>
+        </LinearLayout>
+
+        <!-- 设置按钮 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginEnd="24dp">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_settings_white"
+                    android:contentDescription="设置"/>
+
+                <View
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:background="#FF3B30"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="1dp"
+                    android:layout_marginEnd="1dp"/>
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设置"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:layout_marginStart="6dp"/>
+        </LinearLayout>
+
+        <!-- 电源按钮 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_power_white"
+                android:contentDescription="电源"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="电源"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:layout_marginStart="6dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

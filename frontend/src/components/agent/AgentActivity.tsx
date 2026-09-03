@@ -25,9 +25,65 @@ import { Light as SyntaxHighlighterBase } from "react-syntax-highlighter";
 import html from "react-syntax-highlighter/dist/esm/languages/hljs/xml";
 import { vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import WorkingPulse from "../core/WorkingPulse";
+import { groupCompletedAgentEvents } from "./activity-order";
+import {
+  formatDurationBetween,
+  isTerminalVariantStatus,
+} from "./generation-time";
 
 SyntaxHighlighterBase.registerLanguage("html", html);
 const SyntaxHighlighter = SyntaxHighlighterBase as any;
+
+function ExpandablePrompt({ prompt }: { prompt: string }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isClamped, setIsClamped] = useState(false);
+  const promptRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [prompt]);
+
+  useEffect(() => {
+    const element = promptRef.current;
+    if (!element) return;
+
+    const updateClampedState = () => {
+      setIsClamped(element.scrollHeight > element.clientHeight + 1);
+    };
+
+    updateClampedState();
+    if (typeof ResizeObserver === "undefined") return;
+
+    const resizeObserver = new ResizeObserver(updateClampedState);
+    resizeObserver.observe(element);
+    return () => resizeObserver.disconnect();
+  }, [prompt, isExpanded]);
+
+  return (
+    <div>
+      <p
+        ref={promptRef}
+        className={`whitespace-pre-wrap break-words text-xs text-gray-600 dark:text-gray-300 ${
+          !isExpanded ? "line-clamp-4" : ""
+        }`}
+      >
+        {prompt}
+      </p>
+      {(isClamped || isExpanded) && (
+        <div className="mt-1 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setIsExpanded((previous) => !previous)}
+            aria-expanded={isExpanded}
+            className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            {isExpanded ? "Less" : "More"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function CodePreviewBlock({ code, isGenerating }: { code: string; isGenerating: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,41 +108,13 @@ function CodePreviewBlock({ code, isGenerating }: { code: string; isGenerating: 
   );
 }
 
-function isFiniteNumber(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
-}
-
-function formatDurationMs(milliseconds: number): string {
-  const seconds = Math.max(1, Math.round(milliseconds / 1000));
-  if (seconds < 60) return `${seconds}s`;
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  if (minutes < 60) return `${minutes}m ${remainingSeconds}s`;
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return `${hours}h ${remainingMinutes}m`;
-}
-
 function formatDuration(startedAt?: number, endedAt?: number): string {
-  if (!isFiniteNumber(startedAt) || !isFiniteNumber(endedAt)) return "";
-  return formatDurationMs(endedAt - startedAt);
+  return formatDurationBetween(startedAt, endedAt);
 }
 
 function formatElapsedSince(timestampMs: number | undefined, nowMs: number): string {
-  if (!isFiniteNumber(timestampMs)) return "";
-  return formatDurationMs(Math.max(0, nowMs - timestampMs));
+  return formatDurationBetween(timestampMs, nowMs);
 }
-
-function formatVariantWallClockDuration(
-  requestStartedAt: number | undefined,
-  completedAt: number | undefined,
-  nowMs: number
-): string {
-  if (!isFiniteNumber(requestStartedAt)) return "";
-  const end = isFiniteNumber(completedAt) ? completedAt : nowMs;
-  return formatDurationMs(Math.max(0, end - requestStartedAt));
-}
-
 
 function getArrayField(value: unknown, field: string): unknown[] | null {
   if (!value || typeof value !== "object") return null;
@@ -140,10 +168,10 @@ function getEventIcon(type: AgentEventType, toolName?: string) {
   if (toolName === "generate_images") {
     return <BsImage className="text-pink-500" />;
   }
-  if (toolName === "remove_background") {
+  if (toolName === "remove_backgrounds") {
     return <BsScissors className="text-teal-500" />;
   }
-  if (toolName === "edit_image") {
+  if (toolName === "edit_images") {
     return <BsImage className="text-violet-500" />;
   }
   if (toolName === "retrieve_option") {
@@ -186,7 +214,7 @@ function getEventTitle(event: AgentEvent): string {
       }
       return count ? `Generated ${count} image${count !== 1 ? "s" : ""}` : "Generated images";
     }
-    if (event.toolName === "remove_background") {
+    if (event.toolName === "remove_backgrounds") {
       const rbInput = event.input as any;
       const rbOutput = event.output as any;
       const rbCount = rbOutput?.images?.length || rbInput?.image_urls?.length || 0;
@@ -195,19 +223,19 @@ function getEventTitle(event: AgentEvent): string {
       }
       return rbCount > 1 ? `Removed ${rbCount} backgrounds` : "Background removed";
     }
-    if (event.toolName === "edit_image") {
-      const editInput = event.input as { image_urls?: unknown[] } | null;
-      const editOutput = event.output as {
-        image?: { image_urls?: unknown[] };
-      } | null;
+    if (event.toolName === "edit_images") {
+      const editInput = event.input as { edits?: unknown[] } | null;
+      const editOutput = event.output as { images?: unknown[] } | null;
       const editCount =
-        editOutput?.image?.image_urls?.length || editInput?.image_urls?.length || 0;
+        editOutput?.images?.length || editInput?.edits?.length || 0;
       if (event.status === "running") {
-        return editCount > 1
-          ? `Editing image with ${editCount} references`
-          : "Editing image";
+        return editCount
+          ? `Editing ${editCount} image${editCount !== 1 ? "s" : ""}`
+          : "Editing images";
       }
-      return "Edited image";
+      return editCount
+        ? `Edited ${editCount} image${editCount !== 1 ? "s" : ""}`
+        : "Edited images";
     }
     if (event.toolName === "retrieve_option") {
       return event.status === "running"
@@ -398,7 +426,7 @@ function renderToolDetails(event: AgentEvent, variantCode?: string) {
         </div>
       )}
 
-      {event.toolName === "remove_background" && !hasError && (
+      {event.toolName === "remove_backgrounds" && !hasError && (
         <div>
           {/* While running: show the source images */}
           {event.status === "running" && input?.image_urls && Array.isArray(input.image_urls) && (
@@ -462,101 +490,170 @@ function renderToolDetails(event: AgentEvent, variantCode?: string) {
         </div>
       )}
 
-      {event.toolName === "edit_image" && !hasError && (
+      {event.toolName === "edit_images" && !hasError && (
         <div>
-          {event.status === "running" && input?.image_urls && Array.isArray(input.image_urls) && (
-            <div className="space-y-3">
-              {input.prompt && (
-                <div className="text-xs text-gray-600 dark:text-gray-300">
-                  {input.prompt}
-                </div>
-              )}
+          {event.status === "running" &&
+            input?.edits &&
+            Array.isArray(input.edits) && (
               <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                {input.image_urls.map((url: string, index: number) => (
-                  <div key={`${url}-${index}`} className="py-2">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      {index === 0 ? "Main image" : `Reference image ${index + 1}`}
+                {input.edits.map((rawItem: unknown, index: number) => {
+                  const item = getRecord(rawItem);
+                  const imageUrls = (getArrayField(item, "image_urls") || []).filter(
+                    (url): url is string => typeof url === "string"
+                  );
+                  const prompt =
+                    typeof item?.prompt === "string" ? item.prompt : null;
+                  const aspectRatio =
+                    typeof item?.aspect_ratio === "string"
+                      ? item.aspect_ratio
+                      : "match input";
+                  return (
+                    <div key={`${prompt || "edit"}-${index}`} className="py-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+                          Edit {index + 1}
+                        </div>
+                        <div className="rounded-full bg-violet-50 px-2 py-0.5 text-[10px] text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
+                          {aspectRatio}
+                        </div>
+                      </div>
+                      {prompt && (
+                        <div className="mt-2">
+                          <ExpandablePrompt prompt={prompt} />
+                        </div>
+                      )}
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        {imageUrls.map((url: string, imageIndex: number) => (
+                          <div key={`${url}-${imageIndex}`}>
+                            <div className="mb-1 text-[10px] text-gray-500 dark:text-gray-400">
+                              {imageIndex === 0
+                                ? "Main image"
+                                : `Reference ${imageIndex}`}
+                            </div>
+                            <img
+                              src={url}
+                              alt={
+                                imageIndex === 0
+                                  ? `Main image for edit ${index + 1}`
+                                  : `Reference ${imageIndex} for edit ${index + 1}`
+                              }
+                              className="aspect-square w-full rounded object-cover bg-gray-50 dark:bg-gray-800"
+                              loading="lazy"
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <img
-                      src={url}
-                      alt={index === 0 ? "Main image" : `Reference image ${index + 1}`}
-                      className="w-full rounded object-contain bg-gray-50 dark:bg-gray-800"
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            </div>
-          )}
-          {event.status !== "running" && output?.image && (
-            <div className="space-y-3">
-              <div className="text-xs text-gray-600 dark:text-gray-300">
-                {output.image.prompt}
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Main image
-                  </div>
-                  {Array.isArray(output.image.image_urls) && output.image.image_urls[0] ? (
-                    <img
-                      src={output.image.image_urls[0]}
-                      alt="Main image"
-                      className="w-full rounded object-contain bg-gray-50 dark:bg-gray-800"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="aspect-square rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs text-gray-400">
-                      Missing
+            )}
+          {event.status !== "running" && images && (
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {images.map((item, index) => {
+                const imageUrls = Array.isArray(item?.image_urls)
+                  ? item.image_urls
+                  : [];
+                const prompt =
+                  typeof item?.prompt === "string" ? item.prompt : null;
+                const succeeded =
+                  item?.status === "ok" && typeof item?.result_url === "string";
+                return (
+                  <div key={`${prompt || "edit"}-${index}`} className="space-y-3 py-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs font-medium text-gray-700 dark:text-gray-200">
+                        Edit {index + 1}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500 dark:bg-gray-800 dark:text-gray-300">
+                          {item?.aspect_ratio || "match input"}
+                        </span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] ${
+                            succeeded
+                              ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300"
+                              : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300"
+                          }`}
+                        >
+                          {succeeded ? "Complete" : "Failed"}
+                        </span>
+                      </div>
                     </div>
-                  )}
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Edited image
-                  </div>
-                  {output.image.result_url ? (
-                    <img
-                      src={output.image.result_url}
-                      alt="Edited image"
-                      className="w-full rounded object-contain bg-gray-50 dark:bg-gray-800"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="aspect-square rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs text-gray-400">
-                      Failed
+                    {prompt && <ExpandablePrompt prompt={prompt} />}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <div className="mb-1 text-xs text-gray-500 dark:text-gray-400">
+                          Before
+                        </div>
+                        {imageUrls[0] ? (
+                          <img
+                            src={imageUrls[0]}
+                            alt={`Main image for edit ${index + 1}`}
+                            className="aspect-square w-full rounded object-contain bg-gray-50 dark:bg-gray-800"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="aspect-square rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs text-gray-400">
+                            Missing
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="mb-1 text-xs text-gray-500 dark:text-gray-400">
+                          After
+                        </div>
+                        {succeeded ? (
+                          <img
+                            src={item.result_url}
+                            alt={`Edited image ${index + 1}`}
+                            className="aspect-square w-full rounded object-contain bg-gray-50 dark:bg-gray-800"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="aspect-square rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs text-gray-400">
+                            Failed
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
-              {Array.isArray(output.image.image_urls) && output.image.image_urls.length > 1 && (
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Reference images
+                    {imageUrls.length > 1 && (
+                      <div>
+                        <div className="mb-1 text-xs text-gray-500 dark:text-gray-400">
+                          Reference images
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {imageUrls
+                            .slice(1)
+                            .map((url: string, referenceIndex: number) => (
+                              <img
+                                key={`${url}-${referenceIndex}`}
+                                src={url}
+                                alt={`Reference ${referenceIndex + 1} for edit ${index + 1}`}
+                                className="aspect-square w-full rounded object-cover bg-gray-50 dark:bg-gray-800"
+                                loading="lazy"
+                              />
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                    {item?.error && (
+                      <div className="rounded bg-red-50 p-2 text-xs text-red-600 dark:bg-red-900/30 dark:text-red-200">
+                        {item.error}
+                      </div>
+                    )}
+                    {succeeded && (
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Result URL
+                        </div>
+                        <div className="mt-1 break-all rounded bg-gray-50 p-2 font-mono text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                          {item.result_url}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {output.image.image_urls.slice(1).map((url: string, index: number) => (
-                      <img
-                        key={`${url}-${index}`}
-                        src={url}
-                        alt={`Reference image ${index + 2}`}
-                        className="aspect-square w-full rounded object-cover bg-gray-50 dark:bg-gray-800"
-                        loading="lazy"
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              {output.image.result_url && (
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Result URL
-                  </div>
-                  <div className="mt-1 break-all rounded bg-gray-50 p-2 font-mono text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                    {output.image.result_url}
-                  </div>
-                </div>
-              )}
+                );
+              })}
             </div>
           )}
         </div>
@@ -893,7 +990,7 @@ function AgentEventCard({
 
 function AgentActivity() {
   const { head, commits, latestCommitHash } = useProjectStore();
-  const [stepsExpandedByVariant, setStepsExpandedByVariant] = useState<
+  const [expandedStepGroups, setExpandedStepGroups] = useState<
     Record<string, boolean>
   >({});
   const [nowMs, setNowMs] = useState(() => Date.now());
@@ -924,65 +1021,79 @@ function AgentActivity() {
       ? new Date(currentCommit.dateCreated).getTime()
       : undefined);
 
+  const isDone = isTerminalVariantStatus(selectedVariantStatus);
   const isLatestCommit = head === latestCommitHash;
   if (!isLatestCommit || events.length === 0) {
     return null;
   }
 
-  const isDone =
-    selectedVariantStatus === "complete" ||
-    selectedVariantStatus === "error" ||
-    selectedVariantStatus === "cancelled";
   const runningDuration = formatElapsedSince(requestStartMs, nowMs);
-  const variantDuration = formatVariantWallClockDuration(
-    requestStartMs,
-    selectedVariant?.completedAt,
-    nowMs
-  );
-  const stepsExpanded = variantUiKey
-    ? Boolean(stepsExpandedByVariant[variantUiKey])
-    : false;
-  const stepEvents = events.filter((e) => e.type === "tool" || e.type === "thinking");
-  const assistantEvents = events.filter((e) => e.type === "assistant");
+  const completedEventGroups = groupCompletedAgentEvents(events);
 
   return (
     <div className="space-y-1 mb-3">
       {isDone ? (
         <>
-          {/* Collapsed steps summary */}
-          <button
-            onClick={() =>
-              setStepsExpandedByVariant((prev) => ({
-                ...prev,
-                [variantUiKey]: !prev[variantUiKey],
-              }))
+          {completedEventGroups.map((group) => {
+            if (group.type === "assistant") {
+              return (
+                <AgentEventCard
+                  key={group.event.id}
+                  event={group.event}
+                  autoExpand={group.event.id === lastAssistantId}
+                />
+              );
             }
-            className="w-full flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/60 px-3 py-2 text-left"
-          >
-            {stepsExpanded ? (
-              <BsChevronDown className="text-gray-400 text-xs" />
-            ) : (
-              <BsChevronRight className="text-gray-400 text-xs" />
-            )}
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              Worked through {stepEvents.length} step{stepEvents.length !== 1 ? "s" : ""}{variantDuration ? ` in ${variantDuration}` : ""}
-            </span>
-          </button>
-          {stepsExpanded && (
-            <div className="space-y-1">
-              {stepEvents.map((event) => (
-                <AgentEventCard key={event.id} event={event} variantCode={event.toolName === "create_file" ? variantCode : undefined} />
-              ))}
-            </div>
-          )}
-          {/* Assistant responses always visible */}
-          {assistantEvents.map((event) => (
-            <AgentEventCard
-              key={event.id}
-              event={event}
-              autoExpand={event.id === lastAssistantId}
-            />
-          ))}
+
+            const firstStep = group.events[0];
+            const lastStep = group.events[group.events.length - 1];
+            const groupUiKey = `${variantUiKey}:${firstStep.id}`;
+            const isExpanded = Boolean(expandedStepGroups[groupUiKey]);
+            const groupDuration = formatDuration(
+              firstStep.startedAt,
+              lastStep.endedAt
+            );
+
+            return (
+              <div key={groupUiKey}>
+                <button
+                  onClick={() =>
+                    setExpandedStepGroups((previous) => ({
+                      ...previous,
+                      [groupUiKey]: !previous[groupUiKey],
+                    }))
+                  }
+                  className="w-full flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/60 px-3 py-2 text-left"
+                >
+                  {isExpanded ? (
+                    <BsChevronDown className="text-gray-400 text-xs" />
+                  ) : (
+                    <BsChevronRight className="text-gray-400 text-xs" />
+                  )}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Worked through {group.events.length} step
+                    {group.events.length !== 1 ? "s" : ""}
+                    {groupDuration ? ` in ${groupDuration}` : ""}
+                  </span>
+                </button>
+                {isExpanded && (
+                  <div className="space-y-1">
+                    {group.events.map((event) => (
+                      <AgentEventCard
+                        key={event.id}
+                        event={event}
+                        variantCode={
+                          event.toolName === "create_file"
+                            ? variantCode
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </>
       ) : (
         <>

@@ -8,6 +8,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", None)
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", None)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", None)
 OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", None)
+ANTHROPIC_BASE_URL = os.environ.get("ANTHROPIC_BASE_URL", None)
 
 # Image generation (optional)
 REPLICATE_API_KEY = os.environ.get("REPLICATE_API_KEY", None)
@@ -18,6 +19,10 @@ DEBUG_DIR = os.environ.get("DEBUG_DIR", "")
 
 # When enabled, every LLM request is written to run_logs/prompt_reports as a
 # JSON report viewable at /evals/prompt-reports.
+# Hard per-generation spend ceiling; a run that would continue past this is
+# aborted. Applies per variant/eval run. Unpriced models are not bounded.
+GENERATION_MAX_COST_USD = 3.0
+
 PROMPT_REPORTS_ENABLED = os.environ.get(
     "PROMPT_REPORTS_ENABLED", ""
 ).strip().lower() in {"1", "true", "yes", "on"}

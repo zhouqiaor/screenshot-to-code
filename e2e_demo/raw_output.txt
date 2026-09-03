@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp"/>
+
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable notifications"
+        android:checked="true"
+        android:layout_marginBottom="12dp"/>
+
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dark theme"
+        android:checked="false"
+        android:layout_marginBottom="20dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Language"
+        android:layout_marginBottom="8dp"/>
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/language_options"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:backgroundTint="#007AFF"
+        android:textColor="@android:color/white"/>
+
+</LinearLayout>
+===SEP===
+package com.example.settings
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun SettingsScreen() {
+    var notifEnabled by remember { mutableStateOf(true) }
+    var darkEnabled by remember { mutableStateOf(false) }
+    var selectedLang by remember { mutableStateOf("English") }
+    val languages = listOf("English", "简体中文")
+    var dropdownExpanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text("Settings", style = MaterialTheme.typography.headlineMedium)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Enable notifications")
+            Switch(checked = notifEnabled, onCheckedChange = { notifEnabled = it })
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Dark theme")
+            Switch(checked = darkEnabled, onCheckedChange = { darkEnabled = it })
+        }
+        Text("Language")
+        ExposedDropdownMenuBox(expanded = dropdownExpanded, onExpandedChange = { dropdownExpanded = it }) {
+            TextField(
+                value = selectedLang,
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier.menuAnchor().fillMaxWidth()
+            )
+            ExposedDropdownMenu(expanded = dropdownExpanded, onDismissRequest = { dropdownExpanded = false }) {
+                languages.forEach { lang ->
+                    DropdownMenuItem(text = { Text(lang) }, onClick = {
+                        selectedLang = lang
+                        dropdownExpanded = false
+                    })
+                }
+            }
+        }
+        Button(
+            onClick = { /* Persist settings */ },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007AFF))
+        ) { Text("Save", color = Color.White) }
+    }
+}
+===SEP===
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+ApplicationWindow {
+    width: 480
+    height: 600
+    visible: true
+    title: "Settings"
+    color: "#f5f5f5"
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 24
+        spacing: 16
+
+        Label {
+            text: "Settings"
+            font.pixelSize: 24
+            font.bold: true
+            Layout.bottomMargin: 8
+        }
+
+        Switch {
+            text: "Enable notifications"
+            checked: true
+            Layout.fillWidth: true
+        }
+
+        Switch {
+            text: "Dark theme"
+            checked: false
+            Layout.fillWidth: true
+        }
+
+        Label {
+            text: "Language"
+            Layout.topMargin: 8
+        }
+
+        ComboBox {
+            model: ["English", "简体中文"]
+            currentIndex: 0
+            Layout.fillWidth: true
+        }
+
+        Button {
+            text: "Save"
+            highlighted: true
+            Layout.fillWidth: true
+            Layout.topMargin: 16
+            contentItem: Label {
+                text: parent.text
+                color: "white"
+                horizontalAlignment: Text.AlignHCenter
+            }
+            background: Rectangle {
+                color: parent.down ? "#0066cc" : "#007AFF"
+                radius: 4
+            }
+        }
+    }
+}
+===SEP===
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #f3f3f3;
+            padding: 40px;
+        }
+        .settings-card {
+            background: white;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 32px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 { margin-bottom: 24px; color: #1a1a1a; }
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .toggle { position: relative; width: 44px; height: 22px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #ccc;
+            border-radius: 22px;
+            transition: 0.2s;
+        }
+        .slider::before {
+            content: "";
+            position: absolute;
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        input:checked + .slider { background: #0078d7; }
+        input:checked + .slider::before { transform: translateX(22px); }
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            margin: 8px 0 24px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .save-btn {
+            width: 100%;
+            padding: 10px;
+            background: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .save-btn:hover { background: #106ebe; }
+    </style>
+</head>
+<body>
+    <div class="settings-card">
+        <h2>Settings</h2>
+        <div class="setting-row">
+            <span>Enable notifications</span>
+            <label class="toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="setting-row">
+            <span>Dark theme</span>
+            <label class="toggle">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <label>Language</label>
+        <select>
+            <option>English</option>
+            <option>简体中文</option>
+        </select>
+        <button class="save-btn">Save</button>
+    </div>
+</body>
+</html>
+===SEP===
+{"id":"root","type":"column","children":["title","row_notif","row_dark","label_lang","dropdown_lang","btn_save"]}
+{"id":"title","type":"text","children":[],"props":{"text":"Settings","bold":true,"size":24}}
+{"id":"row_notif","type":"row","children":["text_notif","switch_notif"]}
+{"id":"text_notif","type":"text","children":[],"props":{"text":"Enable notifications"}}
+{"id":"switch_notif","type":"switch","children":[],"props":{"checked":true}}
+{"id":"row_dark","type":"row","children":["text_dark","switch_dark"]}
+{"id":"text_dark","type":"text","children":[],"props":{"text":"Dark theme"}}
+{"id":"switch_dark","type":"switch","children":[],"props":{"checked":false}}
+{"id":"label_lang","type":"text","children":[],"props":{"text":"Language"}}
+{"id":"dropdown_lang","type":"dropdown","children":[],"props":{"options":["English","简体中文"],"selectedIndex":0}}
+{"id":"btn_save","type":"button","children":[],"props":{"text":"Save","primary":true}}

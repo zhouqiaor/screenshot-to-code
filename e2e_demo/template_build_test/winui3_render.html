@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>WinUI3 Settings Page</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',sans-serif; background:#f5f5f5; width:960px; height:600px; overflow:hidden; }
+.top-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:#fff; border-bottom:1px solid #e8e8e8; }
+.main { display:flex; height:calc(100% - 49px); }
+.sidebar { width:240px; background:#fff; border-right:1px solid #e8e8e8; padding:16px; display:flex; flex-direction:column; gap:16px; }
+.content { flex:1; padding:24px 32px; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
+.card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
+.card-row { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid #f0f0f0; }
+.card-row:last-child { border-bottom:none; }
+.toggle { width:44px; height:22px; border-radius:11px; background:#1677ff; position:relative; cursor:pointer; }
+.toggle.off { background:#ccc; }
+.toggle::after { content:''; position:absolute; width:18px; height:18px; border-radius:50%; background:#fff; top:2px; right:2px; transition:all 0.2s; }
+.toggle.off::after { right:auto; left:2px; }
+.slider-row { display:flex; align-items:center; padding:14px 20px; border-bottom:1px solid #f0f0f0; gap:8px; }
+.slider-row:last-child { border-bottom:none; }
+input[type="range"] { flex:1; height:4px; -webkit-appearance:none; background:#e0e0e0; border-radius:2px; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#1677ff; }
+.nav-item { padding:10px 12px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:14px; }
+.nav-item.selected { background:#e6f4ff; }
+.nav-item.selected span { color:#1677ff; font-weight:600; }
+.nav-item span { color:#212121; }
+.nav-item .status { color:#999; font-size:12px; }
+.sidebar-title { font-size:20px; font-weight:700; }
+.search-box { width:100%; padding:8px 12px; border:1px solid #d9d9d9; border-radius:6px; font-size:14px; }
+.close-btn { width:32px; height:32px; border:none; background:transparent; font-size:14px; cursor:pointer; }
+.font-icon { font-size:16px; margin-right:8px; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+    <span style="font-size:18px;font-weight:600;">声音与显示</span>
+    <button class="close-btn">✕</button>
+</div>
+<div class="main">
+    <div class="sidebar">
+        <div class="sidebar-title">设置</div>
+        <input type="text" placeholder="搜索设置项" class="search-box"/>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="nav-item"><span>企业服务配置</span></div>
+            <div class="nav-item selected"><span>声音与显示</span></div>
+            <div class="nav-item"><span>摄像机</span></div>
+            <div class="nav-item"><span>壁纸</span><span class="status">已设置</span></div>
+            <div class="nav-item"><span>Wi-Fi</span><span class="status">已连接</span></div>
+            <div class="nav-item"><span>智慧功能</span></div>
+            <div class="nav-item"><span>高级设置</span></div>
+        </div>
+    </div>
+    <div class="content">
+        <div style="font-size:28px;font-weight:700;margin-bottom:8px;">声音与显示</div>
+        <div class="card">
+            <div class="card-row">
+                <span style="font-size:14px;font-weight:500;">扬声器</span>
+                <div class="toggle"></div>
+            </div>
+            <div class="slider-row">
+                <span style="font-size:14px;font-weight:500;width:80px;">音量</span>
+                <span class="font-icon">🔊</span>
+                <input type="range" value="70"/>
+            </div>
+            <div class="slider-row">
+                <span style="font-size:14px;font-weight:500;width:80px;">提示音量</span>
+                <span class="font-icon">🔔</span>
+                <input type="range" value="50"/>
+            </div>
+            <div class="card-row">
+                <span style="font-size:14px;font-weight:500;">按键音</span>
+                <div class="toggle"></div>
+            </div>
+            <div class="card-row">
+                <span style="font-size:14px;font-weight:500;">麦克风</span>
+                <div class="toggle off"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="slider-row">
+                <span style="font-size:14px;font-weight:500;width:80px;">亮度</span>
+                <span class="font-icon">☀</span>
+                <input type="range" value="80"/>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

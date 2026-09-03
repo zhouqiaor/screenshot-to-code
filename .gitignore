@@ -4,7 +4,7 @@ node_modules
 # Project-related files
 
 # Run logs
-backend/run_logs/*
+run_logs/
 backend/local_assets/*
 backend/image_generation/eval_sets/*
 backend/image_generation/eval_results/*
@@ -24,3 +24,106 @@ frontend/.env.local
 
 # Walkthrough demo videos
 walkthrough/
+
+# ── Android / Kotlin build artifacts (per GitHub official templates) ──
+# Gradle
+.gradle/
+**/build/
+
+# APK & AAB
+*.apk
+*.aab
+*.apk.aligned
+*.apk.idsig
+
+# Keystore
+*.keystore
+*.jks
+
+# Compiled classes & DEX
+*.class
+*.dex
+*.kotlin_module
+
+# AAPT-generated
+R.java
+
+# Build metadata
+class_list.txt
+output-metadata.json
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Kotlin plugin data
+.kotlin/
+
+# ── E2E build test artifacts ──
+# AAPT2 .flat files
+*.flat
+# Compiled zip from aapt2
+**/compiled*.zip
+# aapt2 extracted flat dir
+**/flat_extract/
+**/flat_out*/
+# Qt QML build dir
+**/qt_qml_full/build/
+# .obj files
+*.obj
+# WinUI3 obj dir (NuGet cache + generated)
+**/template_build_test/winui3/obj/
+
+# Broken git dir
+.git.broken/
+
+# Misc temp files
+nul
+aqtinstall.log
+*.bak
+
+# ── Fork / E2E 漏网项（2026-09-02 补，详见 design-docs/fork-normalization-plan.md §3.3）──
+# 高危：0_review.txt / ocr_logs2.zip 此前未忽略，可被 git add 提交
+0_review.txt
+ocr_logs2.zip
+ocr_logs2/
+# ── e2e_runs：运行产物不入库，但可复用模板 / fixtures 必须入库 ──
+#    （详见 design-docs/e2e-verification-sop.md §4.5）
+#    注意：不能写 `e2e_runs/`，那样 git 不再遍历目录，后面的 ! 例外会失效
+e2e_runs/*
+!e2e_runs/_templates/
+!e2e_runs/_fixtures/
+e2e_runs/_templates/report/_preview.html
+
+# ── e2e_hosts：宿主工程脚本与源码入库（构建知识资产，~210 KB），
+#    构建产物 / 依赖仓不入库（当前 1.2 GB，可随时重建）──
+e2e_hosts/*/build/
+e2e_hosts/*/compose_cli_build/
+e2e_hosts/*/xml_cli_build/
+e2e_hosts/*/deps_repo/
+e2e_hosts/*/deps_repo.old*/
+e2e_hosts/*/logs/
+e2e_hosts/*/screenshots/
+e2e_hosts/*/_stale_bak/
+e2e_hosts/*/_stale/
+e2e_hosts/*/gradle/
+e2e_hosts/*/__pycache__/
+e2e_hosts/*/_*.log
+e2e_hosts/*/_*.txt
+# 依赖仓制品（体积大，走 fetch_*.py 重建）
+*.aar
+e2e_hosts/**/*.jar
+
+e2e_demo/run_*/
+e2e_demo/screenshots/
+outputs/
+backend/scripts_tmp/
+backend/e2e/run_*/
+.bak_e2e_run_*/
+
+# ── WorkBuddy 本地记忆 / agent 状态（可能含明文密钥，禁止入库）──
+.workbuddy/

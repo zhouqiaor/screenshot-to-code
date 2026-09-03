@@ -1,0 +1,225 @@
+{
+  "title": "E2E 验证报告 · 截图 → 多栈代码 → 真机运行",
+  "subtitle": "run_id 20260903T130500_doubao-seed-2-1-turbo-260628 · 设备 TEQU-S2C Android 12 3840×2160 · 本文件为模板示例数据，字段含义见 report_data.schema.json",
+
+  "metrics": [
+    { "value": "5/5", "label": "语法层通过", "sub": "validate_code.py", "tone": "ok" },
+    { "value": "2/2", "label": "真机验证通过", "sub": "XML + Compose 新版代码", "tone": "ok" },
+    { "value": "8/8", "label": "构建陷阱已修", "sub": "见根因分析", "tone": "ok" },
+    { "value": "38.5 MB", "label": "Compose APK", "sub": "3 个 dex" },
+    { "value": "484", "label": "库 R 类", "sub": "38 库 res 经 aapt2" },
+    { "value": "¥0.85", "label": "生成成本", "sub": "58,618 tokens" }
+  ],
+
+  "matrix": [
+    {
+      "layer": "L1 语法",
+      "item": "5 栈代码语法校验",
+      "expected": "5 栈生成代码全部通过 AST/Schema 解析",
+      "action": "python backend/validate_code.py",
+      "result": "5/5 PASS：android_compose / android_xml / qt_qml / windows_html / a2ui",
+      "status": "pass"
+    },
+    {
+      "layer": "L2 构建",
+      "item": "Compose CLI 直编 APK",
+      "expected": "绕过 Gradle 死锁，产出可安装 APK",
+      "action": "python e2e_hosts/android_compose/build_compose_full.py",
+      "result": "PASS：38.5 MB APK，3 个 dex，含 484 个库 R 类；multidex / aapt2 资源链接 / 依赖补全均修通",
+      "status": "pass"
+    },
+    {
+      "layer": "L2 构建",
+      "item": "缺失类静态扫描",
+      "expected": "被引用但未提供的类清单为空",
+      "action": "python find_missing_classes.py",
+      "result": "PASS：首轮 73 个缺失（34 依赖类 + 31 R 类 + 其它），补 12 个 artifact + 生成 R 类后归零",
+      "status": "pass"
+    },
+    {
+      "layer": "L3 运行",
+      "item": "Compose 真机运行",
+      "expected": "APK 装机后进程存活且渲染出目标 UI",
+      "action": "adb uninstall → install -r → am start → screencap",
+      "result": "PASS：进程 PID 2041 存活，窗口获焦，logcat 无 FATAL，截图结构与原始 4K 截图一致",
+      "status": "pass"
+    },
+    {
+      "layer": "L3 运行",
+      "item": "Android XML 真机运行",
+      "expected": "XML 栈 APK 装机可运行",
+      "action": "aapt2 + d8 + apksigner → adb install → screencap",
+      "result": "PASS：com.e2e.xmlgen 装机运行，UI dump 确认渲染",
+      "status": "pass"
+    },
+    {
+      "layer": "L3 运行",
+      "item": "Qt QML headless 渲染",
+      "expected": "无 GUI 环境下截出 QML 渲染图",
+      "action": "QT_QPA_PLATFORM=offscreen qmlscenegrabber",
+      "result": "headless 渲染通过，等价替代真机验证（无 Qt 设备）",
+      "status": "degraded"
+    },
+    {
+      "layer": "L3 运行",
+      "item": "WinUI3 真机运行",
+      "expected": "WinUI3 应用启动并截图",
+      "action": "WinAppDriver（P2 待接）",
+      "result": "验证器尚未实现，本轮不纳入结论",
+      "status": "na"
+    }
+  ],
+  "matrix_note": "语法层 5/5 全通过；器件层 XML 与 Compose 新版代码均真机 PASS；QML 走 headless 降级；WinUI3 未接入。CLI 直编工具链 8 个陷阱已全部修通。",
+
+  "screenshot_groups": [
+    {
+      "title": "3.1 原始截图 vs Compose 新版真机",
+      "note": "两图同为 3840×2160。判定依据：布局/结构/文案一致即 PASS，背景色与图标配色差异属主题/资产级差异，不影响结构结论。",
+      "shots": [
+        {
+          "caption": "原始截图",
+          "path": "../../_capture_inbox/screenshot.png",
+          "meta": "3840×2160 · ADB screencap 采集"
+        },
+        {
+          "caption": "Compose 新版真机",
+          "path": "../../../e2e_hosts/android_compose/screenshots/device_compose_new.png",
+          "meta": "3840×2160 · TEQU-S2C Android 12 · 2026-09-03T13:05+08:00"
+        }
+      ]
+    }
+  ],
+
+  "root_causes": [
+    {
+      "layer": "环境",
+      "symptom": "Gradle 构建永久挂起，--no-daemon 亦无效",
+      "cause": "360 + Defender 拦截 Gradle native agent",
+      "status": "blocked",
+      "fix": "绕过 Gradle，改 kotlinc + d8 + aapt2 + apksigner CLI 直编"
+    },
+    {
+      "layer": "环境",
+      "symptom": "force_rmtree 静默失败，旧产物残留",
+      "cause": "WorkBuddy 沙箱拦截 os.remove/shutil.rmtree（回收站不可用 → FAIL_CLOSED）",
+      "status": "pass",
+      "fix": "改 os.rename() 整目录改名到 _stale_bak/"
+    },
+    {
+      "layer": "L2 编译",
+      "symptom": "NoClassDefFoundError: org/jetbrains/annotations/NotNull",
+      "cause": "kotlinc codegen 阶段需 org.jetbrains.annotations（非 androidx.annotation）",
+      "status": "pass",
+      "fix": "注入 kotlinc 的 java 启动 classpath"
+    },
+    {
+      "layer": "L2 编译",
+      "symptom": "find_in_cache 找不到 jar",
+      "cause": "Gradle 缓存 group 目录保留点号，代码却做了 group.replace('.', os.sep)",
+      "status": "pass",
+      "fix": "去掉 replace，按原目录名拼接"
+    },
+    {
+      "layer": "L2 dex",
+      "symptom": "ClassNotFoundException: MainActivity（APK 里明明有类）",
+      "cause": "d8 把我们的 .class 与依赖 jar 混作 program 输入时，因父类 ComponentActivity 不在输入里而静默 tree-shake 丢弃",
+      "status": "pass",
+      "fix": "d8 三步法：依赖单独 dex → 我们的类单独 dex（依赖走 --classpath）→ 全 dex 打包"
+    },
+    {
+      "layer": "L2 打包",
+      "symptom": "重装后仍 ClassNotFoundException",
+      "cause": "deps_dex 产出 classes.dex + classes2.dex，合并步骤只喂第一个，4.4 MB 依赖类被丢",
+      "status": "pass",
+      "fix": "取消合并，走原生 multidex（minSdk 24 平台原生支持），全 dex 打进 APK"
+    },
+    {
+      "layer": "L2 dex",
+      "symptom": "NoClassDefFoundError: kotlin/jvm/internal/Intrinsics",
+      "cause": "kotlin-stdlib 只进了 kotlinc classpath，没进 d8 输入；coroutines 核心 868 类在 core-jvm 而非 android 变体",
+      "status": "pass",
+      "fix": "两者都补进 extra_jars"
+    },
+    {
+      "layer": "L2 资源",
+      "symptom": "NoClassDefFoundError: androidx/…/R$…（31 个）",
+      "cause": "aar 的库 R 类需 aapt2 link 后 javac 生成，纯 dex 流程不会有",
+      "status": "pass",
+      "fix": "link_resources.py：38 库 res → 44 个 R.java → 484 个 R 类"
+    },
+    {
+      "layer": "L3 装机",
+      "symptom": "install -r 后设备仍跑旧逻辑",
+      "cause": "增量安装有时不下发新 dex",
+      "status": "pass",
+      "fix": "先 uninstall 再完整 install，禁止只做增量"
+    }
+  ],
+
+  "artifacts": [
+    {
+      "path": "../../../e2e_hosts/android_compose/compose_cli_build/e2e_compose_full_signed.apk",
+      "desc": "Compose 栈最终签名 APK（3 dex + 418 KB resources.arsc）",
+      "built_at": "2026-09-03T13:05:00+08:00"
+    },
+    {
+      "path": "../../../e2e_hosts/android_compose/screenshots/device_compose_new.png",
+      "desc": "Compose 新版真机运行截图",
+      "built_at": "2026-09-03T13:07:00+08:00"
+    },
+    {
+      "path": "../../_capture_inbox/screenshot.png",
+      "desc": "原始输入截图（ADB 采集）",
+      "built_at": "2026-09-01T17:00:00+08:00"
+    }
+  ],
+
+  "environment": {
+    "JDK": "21.0.11",
+    "Android SDK": "platforms/android-34",
+    "build-tools": "37.0.0",
+    "Kotlin": "2.0.21 (compiler-embeddable)",
+    "Compose 插件": "2.0.21",
+    "minSdk / targetSdk": "24 / 34",
+    "设备": "200.47.91.1:5555 TEQU-S2C Android 12 3840×2160",
+    "生成模型": "doubao-seed-2-1-turbo-260628"
+  },
+
+  "references": [
+    {
+      "name": "Test Pyramid",
+      "practice": "底层快测多跑，顶层慢测少跑",
+      "applied": "L0–L4 五层分层，语法层秒级先跑，真机层最后跑"
+    },
+    {
+      "name": "Android CTS",
+      "practice": "aapt2 + d8 + apksigner 最小工具链，不依赖 IDE",
+      "applied": "XML 与 Compose 栈均走 CLI 直编，绕过 Gradle 环境依赖"
+    },
+    {
+      "name": "Paparazzi",
+      "practice": "JVM Layoutlib 渲染 Compose，无需设备",
+      "applied": "P2 待接，用于像素级回归"
+    },
+    {
+      "name": "Compose Driver",
+      "practice": "HTTP Server 包裹 ComposeUiTest，无需 APK 即可截图",
+      "applied": "P1 待接，用于快速交互验证"
+    },
+    {
+      "name": "Roborazzi",
+      "practice": "Robolectric + AI 语义断言",
+      "applied": "P2 待接，AI 断言可接火山引擎视觉模型"
+    }
+  ],
+
+  "next_steps": [
+    { "priority": "P0", "text": "e2e_hosts/android_compose/ 按 SOP §4.3 迁移目录（compose_cli_build/ → build/，_*.log → logs/）" },
+    { "priority": "P0", "text": "各脚本路径常量抽到统一 paths.py" },
+    { "priority": "P1", "text": "build_report.py 接入 manifest.json 自动取产物哈希" },
+    { "priority": "P1", "text": "补 .gitignore（SOP §4.5）" },
+    { "priority": "P2", "text": "接 Paparazzi / Compose Driver 做像素回归" },
+    { "priority": "P0", "text": "Compose 新版代码 CLI 直编 + 真机运行闭环", "done": true },
+    { "priority": "P0", "text": "8 个构建陷阱定位与修复", "done": true }
+  ]
+}

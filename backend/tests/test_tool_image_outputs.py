@@ -22,8 +22,11 @@ PUBLIC = ToolMultimodalPart(
     mime_type="image/png",
     image_url="https://replicate.delivery/abc/out.png",
 )
+LOCAL_IMAGE_BYTES = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+)
 LOCAL = ToolMultimodalPart(
-    display_name="crop.png", mime_type="image/png", data=b"local-bytes"
+    display_name="crop.png", mime_type="image/png", data=LOCAL_IMAGE_BYTES
 )
 
 
@@ -60,7 +63,20 @@ def _executed(parts: List[ToolMultimodalPart], ok: bool = True) -> ExecutedToolC
 
 
 @pytest.mark.asyncio
-async def test_anthropic_url_for_public_base64_for_local() -> None:
+async def test_anthropic_url_for_public_processes_local_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    processed_data = "processed-image"
+    captured_images: list[tuple[bytes, str]] = []
+
+    def fake_process_image_bytes(image_bytes: bytes, media_type: str) -> tuple[str, str]:
+        captured_images.append((image_bytes, media_type))
+        return ("image/jpeg", processed_data)
+
+    monkeypatch.setattr(
+        "agent.providers.anthropic.provider.process_image_bytes",
+        fake_process_image_bytes,
+    )
     session = AnthropicProviderSession(
         client=object(),  # type: ignore[arg-type]
         model=Llm.CLAUDE_OPUS_4_8_HIGH,
@@ -77,8 +93,12 @@ async def test_anthropic_url_for_public_base64_for_local() -> None:
     content = session._messages[-1]["content"][0]["content"]  # type: ignore[index]
     images = [b for b in content if b.get("type") == "image"]
     assert images[0]["source"] == {"type": "url", "url": PUBLIC.image_url}
-    assert images[1]["source"]["type"] == "base64"
-    assert images[1]["source"]["data"] == base64.b64encode(b"local-bytes").decode()
+    assert captured_images == [(LOCAL_IMAGE_BYTES, "image/png")]
+    assert images[1]["source"] == {
+        "type": "base64",
+        "media_type": "image/jpeg",
+        "data": processed_data,
+    }
 
 
 @pytest.mark.asyncio
@@ -119,7 +139,7 @@ async def test_openai_url_for_public_dataurl_for_local_with_detail() -> None:
     images = [p for p in output if p.get("type") == "input_image"]
     assert images[0]["image_url"] == PUBLIC.image_url
     assert images[1]["image_url"] == (
-        "data:image/png;base64," + base64.b64encode(b"local-bytes").decode()
+        "data:image/png;base64," + base64.b64encode(LOCAL_IMAGE_BYTES).decode()
     )
     assert all("detail" in p for p in images)
 
@@ -174,7 +194,7 @@ async def test_gemini_inlines_local_bytes_and_fetches_public_url(
     assert response_parts[0].inline_data.data == b"fetched-bytes"
     assert response_parts[0].inline_data.mime_type == "image/webp"
     # Local bytes inlined as-is.
-    assert response_parts[1].inline_data.data == b"local-bytes"
+    assert response_parts[1].inline_data.data == LOCAL_IMAGE_BYTES
 
 
 @pytest.mark.asyncio
@@ -204,28 +224,169 @@ async def test_generate_images_emits_url_parts(
 
 
 @pytest.mark.asyncio
-async def test_edit_image_emits_url_part(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_generate_images_does_not_fallback_to_openai_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("agent.tools.runtime.REPLICATE_API_KEY", None)
+
+    runtime = AgentToolRuntime(
+        file_state=AgentFileState(),
+        should_generate_images=True,
+        openai_api_key="openai-key",
+        openai_base_url=None,
+    )
+    result = await runtime.execute(
+        ToolCall(id="t", name="generate_images", arguments={"prompts": ["a logo"]})
+    )
+
+    assert result.ok is False
+    assert result.result == {"error": "No API key available for image generation."}
+    assert result.summary == {"error": "Missing image generation API key"}
+
+
+@pytest.mark.asyncio
+async def test_generate_images_uses_replicate_key_from_settings(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("agent.tools.runtime.REPLICATE_API_KEY", None)
+    captured: dict[str, Any] = {}
+
+    async def fake_process_tasks(
+        prompts: List[str], api_key: str, base_url: Any, model: str
+    ) -> List[str]:
+        captured["api_key"] = api_key
+        captured["base_url"] = base_url
+        captured["model"] = model
+        return [f"https://replicate.delivery/{p}.png" for p in prompts]
+
+    monkeypatch.setattr("agent.tools.runtime.process_tasks", fake_process_tasks)
+    runtime = AgentToolRuntime(
+        file_state=AgentFileState(),
+        should_generate_images=True,
+        openai_api_key=None,
+        openai_base_url=None,
+        replicate_api_key="replicate-from-ui",
+    )
+    result = await runtime.execute(
+        ToolCall(id="t", name="generate_images", arguments={"prompts": ["a logo"]})
+    )
+
+    assert result.ok is True
+    assert captured == {
+        "api_key": "replicate-from-ui",
+        "base_url": None,
+        "model": "flux",
+    }
+
+
+@pytest.mark.asyncio
+async def test_edit_images_summary_preserves_full_prompt_and_source_urls(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr("agent.tools.runtime.REPLICATE_API_KEY", "fake-key")
 
-    async def fake_edit_image(**kwargs: Any) -> str:
+    async def fake_edit_images(**kwargs: Any) -> str:
         return "https://replicate.delivery/edited.png"
 
-    monkeypatch.setattr("agent.tools.runtime.edit_image", fake_edit_image)
+    monkeypatch.setattr("agent.tools.runtime.edit_image_once", fake_edit_images)
     runtime = AgentToolRuntime(
         file_state=AgentFileState(),
         should_generate_images=True,
         openai_api_key=None,
         openai_base_url=None,
     )
+    prompt = " ".join(["Preserve every detail in the source image."] * 10)
+    source_url = f"https://images.example.com/{'source-path/' * 12}image.png"
+    assert len(prompt) > 240
+    assert len(source_url) > 100
+
     result = await runtime.execute(
         ToolCall(
             id="t",
-            name="edit_image",
-            arguments={"prompt": "bw", "image_urls": ["https://x/in.png"]},
+            name="edit_images",
+            arguments={
+                "edits": [{"prompt": prompt, "image_urls": [source_url]}]
+            },
         )
     )
+
     assert result.multimodal_parts is not None
     assert result.multimodal_parts[0].image_url == "https://replicate.delivery/edited.png"
+    assert result.summary["images"][0]["prompt"] == prompt
+    assert result.summary["images"][0]["image_urls"] == [source_url]
+
+
+@pytest.mark.asyncio
+async def test_edit_images_error_summary_preserves_full_prompt_and_source_urls(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("agent.tools.runtime.REPLICATE_API_KEY", "fake-key")
+
+    async def fake_edit_images(**kwargs: Any) -> str:
+        raise RuntimeError("image edit failed")
+
+    monkeypatch.setattr("agent.tools.runtime.edit_image_once", fake_edit_images)
+    runtime = AgentToolRuntime(
+        file_state=AgentFileState(),
+        should_generate_images=True,
+        openai_api_key=None,
+        openai_base_url=None,
+    )
+    prompt = " ".join(["Keep the image-editing instruction intact."] * 10)
+    source_url = f"https://images.example.com/{'source-path/' * 12}image.png"
+    assert len(prompt) > 240
+    assert len(source_url) > 100
+
+    result = await runtime.execute(
+        ToolCall(
+            id="t",
+            name="edit_images",
+            arguments={
+                "edits": [{"prompt": prompt, "image_urls": [source_url]}]
+            },
+        )
+    )
+
+    assert result.ok is True
+    assert result.summary["images"][0]["prompt"] == prompt
+    assert result.summary["images"][0]["image_urls"] == [source_url]
+    assert result.summary["images"][0]["status"] == "error"
+
+
+@pytest.mark.asyncio
+async def test_edit_images_uses_replicate_key_from_settings(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("agent.tools.runtime.REPLICATE_API_KEY", None)
+    captured: dict[str, Any] = {}
+
+    async def fake_edit_images(**kwargs: Any) -> str:
+        captured.update(kwargs)
+        return "https://replicate.delivery/edited.png"
+
+    monkeypatch.setattr("agent.tools.runtime.edit_image_once", fake_edit_images)
+    runtime = AgentToolRuntime(
+        file_state=AgentFileState(),
+        should_generate_images=True,
+        openai_api_key=None,
+        openai_base_url=None,
+        replicate_api_key="replicate-from-ui",
+    )
+
+    result = await runtime.execute(
+        ToolCall(
+            id="t",
+            name="edit_images",
+            arguments={
+                "edits": [
+                    {"prompt": "bw", "image_urls": ["https://x/in.png"]}
+                ]
+            },
+        )
+    )
+
+    assert result.ok is True
+    assert captured["api_token"] == "replicate-from-ui"
 
 
 @pytest.mark.asyncio

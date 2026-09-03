@@ -1,0 +1,9 @@
+{"id":"root","type":"column","padding":16,"children":["title","row_dark","row_lang","btn_save"]}
+{"id":"title","type":"text","text":"Settings","fontSize":24,"fontWeight":"bold"}
+{"id":"row_dark","type":"row","padding":12,"align":"center","children":["lbl_dark","sw_dark"]}
+{"id":"lbl_dark","type":"text","text":"Dark Mode"}
+{"id":"sw_dark","type":"switch","checked":false}
+{"id":"row_lang","type":"row","padding":12,"align":"center","children":["lbl_lang","combo_lang"]}
+{"id":"lbl_lang","type":"text","text":"Language"}
+{"id":"combo_lang","type":"dropdown","options":["English","Chinese","Japanese"]}
+{"id":"btn_save","type":"button","text":"Save"}

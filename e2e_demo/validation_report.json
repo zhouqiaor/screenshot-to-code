@@ -1,0 +1,66 @@
+{
+  "llm_android_xml": {
+    "stack": "android_xml",
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_details": [],
+    "warning_details": [],
+    "chars": 1553
+  },
+  "llm_android_compose": {
+    "stack": "android_compose",
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_details": [],
+    "warning_details": [],
+    "chars": 2209
+  },
+  "llm_qt_qml": {
+    "stack": "qt_qml",
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_details": [],
+    "warning_details": [],
+    "chars": 1353
+  },
+  "llm_windows_html": {
+    "stack": "html",
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_details": [],
+    "warning_details": [],
+    "chars": 2961
+  },
+  "llm_a2ui": {
+    "stack": "a2ui",
+    "ok": true,
+    "errors": 0,
+    "warnings": 3,
+    "error_details": [],
+    "warning_details": [
+      {
+        "line": 5,
+        "col": 1,
+        "message": "Unknown type 'switch'. Expected one of: ['button', 'card', 'column', 'container', 'image', 'input', 'list', 'row', 'stack', 'text'].",
+        "severity": "warning"
+      },
+      {
+        "line": 8,
+        "col": 1,
+        "message": "Unknown type 'switch'. Expected one of: ['button', 'card', 'column', 'container', 'image', 'input', 'list', 'row', 'stack', 'text'].",
+        "severity": "warning"
+      },
+      {
+        "line": 10,
+        "col": 1,
+        "message": "Unknown type 'dropdown'. Expected one of: ['button', 'card', 'column', 'container', 'image', 'input', 'list', 'row', 'stack', 'text'].",
+        "severity": "warning"
+      }
+    ],
+    "chars": 943
+  }
+}

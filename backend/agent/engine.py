@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 import uuid
 from typing import Any, Awaitable, Callable, Dict, List, Optional, cast
 
@@ -17,6 +18,46 @@ from agent.tools import (
     summarize_text,
     summarize_tool_input,
 )
+from costs.budget_checker import check_budget, check_circuit_breaker, record_abort
+from costs.metrics import record_budget, record_circuit_breaker
+from fs_logging.agent_runs import AgentRunRecorder
+
+
+class EmptyOutputError(Exception):
+    """Raised when a run finishes without producing any HTML.
+
+    Some models (observed: gemini-3.6-flash) occasionally run asset tools
+    and then stop without calling create_file. Treating that as success
+    poisons evals: the run looks green, diff mode skips it forever, and
+    the output file is empty. Raising makes it a normal, retryable failure.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("Generation finished without producing any output.")
+
+
+class BudgetExceededError(Exception):
+    """Raised when a single generation exceeds the spend ceiling.
+
+    The user-facing message (shown verbatim in variantError via str(e))
+    is always the clean default. Internal diagnostic context (circuit
+    breaker reason, cost figures) is stored in ``internal_reason`` for
+    logging/eval callers, not exposed to end users.
+    """
+
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        *,
+        internal_reason: Optional[str] = None,
+    ) -> None:
+        if message is None:
+            super().__init__(
+                "Generation stopped: this variant exceeded its resource limit."
+            )
+        else:
+            super().__init__(message)
+        self.internal_reason = internal_reason
 
 
 class AgentEngine:
@@ -30,24 +71,36 @@ class AgentEngine:
         openai_api_key: Optional[str],
         openai_base_url: Optional[str],
         anthropic_api_key: Optional[str],
+        anthropic_base_url: Optional[str],
         gemini_api_key: Optional[str],
+        replicate_api_key: Optional[str],
         should_generate_images: bool,
+        should_extract_assets: bool = True,
         asset_base_url: str = "",
         initial_file_state: Optional[Dict[str, str]] = None,
         option_codes: Optional[List[str]] = None,
+        recorder: Optional[AgentRunRecorder] = None,
+        stack: str = "",
     ):
         self.send_message = send_message
         self.variant_index = variant_index
+        self.recorder = recorder
         self.openai_api_key = openai_api_key
         self.openai_base_url = openai_base_url
         self.anthropic_api_key = anthropic_api_key
+        self.anthropic_base_url = anthropic_base_url
         self.gemini_api_key = gemini_api_key
+        self.replicate_api_key = replicate_api_key
         self.should_generate_images = should_generate_images
+        self.should_extract_assets = should_extract_assets
+        self.stack = stack
 
         self.file_state = AgentFileState()
         if initial_file_state and initial_file_state.get("content"):
-            self.file_state.path = initial_file_state.get("path") or "index.html"
+            self.file_state.path = initial_file_state.get("path") or AgentFileState.default_path_for_stack(stack)
             self.file_state.content = initial_file_state["content"]
+        elif not initial_file_state or not initial_file_state.get("content"):
+            self.file_state.path = AgentFileState.default_path_for_stack(stack)
 
         self.tool_runtime = AgentToolRuntime(
             file_state=self.file_state,
@@ -55,8 +108,10 @@ class AgentEngine:
             openai_api_key=openai_api_key,
             openai_base_url=openai_base_url,
             gemini_api_key=gemini_api_key,
+            replicate_api_key=replicate_api_key,
             asset_base_url=asset_base_url,
             option_codes=option_codes,
+            stack=self.stack,
         )
         self._tool_preview_lengths: Dict[str, int] = {}
 
@@ -76,7 +131,15 @@ class AgentEngine:
                 if not isinstance(image_url, dict):
                     continue
                 url = cast(object, image_url.get("url"))
-                if isinstance(url, str) and url:
+                # Video parts use the OpenAI-compatible `image_url` shape too,
+                # but extract_assets can only crop still-image data URLs. Keep
+                # non-image media out of the tool runtime so video-only prompts
+                # do not expose a tool that is guaranteed to fail.
+                if (
+                    isinstance(url, str)
+                    and url.startswith("data:image/")
+                    and "," in url
+                ):
                     images.append(url)
         return images
 
@@ -120,6 +183,8 @@ class AgentEngine:
 
         await self._send("setCode", content)
         self._mark_preview_length(tool_event_id, total_len)
+        if self.recorder is not None:
+            self.recorder.record_set_code(total_len, "stream_preview")
 
     async def _handle_streamed_tool_delta(
         self,
@@ -170,7 +235,7 @@ class AgentEngine:
             self._mark_preview_length(tool_event_id, len(content))
 
     async def _run_with_session(self, session: ProviderSession) -> str:
-        max_steps = 20
+        max_steps = 30
 
         for _ in range(max_steps):
             assistant_event_id = self._next_event_id("assistant")
@@ -179,6 +244,15 @@ class AgentEngine:
             streamed_lengths: Dict[str, int] = {}
 
             async def on_event(event: StreamEvent) -> None:
+                if self.recorder is not None:
+                    if event.type == "assistant_delta":
+                        stream_event_id = assistant_event_id
+                    elif event.type == "thinking_delta":
+                        stream_event_id = thinking_event_id
+                    else:
+                        stream_event_id = event.tool_call_id
+                    self.recorder.record_stream_event(event, stream_event_id)
+
                 if event.type == "assistant_delta":
                     if event.text:
                         await self._send(
@@ -209,6 +283,43 @@ class AgentEngine:
             if not turn.tool_calls:
                 return await self._finalize_response(turn.assistant_text)
 
+            # Abort only when the run would otherwise continue: a run that
+            # just produced its final answer is already paid for. Unpriced
+            # models return None and are not bounded.
+            spent = session.total_cost_usd()
+
+            # Cross-session circuit breaker (checked first)
+            breaker_reason = check_circuit_breaker()
+            record_circuit_breaker(breaker_reason is not None)
+            if breaker_reason is not None:
+                print(f"[BUDGET] {breaker_reason}")
+                raise BudgetExceededError(internal_reason=breaker_reason)
+
+            # Single-variant budget check with tiered alerts
+            decision = check_budget(spent)
+            if spent is not None:
+                record_budget(
+                    variant=self.variant_index,
+                    spent=spent,
+                    limit=decision.limit_usd,
+                )
+            # NOTE: record_usage() for token/cost counters requires a
+            # total_token_usage() method on ProviderSession; deferred to
+            # a follow-up PR to avoid expanding the Protocol in this PR.
+            if decision.alert_level == "exceeded":
+                print(
+                    f"[BUDGET] Aborting variant {self.variant_index}: "
+                    f"${decision.spent_usd:.2f} > ${decision.limit_usd:.2f}"
+                )
+                record_abort()
+                raise BudgetExceededError(internal_reason=decision.reason)
+            if decision.alert_level in ("warn", "alert", "critical"):
+                print(
+                    f"[BUDGET {decision.alert_level.upper()}] "
+                    f"variant {self.variant_index}: "
+                    f"${decision.spent_usd:.2f} / ${decision.limit_usd:.2f}"
+                )
+
             executed_tool_calls: List[ExecutedToolCall] = []
             for tool_call in turn.tool_calls:
                 tool_event_id = tool_call.id or self._next_event_id("tool")
@@ -227,9 +338,21 @@ class AgentEngine:
                     if content:
                         await self._stream_code_preview(tool_event_id, content)
 
+                # Timing starts here, after the cosmetic preview stream, so
+                # tool durations measure execution only.
+                if self.recorder is not None:
+                    self.recorder.record_tool_start(tool_event_id, tool_call)
                 tool_result = await self.tool_runtime.execute(tool_call)
+                if self.recorder is not None:
+                    self.recorder.record_tool_end(
+                        tool_event_id, tool_call, tool_result
+                    )
                 if tool_result.updated_content:
                     await self._send("setCode", tool_result.updated_content)
+                    if self.recorder is not None:
+                        self.recorder.record_set_code(
+                            len(tool_result.updated_content), "tool_result"
+                        )
 
                 await self._send(
                     "toolResult",
@@ -250,7 +373,10 @@ class AgentEngine:
 
     async def run(self, model: Llm, prompt_messages: List[ChatCompletionMessageParam]) -> str:
         self.tool_runtime.input_images = self._extract_input_images(prompt_messages)
-        seed_file_state_from_messages(self.file_state, prompt_messages)
+        seed_file_state_from_messages(self.file_state, prompt_messages, stack=self.stack)
+
+        if self.recorder is not None:
+            self.recorder.record_run_start(model, prompt_messages)
 
         session = create_provider_session(
             model=model,
@@ -259,20 +385,53 @@ class AgentEngine:
             openai_api_key=self.openai_api_key,
             openai_base_url=self.openai_base_url,
             anthropic_api_key=self.anthropic_api_key,
+            anthropic_base_url=self.anthropic_base_url,
             gemini_api_key=self.gemini_api_key,
+            replicate_api_key=self.replicate_api_key,
+            # Only advertise extraction when the request actually contains a
+            # still image the runtime can crop. In particular, Gemini videos
+            # share the image_url message shape but are not valid extractor
+            # inputs.
+            should_extract_assets=(
+                self.should_extract_assets and bool(self.tool_runtime.input_images)
+            ),
+            recorder=self.recorder,
         )
         try:
-            return await self._run_with_session(session)
+            result = await self._run_with_session(session)
+            if not result:
+                raise EmptyOutputError()
+            if self.recorder is not None:
+                await self.recorder.record_run_end("completed", final_html=result)
+            return result
+        # BaseException so cancellation (client disconnect) still finalizes
+        # the run record instead of leaving it stuck at "running".
+        except BaseException as exc:
+            if self.recorder is not None:
+                await self.recorder.record_run_end(
+                    "failed",
+                    error="".join(
+                        traceback.format_exception_only(type(exc), exc)
+                    ).strip(),
+                )
+            raise
         finally:
             await session.close()
 
     async def _finalize_response(self, assistant_text: str) -> str:
+        # For Android Compose with multi-file state, prefer returning the
+        # deliverable (.kt) rather than the preview HTML.
+        if self.stack == "android_compose" and "MainActivity.kt" in self.file_state.files:
+            return self.file_state.get_file("MainActivity.kt")
+
         if self.file_state.content:
             return self.file_state.content
 
-        html = extract_html_content(assistant_text)
+        html = extract_html_content(assistant_text, stack=self.stack)
         if html:
             self.file_state.content = html
             await self._send("setCode", html)
+            if self.recorder is not None:
+                self.recorder.record_set_code(len(html), "finalize")
 
         return self.file_state.content

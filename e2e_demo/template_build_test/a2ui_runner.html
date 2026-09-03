@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A2UI Runner</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #f5f5f5; color: #212121; }
+#root { width: 100%; min-height: 100vh; }
+.column { display: flex; flex-direction: column; }
+.row { display: flex; flex-direction: row; }
+.container { display: block; }
+.card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 16px; margin: 8px; }
+.image { max-width: 100%; border-radius: 8px; }
+.text { font-size: 14px; line-height: 1.5; }
+.text-secondary { color: #757575; font-size: 13px; }
+.text-title { font-size: 20px; font-weight: 600; }
+.button { display: inline-flex; align-items: center; justify-content: center; padding: 8px 24px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; background: var(--primary-color, #1677ff); color: #fff; }
+.button:active { opacity: 0.8; }
+input[type="range"] { width: 100%; accent-color: var(--primary-color, #1677ff); }
+input[type="checkbox"] { width: 40px; height: 20px; accent-color: var(--primary-color, #1677ff); }
+.list { list-style: none; }
+.list-item { padding: 12px 16px; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 12px; }
+.divider { height: 1px; background: #e0e0e0; margin: 4px 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+/**
+ * A2UI JSONL Runner — 加载并渲染 A2UI 协议 JSONL 数据
+ * 用法:
+ *   1. 编辑下方 JSONL_DATA 为 LLM 生成的 A2UI JSONL 内容
+ *   2. 用浏览器打开此文件
+ *   或:
+ *   1. 通过 URL 参数 ?file=xxx.jsonl 加载外部文件
+ *   2. a2ui_runner.html?file=generated.jsonl
+ */
+
+const ROOT = document.getElementById('root');
+const PRIMARY_COLOR = '#1677ff';
+
+function parseJSONL(text) {
+    return text.trim().split('\n').filter(l => l.trim()).map(l => JSON.parse(l));
+}
+
+function buildTree(nodes) {
+    const map = {};
+    const rootNodes = [];
+    nodes.forEach(n => {
+        map[n.id] = { ...n, children: [] };
+    });
+    nodes.forEach(n => {
+        if (n.parent && map[n.parent]) {
+            map[n.parent].children.push(map[n.id]);
+        } else if (!n.parent || n.parent === 'root' || n.parent === null) {
+            if (n.id !== 'root' || !n.parent) {
+                rootNodes.push(map[n.id]);
+            }
+        }
+    });
+    // 如果有 root 芣点，从 root 开始
+    if (map['root']) return [map['root']];
+    return rootNodes;
+}
+
+function applyProps(el, props) {
+    if (!props) return;
+    // CSS 样式
+    const cssProps = ['width','height','backgroundColor','color','fontSize','fontWeight',
+                      'borderRadius','padding','margin','flexDirection','justifyContent',
+                      'alignItems','gap','flex','display','minHeight','maxWidth','overflow'];
+    cssProps.forEach(k => {
+        if (props[k] !== undefined) {
+            const cssKey = k.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+            el.style[cssKey] = props[k];
+        }
+    });
+    if (props.primaryColor) {
+        el.style.setProperty('--primary-color', props.primaryColor);
+    }
+    // 类名映射
+    if (props.className) el.className = props.className;
+    // 文本内容
+    if (props.text) el.textContent = props.text;
+    if (props.label) el.textContent = props.label;
+    if (props.title) el.textContent = props.title;
+    // value
+    if (props.value !== undefined && el.tagName === 'INPUT') el.value = props.value;
+    if (props.min !== undefined && el.tagName === 'INPUT') el.min = props.min;
+    if (props.max !== undefined && el.tagName === 'INPUT') el.max = props.max;
+    if (props.step !== undefined && el.tagName === 'INPUT') el.step = props.step;
+    if (props.checked !== undefined && el.tagName === 'INPUT') el.checked = props.checked;
+    if (props.src) el.src = props.src;
+    if (props.placeholder) el.placeholder = props.placeholder;
+}
+
+function renderNode(node) {
+    let el;
+    const t = node.type;
+    switch(t) {
+        case 'column':
+            el = document.createElement('div');
+            el.className = 'column';
+            break;
+        case 'row':
+            el = document.createElement('div');
+            el.className = 'row';
+            break;
+        case 'container':
+            el = document.createElement('div');
+            break;
+        case 'card':
+            el = document.createElement('div');
+            el.className = 'card';
+            break;
+        case 'text':
+            el = document.createElement('div');
+            el.className = 'text';
+            break;
+        case 'text-secondary':
+        case 'text_secondary':
+            el = document.createElement('div');
+            el.className = 'text text-secondary';
+            break;
+        case 'text-title':
+        case 'text_title':
+            el = document.createElement('div');
+            el.className = 'text text-title';
+            break;
+        case 'button':
+            el = document.createElement('button');
+            el.className = 'button';
+            break;
+        case 'input':
+            const inputType = node.props?.inputType || (node.props?.min !== undefined ? 'range' : 'checkbox');
+            el = document.createElement('input');
+            el.type = inputType;
+            break;
+        case 'switch':
+        case 'toggle':
+            el = document.createElement('input');
+            el.type = 'checkbox';
+            break;
+        case 'slider':
+        case 'range':
+            el = document.createElement('input');
+            el.type = 'range';
+            break;
+        case 'image':
+            el = document.createElement('img');
+            el.className = 'image';
+            break;
+        case 'list':
+            el = document.createElement('ul');
+            el.className = 'list';
+            break;
+        case 'divider':
+        case 'separator':
+            el = document.createElement('div');
+            el.className = 'divider';
+            break;
+        default:
+            el = document.createElement('div');
+            el.dataset.a2uiType = t;
+    }
+
+    applyProps(el, node.props);
+
+    if (node.children && node.children.length > 0) {
+        node.children.forEach(child => {
+            el.appendChild(renderNode(child));
+        });
+    }
+
+    return el;
+}
+
+function render(nodes) {
+    ROOT.innerHTML = '';
+    const tree = buildTree(nodes);
+    tree.forEach(node => {
+        ROOT.appendChild(renderNode(node));
+    });
+}
+
+// === 加载方式 ===
+// 方式 1: URL 参数 ?file=xxx.jsonl
+const params = new URLSearchParams(location.search);
+const fileUrl = params.get('file');
+
+if (fileUrl) {
+    fetch(fileUrl)
+        .then(r => r.text())
+        .then(text => {
+            const nodes = parseJSONL(text);
+            render(nodes);
+            console.log(`A2UI: loaded ${nodes.length} nodes from ${fileUrl}`);
+        })
+        .catch(err => {
+            ROOT.innerHTML = `<div style="color:red;padding:20px;">加载失败: ${fileUrl}<br>${err.message}</div>`;
+        });
+} else {
+    // 方式 2: 内嵌 JSONL 数据（替换此处为 LLM 生成的 A2UI JSONL）
+    const JSONL_DATA = `{"id":"root","type":"column","parent":null,"props":{"width":"100%","height":"100vh","backgroundColor":"#f5f5f5","color":"#212121","primaryColor":"#1677ff"}}
+// {{A2UI_CONTENT}}
+// 替换以上行为 LLM 生成的 A2UI JSONL 节点`;
+
+    const lines = JSONL_DATA.trim().split('\n').filter(l => l.trim() && !l.startsWith('//'));
+    if (lines.length > 0) {
+        const nodes = lines.map(l => JSON.parse(l));
+        render(nodes);
+        console.log(`A2UI: rendered ${nodes.length} inline nodes`);
+    } else {
+        ROOT.innerHTML = '<div style="padding:20px;color:#757575;">请在 a2ui_runner.html 中填入 JSONL 数据，或通过 ?file=xxx.jsonl 加载</div>';
+    }
+}
+</script>
+</body>
+</html>

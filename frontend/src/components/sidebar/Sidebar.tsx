@@ -3,12 +3,19 @@ import { useProjectStore } from "../../store/project-store";
 import { AppState } from "../../types";
 import { Button } from "../ui/button";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { LuMousePointerClick, LuRefreshCw, LuArrowUp, LuX } from "react-icons/lu";
+import {
+  LuMousePointerClick,
+  LuRefreshCw,
+  LuArrowUp,
+  LuX,
+  LuHistory,
+} from "react-icons/lu";
 import { toast } from "react-hot-toast";
 
 import Variants from "../variants/Variants";
 import UpdateImageUpload, { UpdateImagePreview } from "../UpdateImageUpload";
 import AgentActivity from "../agent/AgentActivity";
+import { formatCompletedGenerationDuration } from "../agent/generation-time";
 import WorkingPulse from "../core/WorkingPulse";
 import ImageLightbox from "../ImageLightbox";
 import { Commit } from "../commits/types";
@@ -59,10 +66,11 @@ function getSelectedElementTag(commit: Commit | null): string | null {
   return extractTagName(html);
 }
 
-function isSlowGeminiModel(model?: string): boolean {
+function isSlowModel(model?: string): boolean {
   return (
     model === CodeGenerationModel.GEMINI_3_1_PRO_PREVIEW_HIGH ||
-    model === CodeGenerationModel.GEMINI_3_1_PRO_PREVIEW_MEDIUM
+    model === CodeGenerationModel.GEMINI_3_1_PRO_PREVIEW_MEDIUM ||
+    model === CodeGenerationModel.GPT_5_6_SOL_MAX
   );
 }
 
@@ -173,11 +181,18 @@ function Sidebar({
   const elapsedSeconds = requestStartMs
     ? Math.max(1, Math.round((nowMs - requestStartMs) / 1000))
     : undefined;
+  const totalGenerationTime = formatCompletedGenerationDuration(
+    selectedVariant?.status,
+    requestStartMs,
+    selectedVariant?.completedAt
+  );
 
-  const isFirstGeneration = currentCommit?.type === "ai_create";
+  const canRegenerate =
+    currentCommit?.type === "ai_create" || currentCommit?.type === "ai_edit";
   const isViewingOlderVersion = head !== null && head !== latestCommitHash;
 
   // Compute version number for the current head
+  const totalVersions = Object.keys(commits).length;
   const currentVersionNumber = (() => {
     if (!head) return null;
     const sorted = Object.values(commits).sort(
@@ -280,6 +295,36 @@ function Sidebar({
         <Variants />
       </div>
 
+      {/* Prominent banner when viewing an older version */}
+      {isViewingOlderVersion && currentVersionNumber !== null && (
+        <div className="shrink-0 border-b border-violet-300 dark:border-violet-700 bg-violet-50 dark:bg-violet-900/30 px-4 py-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <LuHistory className="w-4 h-4 shrink-0 text-violet-600 dark:text-violet-400" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-violet-900 dark:text-violet-200 truncate">
+                  Viewing v{currentVersionNumber} of {totalVersions}
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5">
+              <button
+                onClick={onOpenVersions}
+                className="rounded-lg border border-violet-400 dark:border-violet-600 px-3 py-1.5 text-xs font-semibold text-violet-800 dark:text-violet-200 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors"
+              >
+                All versions
+              </button>
+              <button
+                onClick={() => latestCommitHash && setHead(latestCommitHash)}
+                className="rounded-lg bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-400 px-3 py-1.5 text-xs font-semibold text-white dark:text-violet-950 transition-colors"
+              >
+                Back to latest
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Scrollable content */}
       <div
         ref={middlePaneRef}
@@ -368,55 +413,33 @@ function Sidebar({
           head === latestCommitHash &&
           !isSelectedVariantComplete &&
           !isSelectedVariantError &&
-          isSlowGeminiModel(selectedVariant?.model) && (
+          isSlowModel(selectedVariant?.model) && (
           <div className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
             Slow, high quality model. May take 5-10 mins on some images/videos.
           </div>
         )}
 
-        {isViewingOlderVersion && currentVersionNumber !== null ? (
-          <div className="mb-4 flex flex-col items-center py-6">
-            <p className="text-2xl font-semibold text-gray-900 dark:text-zinc-100">
-              Version {currentVersionNumber}
-            </p>
-            <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
-              You are viewing an older version
-            </p>
-            <div className="mt-4 flex gap-2">
-              <button
-                onClick={onOpenVersions}
-                className="rounded-lg border border-gray-300 dark:border-zinc-600 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
-              >
-                All versions
-              </button>
-              <button
-                onClick={() => latestCommitHash && setHead(latestCommitHash)}
-                className="rounded-lg bg-gray-900 dark:bg-white px-4 py-2 text-sm font-medium text-white dark:text-black hover:bg-black dark:hover:bg-gray-200 transition-colors"
-              >
-                View latest
-              </button>
-            </div>
-          </div>
-        ) : (
-          <AgentActivity />
-        )}
+        {!isViewingOlderVersion && <AgentActivity />}
 
-        {/* Regenerate button for first generation.
-            Scenarios:
-            1) `appState === CODE_READY`: request fully ended and user can retry.
-            2) `isSelectedVariantComplete`: selected option completed even if app state
-               has not yet fully transitioned.
-            3) `isSelectedVariantError`: selected option failed; keep retry visible so
-               users can rerun create without losing uploaded inputs. */}
-        {isFirstGeneration &&
-          head === latestCommitHash &&
+        {/* Retry any AI-generated version. A completed older version can be
+            retried once no other request is running; the regenerated edit
+            branches from that version's original parent. */}
+        {canRegenerate &&
           (appState === AppState.CODE_READY ||
-            isSelectedVariantComplete ||
-            isSelectedVariantError) && (
-          <div className="flex justify-end mb-3">
+            (head === latestCommitHash &&
+              (isSelectedVariantComplete || isSelectedVariantError))) && (
+          <div className="mb-3 flex items-center justify-end gap-2">
+            {totalGenerationTime && (
+              <span
+                className="text-[11px] font-medium tabular-nums text-gray-400 dark:text-gray-500"
+                data-testid="total-generation-time"
+              >
+                {totalGenerationTime}
+              </span>
+            )}
             <button
               onClick={regenerate}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+              className="regenerate-btn flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <LuRefreshCw className="w-3.5 h-3.5" />
               Retry
@@ -461,8 +484,8 @@ function Sidebar({
                 </div>
               )}
               <div>
-                {isFirstGeneration
-                  ? "Click Retry to run the create request again."
+                {canRegenerate
+                  ? "Click Retry to run this version's request again."
                   : "Switch to another option above to make updates."}
               </div>
             </div>
@@ -484,6 +507,16 @@ function Sidebar({
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
           >
+            {/* Branching notice when editing an older version */}
+            {isViewingOlderVersion && currentVersionNumber !== null && (
+              <div className="mb-2 flex items-center gap-2 rounded-xl border border-violet-300 dark:border-violet-700 bg-violet-50 dark:bg-violet-900/20 px-3 py-2">
+                <LuHistory className="w-3.5 h-3.5 shrink-0 text-violet-600 dark:text-violet-400" />
+                <span className="text-xs text-violet-800 dark:text-violet-200">
+                  You're editing <span className="font-semibold">v{currentVersionNumber}</span> — updates will create a new version branching from it.
+                </span>
+              </div>
+            )}
+
             {/* Select and edit indicator */}
             {inSelectAndEditMode && (
               <div className="mb-2">

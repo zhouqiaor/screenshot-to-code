@@ -12,14 +12,17 @@ from image_generation.generation import process_tasks
 from image_generation.replicate import (
     P_IMAGE_EDIT_ASPECT_RATIOS,
     PImageEditAspectRatio,
-    edit_image,
-    remove_background,
+    edit_image as edit_image_once,
+    remove_background as remove_background_once,
 )
 from uploaded_assets.tools import run_save_assets
 
 from agent.state import AgentFileState, ensure_str
 from agent.tools.types import ToolCall, ToolExecutionResult, ToolMultimodalPart
 from agent.tools.summaries import summarize_text
+
+
+IMAGE_TOOL_BATCH_SIZE = 20
 
 
 class AgentToolRuntime:
@@ -30,20 +33,27 @@ class AgentToolRuntime:
         openai_api_key: Optional[str],
         openai_base_url: Optional[str],
         gemini_api_key: Optional[str] = None,
+        replicate_api_key: Optional[str] = None,
         input_images: Optional[List[str]] = None,
         asset_base_url: str = "",
         user_id: Optional[str] = None,
         option_codes: Optional[List[str]] = None,
+        stack: str = "",
     ):
         self.file_state = file_state
         self.should_generate_images = should_generate_images
         self.openai_api_key = openai_api_key
         self.openai_base_url = openai_base_url
         self.gemini_api_key = gemini_api_key
+        self.replicate_api_key = replicate_api_key
         self.input_images = input_images or []
         self.asset_base_url = asset_base_url
         self.user_id = user_id
         self.option_codes = option_codes or []
+        self.stack = stack
+
+    def _effective_replicate_api_key(self) -> str | None:
+        return self.replicate_api_key or REPLICATE_API_KEY
 
     async def execute(self, tool_call: ToolCall) -> ToolExecutionResult:
         if "INVALID_JSON" in tool_call.arguments:
@@ -63,10 +73,10 @@ class AgentToolRuntime:
             return self._edit_file(tool_call.arguments)
         if tool_call.name == "generate_images":
             return await self._generate_images(tool_call.arguments)
-        if tool_call.name == "remove_background":
-            return await self._remove_background(tool_call.arguments)
-        if tool_call.name == "edit_image":
-            return await self._edit_image(tool_call.arguments)
+        if tool_call.name == "remove_backgrounds":
+            return await self._remove_backgrounds(tool_call.arguments)
+        if tool_call.name == "edit_images":
+            return await self._edit_images(tool_call.arguments)
         if tool_call.name == "extract_assets":
             return await run_extract_assets(
                 tool_call.arguments,
@@ -79,6 +89,7 @@ class AgentToolRuntime:
             return await run_screenshot_preview(
                 tool_call.arguments,
                 file_state=self.file_state,
+                stack=self.stack,
             )
         if tool_call.name == "save_assets":
             return await run_save_assets(tool_call.arguments, user_id=self.user_id)
@@ -100,27 +111,29 @@ class AgentToolRuntime:
                 summary={"error": "Missing content"},
             )
 
-        extracted = extract_html_content(content)
-        self.file_state.path = path
-        self.file_state.content = extracted or content
+        extracted = extract_html_content(content, stack=self.stack)
+        final_content = extracted or content
+        # set_file adds a new key (or replaces the same path) and updates
+        # active_path — it does NOT overwrite unrelated files.
+        self.file_state.set_file(path, final_content)
 
         summary = {
-            "path": self.file_state.path,
-            "contentLength": len(self.file_state.content),
-            "preview": summarize_text(self.file_state.content, 320),
+            "path": path,
+            "contentLength": len(final_content),
+            "preview": summarize_text(final_content, 320),
         }
         result = {
-            "content": f"Successfully created file at {self.file_state.path}.",
+            "content": f"Successfully created file at {path}.",
             "details": {
-                "path": self.file_state.path,
-                "contentLength": len(self.file_state.content),
+                "path": path,
+                "contentLength": len(final_content),
             },
         }
         return ToolExecutionResult(
             ok=True,
             result=result,
             summary=summary,
-            updated_content=self.file_state.content,
+            updated_content=final_content,
         )
 
     @staticmethod
@@ -272,22 +285,18 @@ class AgentToolRuntime:
                 result={"error": "No valid prompts provided"},
                 summary={"error": "No valid prompts"},
             )
-        if REPLICATE_API_KEY:
-            model = "flux"
-            api_key = REPLICATE_API_KEY
-            base_url = None
-        else:
-            if not self.openai_api_key:
-                return ToolExecutionResult(
-                    ok=False,
-                    result={"error": "No API key available for image generation."},
-                    summary={"error": "Missing image generation API key"},
-                )
-            model = "gpt_image_2"
-            api_key = self.openai_api_key
-            base_url = self.openai_base_url
+        replicate_api_key = self._effective_replicate_api_key()
+        if not replicate_api_key:
+            return ToolExecutionResult(
+                ok=False,
+                result={"error": "No API key available for image generation."},
+                summary={"error": "Missing image generation API key"},
+            )
+        model = "flux"
+        api_key = replicate_api_key
+        base_url = None
 
-        generated = await process_tasks(unique_prompts, api_key, base_url, model)  # type: ignore
+        generated = await process_tasks(unique_prompts, api_key, base_url, model)
         merged_results = {
             prompt: url for prompt, url in zip(unique_prompts, generated)
         }
@@ -317,8 +326,11 @@ class AgentToolRuntime:
             multimodal_parts=multimodal_parts,
         )
 
-    async def _remove_background(self, args: Dict[str, Any]) -> ToolExecutionResult:
-        if not REPLICATE_API_KEY:
+    async def _remove_backgrounds(
+        self, args: Dict[str, Any]
+    ) -> ToolExecutionResult:
+        replicate_api_key = self._effective_replicate_api_key()
+        if not replicate_api_key:
             return ToolExecutionResult(
                 ok=False,
                 result={"error": "Background removal requires REPLICATE_API_KEY."},
@@ -330,7 +342,7 @@ class AgentToolRuntime:
             return ToolExecutionResult(
                 ok=False,
                 result={
-                    "error": "remove_background requires a non-empty image_urls list"
+                    "error": "remove_backgrounds requires a non-empty image_urls list"
                 },
                 summary={"error": "Missing image_urls"},
             )
@@ -344,13 +356,14 @@ class AgentToolRuntime:
                 summary={"error": "No valid image_urls"},
             )
 
-        batch_size = 20
         raw_results: list[str | BaseException] = []
-        for i in range(0, len(unique_urls), batch_size):
-            batch = unique_urls[i : i + batch_size]
+        for i in range(0, len(unique_urls), IMAGE_TOOL_BATCH_SIZE):
+            batch = unique_urls[i : i + IMAGE_TOOL_BATCH_SIZE]
             # Replicate can't fetch localhost; inline local assets as data URLs.
             tasks = [
-                remove_background(local_asset_url_to_data_url(url), REPLICATE_API_KEY)
+                remove_background_once(
+                    local_asset_url_to_data_url(url), replicate_api_key
+                )
                 for url in batch
             ]
             raw_results.extend(await asyncio.gather(*tasks, return_exceptions=True))
@@ -391,102 +404,126 @@ class AgentToolRuntime:
             multimodal_parts=multimodal_parts,
         )
 
-    async def _edit_image(self, args: Dict[str, Any]) -> ToolExecutionResult:
-        if not REPLICATE_API_KEY:
+    async def _edit_images(self, args: Dict[str, Any]) -> ToolExecutionResult:
+        replicate_api_key = self._effective_replicate_api_key()
+        if not replicate_api_key:
             return ToolExecutionResult(
                 ok=False,
                 result={"error": "Image editing requires REPLICATE_API_KEY."},
                 summary={"error": "Missing Replicate API key"},
             )
 
-        prompt = ensure_str(args.get("prompt")).strip()
-        if not prompt:
+        raw_edits = args.get("edits") or []
+        if not isinstance(raw_edits, list) or not raw_edits:
             return ToolExecutionResult(
                 ok=False,
-                result={"error": "edit_image requires a non-empty prompt"},
-                summary={"error": "Missing prompt"},
+                result={"error": "edit_images requires a non-empty edits list"},
+                summary={"error": "Missing edits"},
             )
 
-        image_urls = args.get("image_urls") or args.get("images") or []
-        if not isinstance(image_urls, list) or not image_urls:
-            return ToolExecutionResult(
-                ok=False,
-                result={"error": "edit_image requires a non-empty image_urls list"},
-                summary={"error": "Missing image_urls"},
-            )
-
-        cleaned = [url.strip() for url in image_urls if isinstance(url, str)]
-        unique_urls = list(dict.fromkeys([u for u in cleaned if u]))
-        if not unique_urls:
-            return ToolExecutionResult(
-                ok=False,
-                result={"error": "No valid image URLs provided"},
-                summary={"error": "No valid image_urls"},
-            )
-
-        aspect_ratio_value = ensure_str(args.get("aspect_ratio") or "match_input_image")
-        if aspect_ratio_value not in P_IMAGE_EDIT_ASPECT_RATIOS:
-            aspect_ratio_value = "match_input_image"
-        aspect_ratio = cast(PImageEditAspectRatio, aspect_ratio_value)
-
-        try:
-            result_url = await edit_image(
-                prompt=prompt,
-                image_urls=[local_asset_url_to_data_url(url) for url in unique_urls],
-                api_token=REPLICATE_API_KEY,
-                aspect_ratio=aspect_ratio,
-            )
-        except Exception as exc:
-            print(f"Image edit failed for {unique_urls}: {exc}")
-            return ToolExecutionResult(
-                ok=True,
-                result={
-                    "image": {
-                        "prompt": prompt,
-                        "image_urls": unique_urls,
+        results: List[Dict[str, Any]] = []
+        valid_indexes: List[int] = []
+        for index, raw_edit in enumerate(cast(List[object], raw_edits)):
+            if not isinstance(raw_edit, dict):
+                results.append(
+                    {
+                        "prompt": "",
+                        "image_urls": [],
                         "result_url": None,
                         "status": "error",
+                        "aspect_ratio": "match_input_image",
+                        "error": f"Edit {index + 1} must be an object.",
                     }
-                },
-                summary={
-                    "image": {
-                        "prompt": summarize_text(prompt, 240),
-                        "image_urls": [summarize_text(url, 100) for url in unique_urls],
-                        "result_url": None,
-                        "status": "error",
-                    }
-                },
-            )
+                )
+                continue
 
-        result = {
-            "image": {
+            edit = cast(Dict[str, Any], raw_edit)
+            prompt = ensure_str(edit.get("prompt")).strip()
+            raw_image_urls = edit.get("image_urls") or []
+            image_urls = (
+                [
+                    url.strip()
+                    for url in cast(List[object], raw_image_urls)
+                    if isinstance(url, str) and url.strip()
+                ]
+                if isinstance(raw_image_urls, list)
+                else []
+            )
+            aspect_ratio_value = ensure_str(
+                edit.get("aspect_ratio") or "match_input_image"
+            )
+            if aspect_ratio_value not in P_IMAGE_EDIT_ASPECT_RATIOS:
+                aspect_ratio_value = "match_input_image"
+
+            item: Dict[str, Any] = {
                 "prompt": prompt,
-                "image_urls": unique_urls,
-                "result_url": result_url,
-                "status": "ok",
-                "aspect_ratio": aspect_ratio,
+                "image_urls": image_urls,
+                "result_url": None,
+                "status": "pending",
+                "aspect_ratio": aspect_ratio_value,
             }
-        }
-        summary = {
-            "image": {
-                "prompt": summarize_text(prompt, 240),
-                "image_urls": [summarize_text(url, 100) for url in unique_urls],
-                "result_url": result_url,
-                "status": "ok",
-                "aspect_ratio": aspect_ratio,
+            errors: List[str] = []
+            if not prompt:
+                errors.append("prompt must be non-empty")
+            if not image_urls:
+                errors.append("image_urls must contain at least one valid URL")
+            if errors:
+                item["status"] = "error"
+                item["error"] = "; ".join(errors)
+            else:
+                valid_indexes.append(index)
+            results.append(item)
+
+        async def execute_single_edit(item: Dict[str, Any]) -> str:
+            image_urls = cast(List[str], item["image_urls"])
+            return await edit_image_once(
+                prompt=ensure_str(item["prompt"]),
+                image_urls=[local_asset_url_to_data_url(url) for url in image_urls],
+                api_token=replicate_api_key,
+                aspect_ratio=cast(PImageEditAspectRatio, item["aspect_ratio"]),
+            )
+
+        for i in range(0, len(valid_indexes), IMAGE_TOOL_BATCH_SIZE):
+            batch_indexes = valid_indexes[i : i + IMAGE_TOOL_BATCH_SIZE]
+            raw_results = await asyncio.gather(
+                *(execute_single_edit(results[index]) for index in batch_indexes),
+                return_exceptions=True,
+            )
+            for index, raw in zip(batch_indexes, raw_results):
+                item = results[index]
+                if isinstance(raw, BaseException):
+                    print(f"Image edit failed for {item['image_urls']}: {raw}")
+                    item["status"] = "error"
+                    item["error"] = str(raw)
+                else:
+                    item["result_url"] = raw
+                    item["status"] = "ok"
+
+        summary_items = [
+            {
+                "prompt": item["prompt"],
+                "image_urls": cast(List[str], item["image_urls"]),
+                "result_url": item["result_url"],
+                "status": item["status"],
+                "aspect_ratio": item["aspect_ratio"],
+                **({"error": item["error"]} if item.get("error") else {}),
             }
-        }
+            for item in results
+        ]
+        multimodal_parts = [
+            ToolMultimodalPart(
+                display_name=f"edited_{index}.png",
+                mime_type=guess_image_mime(item["result_url"]),
+                image_url=item["result_url"],
+            )
+            for index, item in enumerate(results)
+            if item["status"] == "ok" and item["result_url"]
+        ]
         return ToolExecutionResult(
             ok=True,
-            result=result,
-            summary=summary,
-            multimodal_parts=[
-                ToolMultimodalPart(
-                    display_name="edited.png",
-                    mime_type=guess_image_mime(result_url),
-                    image_url=result_url,
-                )
-            ],
+            result={"images": results},
+            summary={"images": summary_items},
+            multimodal_parts=multimodal_parts,
         )
 
     def _retrieve_option(self, args: Dict[str, Any]) -> ToolExecutionResult:

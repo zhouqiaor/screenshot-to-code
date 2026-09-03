@@ -1,0 +1,74 @@
+name: OpenCodeReview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  issue_comment:
+    types: [created]
+
+jobs:
+  review:
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       (startsWith(github.event.comment.body, '/open-code-review') ||
+        startsWith(github.event.comment.body, '@open-code-review')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install OpenCodeReview
+        run: npm install -g @alibaba-group/open-code-review
+
+      - name: Configure LLM provider
+        env:
+          LLM_API_KEY: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
+          OCR_PROVIDER: ${{ vars.OCR_LLM_PROVIDER }}
+          OCR_MODEL: ${{ vars.OCR_LLM_MODEL }}
+        run: |
+          if [ -z "$LLM_API_KEY" ]; then
+            echo "::warning::OCR_LLM_AUTH_TOKEN secret is not configured."
+            exit 0
+          fi
+          if [ -z "$OCR_PROVIDER" ]; then
+            OCR_PROVIDER="volcengine"
+          fi
+          if [ -z "$OCR_MODEL" ]; then
+            OCR_MODEL="doubao-seed-2-1-turbo-260628"
+          fi
+          echo "Using provider=$OCR_PROVIDER model=$OCR_MODEL"
+          # volcengine: protocol=openai, base=https://ark.cn-beijing.volces.com/api/v3
+          # dashscope: protocol=openai, base=https://dashscope.aliyuncs.com/compatible-mode/v1
+          ocr config set provider "$OCR_PROVIDER"
+          ocr config set model "$OCR_MODEL"
+          ocr config set "providers.$OCR_PROVIDER.api_key" "$LLM_API_KEY"
+          # verify config
+          ocr llm test
+
+      - name: Run OCR review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OCR_PROVIDER: ${{ vars.OCR_LLM_PROVIDER }}
+          OCR_MODEL: ${{ vars.OCR_LLM_MODEL }}
+        run: |
+          PROVIDER="${OCR_PROVIDER:-volcengine}"
+          MODEL="${OCR_MODEL:-doubao-seed-2-1-turbo-260628}"
+          ocr review \
+            --provider "$PROVIDER" \
+            --model "$MODEL" \
+            --from origin/${{ github.base_ref }} \
+            --to origin/${{ github.head_ref }} \
+            --format json \
+            --background "${{ github.event.pull_request.title }}" \
+            --concurrency 5

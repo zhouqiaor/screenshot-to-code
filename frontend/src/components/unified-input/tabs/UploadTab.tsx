@@ -2,12 +2,13 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-hot-toast";
 import { Cross2Icon, ImageIcon } from "@radix-ui/react-icons";
-import { Button } from "../../ui/button";
 import { ScreenRecorderState } from "../../../types";
 import ScreenRecorder from "../../recording/ScreenRecorder";
-import OutputSettingsSection from "../../settings/OutputSettingsSection";
 import { DesignSystemSelectorProps } from "../../settings/DesignSystemSelector";
 import { Stack } from "../../../lib/stacks";
+import ScreenshotToCodeControls from "../ScreenshotToCodeControls";
+import AdbCaptureButton from "../AdbCaptureButton";
+import type { AdbCaptureResult } from "../../../lib/adb-api";
 
 function fileToDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -48,21 +49,23 @@ interface Props {
   doCreate: (
     referenceImages: string[],
     inputMode: "image" | "video",
-    textPrompt?: string
+    textPrompt?: string,
+    isAssetExtractionEnabled?: boolean
   ) => void;
   stack: Stack;
   setStack: (stack: Stack) => void;
   designSystem: DesignSystemSelectorProps;
+  onAdbDesignSystemContent?: (content: string) => void;
 }
 
-function UploadTab({ doCreate, stack, setStack, designSystem }: Props) {
+function UploadTab({ doCreate, stack, setStack, designSystem, onAdbDesignSystemContent }: Props) {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [uploadedDataUrls, setUploadedDataUrls] = useState<string[]>([]);
   const [uploadedInputMode, setUploadedInputMode] = useState<
     "image" | "video"
   >("image");
   const [textPrompt, setTextPrompt] = useState("");
-  const [showTextPrompt, setShowTextPrompt] = useState(false);
+  const [isAssetExtractionEnabled, setIsAssetExtractionEnabled] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const filesRef = useRef<FileWithPreview[]>([]);
@@ -75,9 +78,20 @@ function UploadTab({ doCreate, stack, setStack, designSystem }: Props) {
 
   const handleGenerate = useCallback(() => {
     if (uploadedDataUrls.length > 0) {
-      doCreate(uploadedDataUrls, uploadedInputMode, textPrompt);
+      doCreate(
+        uploadedDataUrls,
+        uploadedInputMode,
+        textPrompt,
+        isAssetExtractionEnabled
+      );
     }
-  }, [uploadedDataUrls, uploadedInputMode, textPrompt, doCreate]);
+  }, [
+    uploadedDataUrls,
+    uploadedInputMode,
+    textPrompt,
+    isAssetExtractionEnabled,
+    doCreate,
+  ]);
 
   useEffect(() => {
     if (!hasUploadedFile) return;
@@ -99,7 +113,6 @@ function UploadTab({ doCreate, stack, setStack, designSystem }: Props) {
     setUploadedDataUrls([]);
     setFiles([]);
     setTextPrompt("");
-    setShowTextPrompt(false);
     setUploadedInputMode("image");
     setSelectedIndex(0);
   };
@@ -258,6 +271,18 @@ function UploadTab({ doCreate, stack, setStack, designSystem }: Props) {
     inputMode: "image" | "video"
   ) => {
     doCreate(images, inputMode, "");
+  };
+
+  const handleAdbCaptureComplete = (result: AdbCaptureResult) => {
+    // Set the captured screenshot as the uploaded image
+    setUploadedDataUrls([result.screenshotDataUrl]);
+    setUploadedInputMode("image");
+    setFiles([]);
+    setSelectedIndex(0);
+    // Inject design system data
+    if (onAdbDesignSystemContent) {
+      onAdbDesignSystemContent(result.designSystemBlock);
+    }
   };
 
   const handleRemoveImage = (index: number) => {
@@ -443,49 +468,19 @@ function UploadTab({ doCreate, stack, setStack, designSystem }: Props) {
             )}
           </div>
 
-          {!showTextPrompt ? (
-            <button
-              onClick={() => {
-                setShowTextPrompt(true);
-                setTimeout(() => textInputRef.current?.focus(), 50);
-              }}
-              className="text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200 underline"
-            >
-              Add instructions (optional)
-            </button>
-          ) : (
-            <div className="w-full max-w-lg">
-              <textarea
-                ref={textInputRef}
-                value={textPrompt}
-                onChange={(e) => setTextPrompt(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Describe any specific requirements..."
-                className="w-full p-3 text-sm border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-zinc-600 focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-zinc-500"
-                rows={2}
-              />
-            </div>
-          )}
-
-          <div className="w-full max-w-md">
-            <OutputSettingsSection
-              stack={stack}
-              setStack={setStack}
-              designSystem={designSystem}
-            />
-          </div>
-
-          <div className="flex flex-col items-center gap-1 w-full max-w-md">
-            <Button
-              onClick={handleGenerate}
-              className="w-full"
-              size="lg"
-              data-testid="upload-generate"
-            >
-              Generate Code
-            </Button>
-            <p className="text-xs text-gray-400 dark:text-zinc-500">Press Enter to generate</p>
-          </div>
+          <ScreenshotToCodeControls
+            textPrompt={textPrompt}
+            onTextPromptChange={setTextPrompt}
+            textInputRef={textInputRef}
+            onTextInputKeyDown={handleKeyDown}
+            stack={stack}
+            setStack={setStack}
+            designSystem={designSystem}
+            showAssetExtraction={uploadedInputMode === "image"}
+            isAssetExtractionEnabled={isAssetExtractionEnabled}
+            onAssetExtractionChange={setIsAssetExtractionEnabled}
+            onGenerate={handleGenerate}
+          />
         </div>
       )}
 
@@ -505,6 +500,10 @@ function UploadTab({ doCreate, stack, setStack, designSystem }: Props) {
             stack={stack}
             setStack={setStack}
             designSystem={designSystem}
+          />
+          <AdbCaptureButton
+            stack={stack}
+            onCaptureComplete={handleAdbCaptureComplete}
           />
         </div>
       )}

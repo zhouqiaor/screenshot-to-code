@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+:root{
+  --bg:#0d1117; --fg:#c9d1d9; --dim:#8b949e; --line:#30363d; --panel:#161b22; --panel2:#11161d;
+  --accent:#58a6ff; --accent2:#bc8cff;
+  --pass:#2ea043; --fail:#da3633; --block:#b88200; --degraded:#1f6feb; --na:#6e7681;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:-apple-system,'Noto Sans SC',Segoe UI,sans-serif;
+     margin:0;padding:28px;line-height:1.6;max-width:1400px}
+h1{color:var(--accent2);font-size:1.7em;margin:0 0 6px}
+h2{color:var(--accent);font-size:1.25em;margin:30px 0 10px;border-left:4px solid var(--accent);padding-left:10px}
+h3{color:var(--fg);font-size:1.02em;margin:20px 0 8px}
+.sub{color:var(--dim);font-size:.85em;margin-bottom:18px}
+a{color:var(--accent)}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em;
+     background:var(--panel2);padding:1px 5px;border-radius:4px}
+
+/* ---- 徽章：严格对应 SOP §1.1 五种状态 ---- */
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:.78em;font-weight:700;color:#fff;white-space:nowrap}
+.badge.pass{background:var(--pass)}
+.badge.fail{background:var(--fail)}
+.badge.blocked{background:var(--block)}
+.badge.degraded{background:var(--degraded)}
+.badge.na{background:var(--na)}
+
+/* ---- 指标仪表盘 ---- */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;text-align:center}
+.m-val{font-size:1.8em;font-weight:700;color:var(--accent)}
+.m-val.ok{color:var(--pass)} .m-val.warn{color:var(--block)} .m-val.bad{color:var(--fail)}
+.m-lbl{font-size:.84em;margin-top:2px}
+.m-sub{font-size:.72em;color:var(--dim);margin-top:2px}
+
+/* ---- 表格 ---- */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.85em}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--panel);color:var(--accent);font-weight:600}
+tr:nth-child(even) td{background:var(--panel2)}
+
+/* ---- 截图对比 ---- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.cap{padding:9px 12px;font-size:.88em;font-weight:600;color:var(--accent);border-bottom:1px solid var(--line)}
+.card img{width:100%;display:block;background:#000}
+.card .meta{padding:8px 12px;font-size:.76em;color:var(--dim);border-top:1px solid var(--line)}
+
+/* ---- 提示块 ---- */
+.callout{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent2);
+         padding:13px 16px;margin:16px 0;border-radius:6px;font-size:.87em}
+.callout.ok{border-left-color:var(--pass)}
+.callout.warn{border-left-color:var(--block)}
+.callout.bad{border-left-color:var(--fail)}
+
+ul{font-size:.88em;padding-left:22px}li{margin:5px 0}
+pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.8em;background:var(--panel2);
+    padding:11px 13px;border:1px solid var(--line);border-radius:6px;overflow:auto;line-height:1.5}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.82em}
+footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:var(--dim);font-size:.78em}
+</style>
+</head>
+<body>
+
+<h1>{{TITLE}}</h1>
+<div class="sub">{{SUBTITLE}}</div>
+
+<!-- ① 指标仪表盘 -->
+{{SECTION_METRICS}}
+
+<!-- ② 验证矩阵：层·项目·预期·操作·结果·状态 -->
+{{SECTION_MATRIX}}
+
+<!-- ③ 截图对比 -->
+{{SECTION_SCREENSHOTS}}
+
+<!-- ④ 根因分析 -->
+{{SECTION_ROOTCAUSE}}
+
+<!-- ⑤ 产物清单（含哈希，可追溯性硬要求） -->
+{{SECTION_ARTIFACTS}}
+
+<!-- ⑥ 业界参考 -->
+{{SECTION_REFERENCES}}
+
+<!-- ⑦ 下一步 -->
+{{SECTION_NEXT}}
+
+<footer>{{FOOTER}}</footer>
+</body>
+</html>

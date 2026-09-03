@@ -1,5 +1,7 @@
 import asyncio
+import uuid
 from dataclasses import dataclass, field
+from datetime import datetime
 from abc import ABC, abstractmethod
 import traceback
 from typing import Callable, Awaitable
@@ -9,6 +11,7 @@ from starlette.websockets import WebSocketDisconnect
 from websockets.exceptions import ConnectionClosedOK, ConnectionClosedError
 from config import (
     ANTHROPIC_API_KEY,
+    ANTHROPIC_BASE_URL,
     GEMINI_API_KEY,
     IS_DEBUG_ENABLED,
     IS_PROD,
@@ -60,6 +63,7 @@ from uploaded_assets import (
     infer_local_asset_base_url,
 )
 from agent.runner import Agent
+from fs_logging.agent_runs import AgentRunRecorder
 from routes.model_choice_sets import (
     ALL_KEYS_MODELS_DEFAULT,
     ALL_KEYS_MODELS_TEXT_CREATE,
@@ -255,12 +259,14 @@ class ExtractedParams:
     openai_api_key: str | None
     anthropic_api_key: str | None
     gemini_api_key: str | None
+    replicate_api_key: str | None
     openai_base_url: str | None
     generation_type: Literal["create", "update"]
     prompt: UserTurnInput
     history: List[PromptHistoryMessage]
     file_state: Dict[str, str] | None
     option_codes: List[str]
+    should_extract_assets: bool = True
     asset_base_url: str = ""
     design_system: str | None = None
 
@@ -305,6 +311,9 @@ class ParameterExtractionStage:
         gemini_api_key = self._get_from_settings_dialog_or_env(
             params, "geminiApiKey", GEMINI_API_KEY
         )
+        replicate_api_key = self._get_from_settings_dialog_or_env(
+            params, "replicateApiKey", REPLICATE_API_KEY
+        )
 
         # Base URL for OpenAI API
         openai_base_url: str | None = None
@@ -316,8 +325,9 @@ class ParameterExtractionStage:
         if not openai_base_url:
             print("Using official OpenAI URL")
 
-        # Get the image generation flag from the request. Fall back to True if not provided.
+        # Feature preferences default to enabled for older clients.
         should_generate_images = bool(params.get("isImageGenerationEnabled", True))
+        should_extract_assets = bool(params.get("isAssetExtractionEnabled", True))
 
         # Extract and validate generation type
         generation_type = params.get("generationType", "create")
@@ -368,9 +378,11 @@ class ParameterExtractionStage:
             stack=validated_stack,
             input_mode=validated_input_mode,
             should_generate_images=should_generate_images,
+            should_extract_assets=should_extract_assets,
             openai_api_key=openai_api_key,
             anthropic_api_key=anthropic_api_key,
             gemini_api_key=gemini_api_key,
+            replicate_api_key=replicate_api_key,
             openai_base_url=openai_base_url,
             generation_type=generation_type,
             prompt=prompt,
@@ -410,6 +422,7 @@ class ModelSelectionStage:
         openai_api_key: str | None,
         anthropic_api_key: str | None,
         gemini_api_key: str | None = None,
+        openai_base_url: str | None = None,
     ) -> List[Llm]:
         """Select appropriate models based on available API keys"""
         try:
@@ -421,6 +434,7 @@ class ModelSelectionStage:
                 openai_api_key,
                 anthropic_api_key,
                 gemini_api_key,
+                openai_base_url,
             )
 
             # Print the variant models (one per line)
@@ -445,6 +459,7 @@ class ModelSelectionStage:
         openai_api_key: str | None,
         anthropic_api_key: str | None,
         gemini_api_key: str | None,
+        openai_base_url: str | None = None,
     ) -> List[Llm]:
         """Simple model cycling that scales with num_variants"""
 
@@ -476,7 +491,12 @@ class ModelSelectionStage:
         elif anthropic_api_key:
             models = list(ANTHROPIC_ONLY_MODELS)
         elif openai_api_key:
-            models = list(OPENAI_ONLY_MODELS)
+            # When OPENAI_BASE_URL points to Volcano Ark, prefer doubao models.
+            if openai_base_url and "volces.com" in openai_base_url:
+                from routes.model_choice_sets import DOUBAO_MODELS
+                models = list(DOUBAO_MODELS)
+            else:
+                models = list(OPENAI_ONLY_MODELS)
         else:
             raise Exception("No OpenAI or Anthropic key")
 
@@ -544,21 +564,38 @@ class AgenticGenerationStage:
         openai_api_key: str | None,
         openai_base_url: str | None,
         anthropic_api_key: str | None,
+        anthropic_base_url: str | None,
         gemini_api_key: str | None,
+        replicate_api_key: str | None,
         should_generate_images: bool,
         file_state: Dict[str, str] | None,
         asset_base_url: str,
         option_codes: List[str] | None,
+        should_extract_assets: bool = True,
+        generation_id: str | None = None,
+        stack: str | None = None,
+        input_mode: str | None = None,
+        generation_type: str | None = None,
     ):
         self.send_message = send_message
         self.openai_api_key = openai_api_key
         self.openai_base_url = openai_base_url
         self.anthropic_api_key = anthropic_api_key
+        self.anthropic_base_url = anthropic_base_url
         self.gemini_api_key = gemini_api_key
+        self.replicate_api_key = replicate_api_key
         self.should_generate_images = should_generate_images
+        self.should_extract_assets = should_extract_assets
         self.file_state = file_state
         self.asset_base_url = asset_base_url
         self.option_codes = option_codes or []
+        self.generation_id = (
+            generation_id
+            or f"gen_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+        )
+        self.stack = stack
+        self.input_mode = input_mode
+        self.generation_type = generation_type
 
     async def process_variants(
         self,
@@ -606,17 +643,29 @@ class AgenticGenerationStage:
                     event_id,
                 )
 
+            recorder = AgentRunRecorder(
+                generation_id=self.generation_id,
+                variant_index=index,
+                entry_point="websocket",
+                stack=self.stack,
+                input_mode=self.input_mode,
+                generation_type=self.generation_type,
+            )
             runner = Agent(
                 send_message=send_runner_message,
                 variant_index=index,
                 openai_api_key=self.openai_api_key,
                 openai_base_url=self.openai_base_url,
                 anthropic_api_key=self.anthropic_api_key,
+                anthropic_base_url=self.anthropic_base_url,
                 gemini_api_key=self.gemini_api_key,
+                replicate_api_key=self.replicate_api_key,
                 should_generate_images=self.should_generate_images,
+                should_extract_assets=self.should_extract_assets,
                 asset_base_url=self.asset_base_url,
                 initial_file_state=self.file_state,
                 option_codes=self.option_codes,
+                recorder=recorder,
             )
             completion = await runner.run(model, prompt_messages)
             if completion:
@@ -778,6 +827,7 @@ class CodeGenerationMiddleware(Middleware):
                 openai_api_key=context.extracted_params.openai_api_key,
                 anthropic_api_key=context.extracted_params.anthropic_api_key,
                 gemini_api_key=context.extracted_params.gemini_api_key,
+                openai_base_url=context.extracted_params.openai_base_url,
             )
             if IS_DEBUG_ENABLED:
                 await context.send_message(
@@ -793,11 +843,17 @@ class CodeGenerationMiddleware(Middleware):
                 openai_api_key=context.extracted_params.openai_api_key,
                 openai_base_url=context.extracted_params.openai_base_url,
                 anthropic_api_key=context.extracted_params.anthropic_api_key,
+                anthropic_base_url=ANTHROPIC_BASE_URL,
                 gemini_api_key=context.extracted_params.gemini_api_key,
+                replicate_api_key=context.extracted_params.replicate_api_key,
                 should_generate_images=context.extracted_params.should_generate_images,
+                should_extract_assets=context.extracted_params.should_extract_assets,
                 file_state=context.extracted_params.file_state,
                 asset_base_url=context.extracted_params.asset_base_url,
                 option_codes=context.extracted_params.option_codes,
+                stack=str(context.extracted_params.stack),
+                input_mode=str(context.extracted_params.input_mode),
+                generation_type=context.extracted_params.generation_type,
             )
 
             context.variant_completions = await generation_stage.process_variants(
