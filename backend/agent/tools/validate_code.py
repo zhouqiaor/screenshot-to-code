@@ -25,7 +25,7 @@ from typing import Any, List, Literal, TypedDict
 from xml.etree import ElementTree
 
 
-Stack = Literal["html", "android_compose", "android_xml", "qt_qml", "a2ui", "windows_wpf", "winui3"]
+Stack = Literal["html", "android_compose", "android_xml", "qt_qml", "a2ui", "windows_wpf"]
 
 _SEVERITY = Literal["error", "warning"]
 
@@ -78,8 +78,6 @@ def validate_code(stack: Stack, code: str) -> ValidationResult:
         errors, warnings = _validate_a2ui(code)
     elif stack == "windows_wpf":
         errors, warnings = _validate_wpf_xaml(code)
-    elif stack == "winui3":
-        errors, warnings = _validate_winui3_xaml(code)
     else:
         return ValidationResult(
             ok=False,
@@ -673,100 +671,6 @@ def _validate_wpf_xaml(code: str) -> tuple[List[ValidationIssue], List[Validatio
         )
 
     # Check brace balance (XAML attributes can contain {} for bindings)
-    stripped = _strip_comments_and_strings(code)
-    brace_depth = _check_balanced(stripped, "{", "}")
-    if brace_depth < 0:
-        errors.append(
-            ValidationIssue(
-                line=1,
-                col=1,
-                message="Unbalanced braces: more '}' than '{'.",
-                severity="error",
-            )
-        )
-    elif brace_depth > 0:
-        errors.append(
-            ValidationIssue(
-                line=1,
-                col=1,
-                message=f"Unbalanced braces: {brace_depth} unclosed '{{'.",
-                severity="error",
-            )
-        )
-
-    return errors, warnings
-
-
-# ---------------------------------------------------------------------------
-# WinUI 3 (XAML)
-# ---------------------------------------------------------------------------
-
-_WINUI3_NS = "http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-_WINUI3_MUXC_NS = "using:Microsoft.UI.Xaml.Controls"
-_WINUI3_ROOT_TAGS = {"Window", "Page", "UserControl", "Application"}
-
-
-def _validate_winui3_xaml(code: str) -> tuple[List[ValidationIssue], List[ValidationIssue]]:
-    """Validate WinUI 3 XAML well-formedness and basic structure."""
-    errors: List[ValidationIssue] = []
-    warnings: List[ValidationIssue] = []
-
-    # Parse as XML
-    try:
-        root = ElementTree.fromstring(code)
-    except ElementTree.ParseError as exc:
-        msg = str(exc)
-        position = getattr(exc, "position", (1, 0))
-        line = int(position[0]) + 1 if position and position[0] is not None else 1
-        col = int(position[1]) + 1 if position and len(position) > 1 else 1
-        errors.append(
-            ValidationIssue(
-                line=line,
-                col=col,
-                message=f"XAML parse error: {msg}",
-                severity="error",
-            )
-        )
-        return errors, warnings
-
-    # Check root element is a valid WinUI 3 root
-    tag_local = root.tag.split("}")[-1] if "}" in root.tag else root.tag
-    if tag_local not in _WINUI3_ROOT_TAGS:
-        warnings.append(
-            ValidationIssue(
-                line=1,
-                col=1,
-                message=(
-                    f"Unexpected root element <{tag_local}>. "
-                    f"Expected one of: {sorted(_WINUI3_ROOT_TAGS)}."
-                ),
-                severity="warning",
-            )
-        )
-
-    # Check for WinUI 3 XAML namespace declaration
-    if _WINUI3_NS not in code:
-        warnings.append(
-            ValidationIssue(
-                line=1,
-                col=1,
-                message="Missing WinUI 3 XAML namespace (http://schemas.microsoft.com/winfx/2006/xaml/presentation).",
-                severity="warning",
-            )
-        )
-
-    # Check for Microsoft.UI.Xaml.Controls namespace (muxc prefix)
-    if _WINUI3_MUXC_NS not in code and "Microsoft.UI.Xaml" not in code:
-        warnings.append(
-            ValidationIssue(
-                line=1,
-                col=1,
-                message="Missing WinUI 3 controls namespace (using:Microsoft.UI.Xaml.Controls).",
-                severity="warning",
-            )
-        )
-
-    # Check brace balance
     stripped = _strip_comments_and_strings(code)
     brace_depth = _check_balanced(stripped, "{", "}")
     if brace_depth < 0:

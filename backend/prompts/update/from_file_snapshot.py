@@ -2,7 +2,7 @@ from typing import cast
 
 from openai.types.chat import ChatCompletionMessageParam
 
-from prompts.system_prompt_router import get_system_prompt
+from prompts import system_prompt
 from prompts.design_system import build_design_system_prompt_block
 from prompts.policies import build_selected_stack_policy, build_user_image_policy
 from prompts.prompt_types import Stack, UserTurnInput
@@ -47,7 +47,7 @@ You are editing an existing file.
             ChatCompletionMessageParam,
             {
                 "role": "system",
-                "content": get_system_prompt(stack),
+                "content": system_prompt.SYSTEM_PROMPT,
             },
         ),
         build_history_message(

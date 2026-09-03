@@ -7,6 +7,7 @@ stack's ``capture_pipeline_id`` in stack_registry.py maps to one entry in
 """
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import Any, Optional, Protocol, runtime_checkable
@@ -122,6 +123,114 @@ class AdbCapturePipeline:
 
 
 # ---------------------------------------------------------------------------
+# AdbTraversalPipeline — multi-screen traversal (batch dataset capture)
+# ---------------------------------------------------------------------------
+
+
+class AdbTraversalPipeline:
+    """Multi-screen ADB traversal pipeline.
+
+    Walks the device UI (D-Pad or touch) and records a dataset of
+    ``(screenshot, ui_tree.xml, skeleton.json)`` triples — one per distinct
+    screen state — plus a state-transition graph (UTG).
+
+    Unlike :class:`AdbCapturePipeline` (single screen), this is a **batch**
+    pipeline: ``capture()`` returns an aggregated result whose ``skeleton``
+    carries both the first screen's tree (backwards compatible with
+    single-screen consumers) and a ``traversal`` block describing every state.
+
+    Extra ``**kwargs``: ``package``, ``out_dir``, ``nav_mode``, ``max_depth``,
+    ``max_states``, ``max_steps``, ``exclude_bottom_px``.
+
+    See ``design-docs/adb-ui-traversal-design.md``.
+    """
+
+    pipeline_id = "adb_traversal"
+
+    def capture(
+        self,
+        target_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> CaptureResult:
+        import base64
+        import shutil
+
+        if shutil.which("adb") is None:
+            raise RuntimeError(
+                "ADB not found. Install Android Platform Tools and ensure "
+                "'adb' is on PATH."
+            )
+
+        try:
+            from scripts.adb_traversal import TraversalConfig, run_traversal
+        except ImportError as e:
+            raise RuntimeError(
+                "Traversal script not found. Ensure "
+                "'scripts/adb_traversal.py' exists and is importable."
+            ) from e
+
+        cfg = TraversalConfig(
+            device=target_id,
+            package=kwargs.get("package"),
+            out_dir=kwargs.get("out_dir", "runs/adb_traversal"),
+            nav_mode=kwargs.get("nav_mode", "auto"),
+            max_depth=int(kwargs.get("max_depth", 3)),
+            max_states=int(kwargs.get("max_states", 20)),
+            max_steps=int(kwargs.get("max_steps", 120)),
+            exclude_bottom_px=int(kwargs.get("exclude_bottom_px", 0)),
+        )
+
+        summary = run_traversal(cfg)
+        run_dir = Path(summary["run_dir"])
+        manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+        graph = json.loads((run_dir / "graph.json").read_text(encoding="utf-8"))
+
+        # Representative preview: the first recorded screen.
+        screenshot_data_url = ""
+        first_skeleton: dict[str, Any] = {}
+        state_dirs = sorted(run_dir.glob("states/*"))
+        if state_dirs:
+            png = state_dirs[0] / "screenshot.png"
+            if png.exists():
+                encoded = base64.b64encode(png.read_bytes()).decode("utf-8")
+                screenshot_data_url = f"data:image/png;base64,{encoded}"
+            skel_path = state_dirs[0] / "skeleton.json"
+            if skel_path.exists():
+                first_skeleton = json.loads(skel_path.read_text(encoding="utf-8"))
+
+        states: list[dict[str, Any]] = []
+        for st in graph["states"]:
+            d = run_dir / "states" / f"{st['index']:03d}_{st['id'][:8]}"
+            states.append(
+                {
+                    **st,
+                    "skeleton_path": str(d / "skeleton.json"),
+                    "screenshot_path": str(d / "screenshot.png"),
+                    "preview_path": str(d / "screenshot_768.jpg"),
+                    "ui_tree_path": str(d / "ui_tree.xml"),
+                }
+            )
+
+        return CaptureResult(
+            screenshot_data_url=screenshot_data_url,
+            skeleton={
+                **first_skeleton,
+                "traversal": {
+                    "run_dir": str(run_dir),
+                    "num_states": summary["states"],
+                    "num_edges": summary["edges"],
+                    "nav_mode": summary["nav_mode"],
+                    "states": states,
+                    "edges": graph["edges"],
+                    "device_info": manifest.get("device_info", {}),
+                },
+            },
+            theme={},
+            target_id=target_id or "",
+        )
+
+
+# ---------------------------------------------------------------------------
 # WinUiaCapturePipeline — skeleton for Windows UI Automation (P2 fills in)
 # ---------------------------------------------------------------------------
 
@@ -214,6 +323,7 @@ class WinUiaCapturePipeline:
 
 CAPTURE_PIPELINES: dict[str, CapturePipeline] = {
     "adb": AdbCapturePipeline(),
+    "adb_traversal": AdbTraversalPipeline(),
     "win_uia": WinUiaCapturePipeline(),
     "none": NoneCapturePipeline(),
 }

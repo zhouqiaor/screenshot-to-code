@@ -358,3 +358,46 @@ class TestBuildAdbDataPolicy:
         assert "bounds_device" in result
         assert "component_type" in result
         assert "state" in result
+
+
+# ---------------------------------------------------------------------------
+# adb_traversal blacklist tests
+# ---------------------------------------------------------------------------
+
+
+class TestTraversalBlacklist:
+    """Fastbot-style widget + app blacklist behavior."""
+
+    def test_is_blacklisted_pkg_substring(self) -> None:
+        from scripts.adb_traversal import _is_blacklisted_pkg
+
+        pkgs = ["com.device.meeting", "com.device.cp", "com.device.connect",
+                "com.device.cloudlink.smartrooms", "org.chromium.chrome"]
+        assert _is_blacklisted_pkg("com.device.cp", pkgs) is True
+        assert _is_blacklisted_pkg("com.device.connect", pkgs) is True
+        assert _is_blacklisted_pkg("com.device.cloudlink.smartrooms", pkgs) is True
+        # target apps must NOT be blacklisted
+        assert _is_blacklisted_pkg("com.device.settings", pkgs) is False
+        assert _is_blacklisted_pkg("com.device.fileexplore", pkgs) is False
+        assert _is_blacklisted_pkg("com.device.launcheridea", pkgs) is False
+        # empty / partial substring guards
+        assert _is_blacklisted_pkg("", pkgs) is False
+        assert _is_blacklisted_pkg(None, pkgs) is False  # type: ignore[arg-type]
+
+    def test_extract_actions_skips_blacklisted_launcher_tiles(self) -> None:
+        from scripts.adb_traversal import _main_window, extract_actions, TraversalConfig
+        import xml.etree.ElementTree as ET
+
+        dump = Path("runs/adb_traversal/200_47_94_166-5555_20260903_003528/states/"
+                    "000_9fab4613/ui_tree.xml")
+        if not dump.exists():
+            pytest.skip("recorded launcher dump not present")
+        root = ET.parse(dump).getroot()
+        cfg = TraversalConfig(blacklist="云会议,白板,投屏,智能管家,浏览器".split(","))
+        acts = extract_actions(root, (3840, 2160), cfg)
+        labels = {a.text for a in acts}
+        assert "白板" not in labels
+        assert "云会议" not in labels
+        assert "投屏" not in labels
+        # the real target tile survives
+        assert any("setting" in (a.resource_id or "") for a in acts)
