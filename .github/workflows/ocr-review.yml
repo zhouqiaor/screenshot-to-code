@@ -9,11 +9,12 @@ on:
 jobs:
   review:
     if: |
-      github.event_name == 'pull_request' ||
+      # 暂时禁用OCR review，节省模型调用成本
+      false && (github.event_name == 'pull_request' ||
       (github.event_name == 'issue_comment' &&
        github.event.issue.pull_request &&
        (startsWith(github.event.comment.body, '/open-code-review') ||
-        startsWith(github.event.comment.body, '@open-code-review')))
+        startsWith(github.event.comment.body, '@open-code-review'))))
     runs-on: ubuntu-latest
     permissions:
       contents: read
