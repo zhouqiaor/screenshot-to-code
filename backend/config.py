@@ -1,4 +1,16 @@
 import os
+from pathlib import Path
+
+# Load from .env file if exists (local development)
+# .env file should be placed in the backend directory and NEVER committed to version control
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+except ImportError:
+    # python-dotenv not installed, skip .env loading (production)
+    pass
 
 NUM_VARIANTS = 4
 NUM_VARIANTS_VIDEO = 2
