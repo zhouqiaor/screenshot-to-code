@@ -1,0 +1,956 @@
+e2e_hosts/android_compose/README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-45
+e2e_demo/templates/a2ui/README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-44
+backend/test_ark.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-67
+e2e_hosts/android_xml/app/src/main/res/drawable/bg_search_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_hosts/android_compose/settings.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-16
+backend/scripts/adb_capture.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-119
+e2e_demo/templates/qt_qml/main.cpp
+  s_a11c6fccfda920::t_ea58ed446061bc 1-17
+backend/capture/__init__.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-32
+frontend/src/lib/stacks.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-11
+backend/test_models.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-126
+e2e_demo/llm_a2ui.jsonl
+  s_a11c6fccfda920::t_ea58ed446061bc 1-11
+e2e_demo/android_app/src/MainActivity.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-26
+backend/tests/test_token_usage.py
+  s_a11c6fccfda920::t_ea58ed446061bc 5-6,290,293,301
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_search_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_business_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/android_compose/app/src/main/java/com/e2e/settings/MainActivity.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-614
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_volume_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/android_compose/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_test/settings_a2ui.jsonl
+  s_a11c6fccfda920::t_ea58ed446061bc 1-9
+frontend/src/store/app-store.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 41-50
+backend/routes/adb.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-139
+e2e_demo/templates/winui3/README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-43
+e2e_hosts/android_compose/build_compose_full.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-116
+backend/costs/__init__.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_demo/android_project/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+design-docs/e2e-verification-sop.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-387
+frontend/src/components/select-and-edit/overlays.test.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-114
+backend/agent/tools/screenshot_preview.py
+  s_a11c6fccfda920::t_ea58ed446061bc 17,25-28,30-36,48
+e2e_hosts/xml_cli_build/res/drawable/circle_orange.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_hosts/android_xml/app/src/main/res/values/themes.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_hosts/android_xml/app/src/main/java/com/e2e/settings/MainActivity.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-11
+backend/e2e/organize_runs.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-328
+e2e_hosts/android_xml/app/src/main/res/drawable/circle_blue.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/capture/pipeline.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-234
+e2e_hosts/xml_cli_verify/res/drawable/ic_settings_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/scripts/theme_extractor.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-269
+e2e_demo/render_kotlin_output.cjs
+  s_a11c6fccfda920::t_ea58ed446061bc 1-233
+e2e_hosts/android_compose/app/src/main/res/values/colors.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-8
+e2e_demo/template_build_test/kotlin_compose/settings.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-16
+e2e_hosts/xml_cli_build/res/drawable/ic_arrow_right_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/screenshot_html_edge.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-40
+e2e_hosts/android_compose/gradlew.bat
+  s_a11c6fccfda920::t_ea58ed446061bc 1-94
+.claude/launch.json
+  s_a11c6fccfda920::t_ea58ed446061bc 6-13,19-26
+backend/main.py
+  s_a11c6fccfda920::t_ea58ed446061bc 2-3,11,14,22-24,49,59,64-74
+e2e_hosts/android_compose/SUBSESSION_HANDOFF.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-83
+e2e_demo/template_build_test/qml_grab.qml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-34
+e2e_demo/templates/kotlin_compose/app/src/main/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-20
+e2e_hosts/android_compose/link_resources.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-197
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_help_white_circle.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/raw_output.txt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-284
+e2e_hosts/xml_cli_verify/res/drawable/ic_volume_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+PR_REVIEW_ASSESSMENT.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-190
+e2e_demo/android_project/app/src/main/java/com/e2e/settings/MainActivity.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-501
+e2e_hosts/android_xml/app/src/main/res/drawable/circle_green.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_hosts/xml_cli_verify/res/drawable/bg_dialog_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_hosts/android_xml/settings.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-16
+e2e_hosts/android_compose/local.properties.template
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/template_build_test/android_xml_full/res/layout/activity_main.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-376
+backend/ws_generate_client.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-365
+frontend/src/lib/prompt-history.test.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 3,9,125-206
+e2e_demo/templates/android_xml/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_hosts/xml_cli_build/res/drawable/circle_purple.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/tests/test_status_broadcast.py
+  s_a11c6fccfda920::t_ea58ed446061bc 42,95
+backend/llm.py
+  s_a11c6fccfda920::t_ea58ed446061bc 19-25,28-32,53-64,88-94,97-101,122-133,168-180
+backend/routes/model_choice_sets.py
+  s_a11c6fccfda920::t_ea58ed446061bc 13-16,18,21,26-29,32-33,41,77-85
+backend/validate_5stacks.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-95
+e2e_hosts/android_compose/app/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-51
+e2e_demo/template_build_test/android_xml/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+frontend/src/components/core/StackLabel.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 2-11,14-23,32-55
+e2e_hosts/xml_cli_verify/res/drawable/circle_teal.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/tests/test_anthropic_provider_config.py
+  s_a11c6fccfda920::t_ea58ed446061bc 9-23
+frontend/vite.config.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 10-12,15-26
+e2e_demo/template_build_test/qt_qml_full/CMakeLists.txt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-34
+backend/e2e/cli.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-97
+e2e_demo/template_build_test/winui3/App.xaml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-13
+backend/validate_5stacks_v2.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-78
+e2e_demo/template_build_test/android_xml_full/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-17
+backend/costs/metrics.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-162
+backend/test_vision.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-83
+e2e_hosts/xml_cli_build/src/MainActivity.java
+  s_a11c6fccfda920::t_ea58ed446061bc 1-12
+backend/routes/prompt_reports.py
+  s_a11c6fccfda920::t_ea58ed446061bc 184-188
+e2e_demo/android_project/app/src/main/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-20
+backend/gen_acceptance_report.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-505
+backend/kotlin_run_comparison.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-317
+e2e_hosts/xml_cli_build/res/drawable/bg_status_capsule.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_demo/template_build_test/kotlin_compose/app/src/main/java/com/e2e/settings/SoundDisplaySettings.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-341
+backend/tests/test_prompt_reports.py
+  s_a11c6fccfda920::t_ea58ed446061bc 10
+e2e_hosts/android_compose/repack_multidex.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-133
+e2e_hosts/xml_cli_verify/res/drawable/ic_wifi_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/android_project/gradle/wrapper/gradle-wrapper.properties
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/kotlin_compile_test.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-24
+e2e_demo/render_screenshots.cjs
+  s_a11c6fccfda920::t_ea58ed446061bc 1-156
+e2e_demo/android_project/gradlew
+  s_a11c6fccfda920::t_ea58ed446061bc 1-252
+e2e_hosts/xml_cli_verify/res/drawable/circle_blue.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/gen_a2ui_html.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-68
+e2e_hosts/android_xml/README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-45
+e2e_demo/templates/winui3/SettingsPage.xaml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-12
+e2e_runs/_templates/report/build_report.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-325
+e2e_demo/validation_report.json
+  s_a11c6fccfda920::t_ea58ed446061bc 1-66
+e2e_demo/template_build_test/e2e_compile_report.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-211
+e2e_runs/_templates/report/_gen_imgs.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-41
+backend/tests/test_agent_runs.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-947
+e2e_hosts/xml_cli_verify/res/drawable/ic_power_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/capture/result.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-27
+e2e_demo/template_build_test/kotlin_compose/app/src/main/res/values/strings.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_demo/templates/winui3/App.xaml.cs
+  s_a11c6fccfda920::t_ea58ed446061bc 1-21
+e2e_hosts/android_compose/gradle.properties
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+backend/kotlin_pipeline.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-528
+e2e_hosts/android_compose/gradlew
+  s_a11c6fccfda920::t_ea58ed446061bc 1-252
+backend/tests/test_image_generation_replicate.py
+  s_a11c6fccfda920::t_ea58ed446061bc 136
+e2e_hosts/android_xml/app/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-51
+backend/prompts/create/image.py
+  s_a11c6fccfda920::t_ea58ed446061bc 5,19-43,55-56,70,93
+e2e_runs/_templates/report/_gen_merged_report.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-138
+frontend/src/config.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 5-14,16,19
+backend/generate_5stacks_combined.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-170
+e2e_test/probe/ui_tree.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1
+frontend/src/components/evals/RunEvalsPage.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 40-55,65-72,93-145,214-222,234,362-385,622,624-643,646-728
+e2e_demo/templates/kotlin_compose/gradlew.bat
+  s_a11c6fccfda920::t_ea58ed446061bc 1-94
+e2e_hosts/xml_cli_build/res/drawable/circle_light_blue.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/evals/sessions.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-230
+e2e_hosts/xml_cli_build/res/drawable/ic_wallpaper_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+frontend/src/components/evals/EvalNavigation.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 43-63
+backend/tests/test_openai_provider_session.py
+  s_a11c6fccfda920::t_ea58ed446061bc 223-270
+e2e_demo/e2e_full_validation_report.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-291
+e2e_hosts/android_xml/app/src/main/res/drawable/circle_light_blue.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_hosts/xml_cli_verify/res/drawable/circle_green.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_demo/templates/kotlin_compose/settings.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-16
+e2e_hosts/xml_cli_verify/res/drawable/circle_purple.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/quick_test.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-20
+e2e_runs/_templates/report/report_data.schema.json
+  s_a11c6fccfda920::t_ea58ed446061bc 1-158
+e2e_hosts/android_xml/app/src/main/res/drawable/circle_dark_green.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/tests/test_agent_engine.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1,4,6-8,11,13,15-18,20-25,31-46,51-63,65-67,69-70,72-74,76-78,80-99,101-111
+e2e_demo/templates/kotlin_compose/gradlew
+  s_a11c6fccfda920::t_ea58ed446061bc 1-252
+backend/generate_a2ui_html.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-160
+frontend/src/lib/adb-api.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-41
+e2e_test/settings_windows_win32.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-106
+design-docs/e2e-artifacts-organization.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-293
+e2e_demo/template_build_test/winui3/SettingsPage.xaml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-135
+e2e_demo/template_build_test/winui3/App.xaml.cs
+  s_a11c6fccfda920::t_ea58ed446061bc 1-21
+e2e_demo/template_build_test/qt_qml_full/main.cpp
+  s_a11c6fccfda920::t_ea58ed446061bc 1-17
+backend/full_comparison_report.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-347
+backend/agent/state.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-2,11-75,98,103-104,111-113,131-133
+backend/capture/win_uia.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-221
+e2e_demo/template_build_test/kotlin_compose/gradle/wrapper/gradle-wrapper.properties
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_demo/templates/winui3/E2EApp.sln
+  s_a11c6fccfda920::t_ea58ed446061bc 1-30
+backend/tests/test_eval_sessions.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-506
+e2e_hosts/xml_cli_verify/res/drawable/bg_status_capsule.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_hosts/android_compose/fetch_missing_deps.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-38
+e2e_demo/template_build_test/qml_render.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-102
+e2e_demo/templates/kotlin_compose/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_demo/template_build_test/winui3/app.manifest
+  s_a11c6fccfda920::t_ea58ed446061bc 1-11
+design-docs/settings-screenshot-to-code-history.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-375
+e2e_demo/template_build_test/android_xml/res/layout/activity_main.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-377
+e2e_hosts/xml_cli_build/res/drawable/ic_power_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/generate_5stacks.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-366
+e2e_hosts/xml_cli_build/res/drawable/circle_red.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_demo/templates/kotlin_compose/app/src/main/java/com/e2e/settings/MainActivity.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-16
+backend/costs/prompt_compressor.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-37
+backend/tests/test_parameter_extraction_stage.py
+  s_a11c6fccfda920::t_ea58ed446061bc 8-29,64-97
+docs/ocr-workflow-guide.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-517
+e2e_demo/android_project/app/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-51
+e2e_hosts/android_xml/app/src/main/res/values/colors.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-8
+backend/e2e_unified_verify.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-801
+backend/tests/test_seed_tool_call.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-118
+design-docs/winui3-and-token-optimization-plan.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-402
+e2e_demo/template_build_test/android_xml_full/MainActivity.java
+  s_a11c6fccfda920::t_ea58ed446061bc 1-12
+e2e_demo/model_test_results.json
+  s_a11c6fccfda920::t_ea58ed446061bc 1-129
+e2e_demo/templates/kotlin_compose/app/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-51
+e2e_hosts/android_compose/redex_deps.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-36
+e2e_demo/android_app/build_apk.sh
+  s_a11c6fccfda920::t_ea58ed446061bc 1-114
+e2e_hosts/xml_cli_build/res/drawable/ic_wifi_full_black.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/template_build_test/test_simple.qml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-26
+.gitignore
+  s_a11c6fccfda920::t_ea58ed446061bc 7,27-129
+README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 52,54,87-88
+e2e_demo/template_build_test/kotlin_compose/app/src/main/res/values/themes.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+backend/e2e/_validate_run.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-63
+e2e_hosts/xml_cli_verify/res/drawable/ic_help_white_circle.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+design-docs/skeleton-reuse-guide.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-378
+e2e_demo/template_build_test/a2ui_runner.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-221
+e2e_hosts/xml_cli_verify/res/layout/activity_main.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-765
+e2e_hosts/android_xml/app/src/main/res/drawable/circle_purple.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_demo/templates/winui3/SettingsPage.xaml.cs
+  s_a11c6fccfda920::t_ea58ed446061bc 1-12
+e2e_demo/template_build_test/kotlin_compose/gradle.properties
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_hosts/android_compose/app/src/main/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-23
+e2e_demo/final_test_report.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-153
+e2e_demo/templates/qt_qml/main.qml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-20
+e2e_hosts/android_xml/gradle.properties
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_hosts/xml_cli_verify/res/drawable/ic_cast_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+frontend/src/components/evals/PromptReportsPage.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 6-12
+frontend/src/components/evals/image-lightbox.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-409
+frontend/src/store/project-store.test.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-87
+frontend/src/components/preview/PreviewComponent.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 77-86,142-145
+e2e_demo/template_build_test/winui3_render.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-90
+e2e_demo/template_build_test/kotlin_compose/app/src/main/res/values/colors.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-8
+e2e_hosts/android_compose/app/src/main/res/values/themes.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_hosts/xml_cli_build/res/drawable/ic_settings_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/templates/winui3/E2EApp.csproj
+  s_a11c6fccfda920::t_ea58ed446061bc 1-33
+design-docs/one-click-generation-pipeline.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-211
+e2e_demo/template_build_test/qt_qml_full/main.qml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-223
+backend/e2e/common.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-167
+frontend/src/components/unified-input/tabs/UploadTab.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 9-11,52-53,58,61,68,81-86,88-94,276-287,471-483,504-507
+e2e_demo/templates/winui3/app.manifest
+  s_a11c6fccfda920::t_ea58ed446061bc 1-11
+backend/tests/test_agent_tools.py
+  s_a11c6fccfda920::t_ea58ed446061bc 18-35,81-104,124,141,149-166,181,203,245,248-257,264,269,272,276,278-291,298-313
+frontend/src/main.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 12-14,29-31
+scripts/cursor-cloud-install.sh
+  s_a11c6fccfda920::t_ea58ed446061bc 1-19
+e2e_runs/_templates/report/example_data.json
+  s_a11c6fccfda920::t_ea58ed446061bc 1-225
+e2e_demo/android_app/res/values/strings.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-8
+fix_key_index.sh
+  s_a11c6fccfda920::t_ea58ed446061bc 1-14
+backend/scripts/skeleton_parser.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-197
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_settings_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+frontend/src/components/agent/AgentActivity.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 28-32,37-87,112,116,171,174,217,226-228,230,232-234,236-238,429,493,495-497,499-545,547-548,550-580,582-617,619-653,655-656,993,1024,1031,1037-1045,1047-1096
+e2e_hosts/xml_cli_verify/res/drawable/ic_wallpaper_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/test_1_6_vision.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-76
+backend/routes/generate_code.py
+  s_a11c6fccfda920::t_ea58ed446061bc 2,4,14,66,262,269,314-316,328,330,381,385,425,437,462,494-499,567,569,574-578,584,586,588,592-598,646-653,660,662,664,668,830,846,848,850,854-856
+backend/test_new_key.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-29
+backend/costs/volcano_models.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-390
+e2e_demo/validate_code_results.json
+  s_a11c6fccfda920::t_ea58ed446061bc 1-79
+backend/agent/providers/openai.py
+  s_a11c6fccfda920::t_ea58ed446061bc 5,8,10,21-22,25-26,30-31,64-68,424-605,613-618,624-626,638-775,793-825,827-829,831-859,879-896
+backend/screenshot_html.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-30
+e2e_hosts/android_xml/gradlew
+  s_a11c6fccfda920::t_ea58ed446061bc 1-252
+backend/prompts/policies.py
+  s_a11c6fccfda920::t_ea58ed446061bc 19-60
+backend/tests/test_anthropic_many_image_limit.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-139
+e2e_hosts/xml_cli_verify/res/drawable/ic_smart_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/agent/tools/summaries.py
+  s_a11c6fccfda920::t_ea58ed446061bc 58,67-89
+frontend/src/lib/models.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 4-8,14,20-26,38-41,56-58,63,83-103,122-136,152-154,168-179
+e2e_demo/ark_api_log.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-181
+e2e_hosts/android_compose/buildcache.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-169
+backend/tests/test_eval_sets.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-219
+frontend/src/components/sidebar/Sidebar.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 6-12,18,69,72-73,184-188,190-191,195,298-327,416,422,424-427,429-439,442,487-488,510-519
+e2e_test/llm_generated_android_xml.txt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-135
+e2e_demo/android_app/res/layout/activity_main.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-53
+e2e_demo/templates/kotlin_compose/app/src/main/res/values/colors.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-8
+e2e_hosts/android_compose/fetch_compose_deps_v2.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-134
+frontend/src/components/unified-input/UnifiedInputPane.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 15-16,25,39,113
+backend/evals/sets.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-303
+e2e_hosts/android_xml/app/src/main/res/drawable/bg_status_capsule.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+frontend/src/components/evals/report-json.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-253
+backend/e2e/build_xml_apk.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-192
+e2e_runs/_templates/report/report_template.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-96
+e2e_demo/test_report.json
+  s_a11c6fccfda920::t_ea58ed446061bc 1-83
+backend/create_endpoint.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-161
+frontend/src/components/settings/OutputSettingsSection.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 21,30,32-67,72
+backend/e2e/organize_host_artifacts.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-226
+backend/screenshot_qml.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-32
+backend/prep_screenshot.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-40
+QA.md
+  s_a11c6fccfda920::t_ea58ed446061bc 8
+e2e_demo/android_project/gradle.properties
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_wallpaper_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/costs/budget_checker.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-128
+backend/kotlin_pipeline_resume.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-43
+backend/test_vision_model.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-118
+e2e_demo/template_build_test/winui3/E2EApp.sln
+  s_a11c6fccfda920::t_ea58ed446061bc 1-30
+backend/routes/evals.py
+  s_a11c6fccfda920::t_ea58ed446061bc 9,11-12,112-152,228,237-239,246-252,256-258,269-270,281-282,287,315-317,354-356
+backend/analyze_screenshot.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-39
+e2e_test/validation_results.json
+  s_a11c6fccfda920::t_ea58ed446061bc 1-45
+backend/image_generation/generation.py
+  s_a11c6fccfda920::t_ea58ed446061bc 3,19-20,24-28
+e2e_hosts/android_xml/app/src/main/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-20
+backend/agent/providers/gemini.py
+  s_a11c6fccfda920::t_ea58ed446061bc 8,21-22,24,57-63,78,84,87-91,93-97,302,308,334-343,363-367,380-385
+backend/evals/core.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-3,10,14,16,19,22-30,50-62,70,77,80-131
+.github/workflows/ocr-review.yml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-74
+e2e_hosts/android_xml/app/src/main/res/drawable/circle_teal.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_hosts/xml_cli_build/res/drawable/bg_card_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+backend/run_5stacks.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-17
+backend/agent/tools/validate_code.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-739
+e2e_demo/template_build_test/llm_qt_qml.qml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-246
+e2e_hosts/xml_cli_build/res/drawable/ic_camera_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+frontend/src/components/agent/activity-order.test.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-62
+backend/tests/test_batching.py
+  s_a11c6fccfda920::t_ea58ed446061bc 40,56,68,78,88,99,109,122,133,140-231
+backend/tests/test_asset_extraction.py
+  s_a11c6fccfda920::t_ea58ed446061bc 3-6,12-18,21-34,39,41-49,59-87,89-92,95,97,105-106,109-152,155-156,158-175,177-200,202-208,211-552
+e2e_hosts/xml_cli_build/res/drawable/circle_green.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+frontend/src/components/evals/AgentRunsPage.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-547
+backend/agent/providers/factory.py
+  s_a11c6fccfda920::t_ea58ed446061bc 13-14,27-30,34-35,37,52-56,63-66,72,85
+e2e_demo/templates/qt_qml/CMakeLists.txt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-34
+backend/config.py
+  s_a11c6fccfda920::t_ea58ed446061bc 11,22-25
+design-docs/reuse-reference-report.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-345
+e2e_demo/templates/kotlin_compose/gradle/wrapper/gradle-wrapper.properties
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_power_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/render_a2ui_preview.cjs
+  s_a11c6fccfda920::t_ea58ed446061bc 1-91
+design-docs/screencoder-integration-plan.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-128
+design-docs/a2ui-generative-ui-research.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-122
+e2e_demo/templates/a2ui/a2ui_runner.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-231
+backend/costs/pricing.py
+  s_a11c6fccfda920::t_ea58ed446061bc 18,20,26-31,35-36,40-42,50-53,64-88
+backend/prompts/system_prompt.py
+  s_a11c6fccfda920::t_ea58ed446061bc 24-26
+docs/worktree-workflow.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1
+backend/scripts/run_adb_pipeline.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-91
+e2e_hosts/xml_cli_build/res/drawable/ic_wifi_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/android_xml/app/src/main/res/drawable/bg_dialog_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+frontend/src/components/start-pane/StartPane.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 10-11,20,32,45
+e2e_demo/templates/kotlin_compose/app/src/main/res/values/themes.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_hosts/xml_cli_verify/res/drawable/ic_business_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/test_all_models2.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-76
+backend/tests/test_adb_scripts.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-360
+backend/e2e/generate/core.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-102
+frontend/src/components/agent/activity-order.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-28
+frontend/src/components/evals/agent-run-timeline.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-418
+backend/test_routes.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-60
+e2e_hosts/android_xml/local.properties.template
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/agent/tools/local_assets.py
+  s_a11c6fccfda920::t_ea58ed446061bc 5-6
+AGENTS.md
+  s_a11c6fccfda920::t_ea58ed446061bc 22-30,39-56
+backend/render_screenshot.cjs
+  s_a11c6fccfda920::t_ea58ed446061bc 1-28
+e2e_demo/templates/kotlin_compose/local.properties.template
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+design-docs/industry-research-analysis.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-341
+e2e_demo/template_build_test/kotlin_compose/local.properties.template
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/android_xml/app/src/main/res/layout/activity_main.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-765
+e2e_hosts/xml_cli_verify/res/drawable/circle_light_blue.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/prompts/a2ui_system.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-136
+e2e_test/settings_qt_qml.qml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-57
+e2e_hosts/xml_cli_build/res/drawable/ic_close_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+frontend/src/components/evals/agent-run-tool-preview.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-452
+frontend/src/components/unified-input/AdbCaptureButton.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-126
+e2e_demo/template_build_test/qml_screenshot.qml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-29
+frontend/package.json
+  s_a11c6fccfda920::t_ea58ed446061bc 14,69,81,87-88
+e2e_demo/template_build_test/llm_a2ui.jsonl
+  s_a11c6fccfda920::t_ea58ed446061bc 1-37
+e2e_demo/compilation_report.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-209
+frontend/src/index.css
+  s_a11c6fccfda920::t_ea58ed446061bc 5-24,95
+backend/tests/test_capabilities.py
+  s_a11c6fccfda920::t_ea58ed446061bc 4,15,28
+backend/ws_vs_direct_report.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-291
+e2e_hosts/android_compose/fetch_compose_deps.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-214
+e2e_test/final_report.json
+  s_a11c6fccfda920::t_ea58ed446061bc 1-44
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_wifi_full_black.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/templates/kotlin_compose/gradle.properties
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_demo/android_app/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-19
+backend/agent/tools/runtime.py
+  s_a11c6fccfda920::t_ea58ed446061bc 15-16,25-27,36,41,48,53-56,76-79,92,114-118,121-123,126,128-129,136,288-297,299,329-333,345,360-361,364-366,407-409,416-417,420-421,424-431,434-435,437-453,455-456,458,460-463,465-509,511-521,524-526
+design-docs/agent-tool-calling-flow.md
+  s_a11c6fccfda920::t_ea58ed446061bc 63-67
+frontend/src/lib/models.test.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5,12-25
+e2e_demo/templates/windows_html/README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-27
+e2e_hosts/android_compose/find_missing_classes.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-157
+backend/agent/tools/__init__.py
+  s_a11c6fccfda920::t_ea58ed446061bc 8-12,28,30,32
+design-docs/技术方案对比-ScreenCoder-fork-Design2Code-UI2CodeN.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-278
+backend/fs_logging/agent_runs.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-968
+e2e_hosts/xml_cli_build/res/drawable/ic_cast_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/xml_cli_verify/res/drawable/bg_card_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+backend/run_validate_e2e.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-51
+backend/routes/capabilities.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-16
+e2e_hosts/android_compose/build_compose_apk.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-386
+design-docs/script-optimization-plan.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-423
+frontend/src/store/project-store.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 10,86,444-452
+backend/tests/test_prompts.py
+  s_a11c6fccfda920::t_ea58ed446061bc 133-165
+frontend/src/components/agent/generation-time.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-43
+e2e_hosts/xml_cli_verify/res/drawable/ic_close_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+design-docs/a2ui-schema-spec.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-70
+backend/tests/test_costs.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-149
+frontend/src/components/preview/ImageScanningPreview.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-33
+backend/check_diagrams.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-68
+design-docs/fork-normalization-plan.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-563
+backend/tests/test_model_selection.py
+  s_a11c6fccfda920::t_ea58ed446061bc 28-29,46,49,66,83
+e2e_demo/templates/a2ui/template.jsonl
+  s_a11c6fccfda920::t_ea58ed446061bc 1
+backend/costs/token_usage.py
+  s_a11c6fccfda920::t_ea58ed446061bc 5
+backend/agent/providers/base.py
+  s_a11c6fccfda920::t_ea58ed446061bc 51-54
+backend/tests/test_asset_extraction_benchmark.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-53
+backend/tests/test_gemini_provider_config.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-19
+frontend/src/components/evals/EvalSessionsPage.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-706
+e2e_hosts/xml_cli_build/res/drawable/ic_help_white_circle.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/e2e/regen_stack.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-59
+design-docs/native-stacks-integration-plan.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-262
+e2e_hosts/xml_cli_build/res/drawable/ic_volume_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/tests/test_tool_image_outputs.py
+  s_a11c6fccfda920::t_ea58ed446061bc 25-27,29,66-79,96-101,142,197,227-285,288,291,298-302,306-309,312,315-389
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_arrow_right_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_close_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+backend/tests/test_adb_routes.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-178
+e2e_hosts/xml_cli_build/res/drawable/bg_dialog_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_demo/template_build_test/kotlin_compose/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_hosts/xml_cli_verify/res/drawable/ic_wifi_full_black.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_runs/_templates/report/_assemble.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-14
+backend/costs/model_router.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-46
+e2e_demo/llm_android_compose.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-54
+e2e_hosts/android_xml/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_demo/template_build_test/a2ui_render_inline.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-256
+e2e_demo/template_build_test/kotlin_compose/README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-45
+frontend/src/components/settings/SettingsTab.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 226-249,273,276
+frontend/src/lib/prompt-history.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4,9,114-162
+e2e_hosts/android_compose/app/src/main/res/values/strings.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_hosts/xml_cli_build/res/drawable/ic_mic_off_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/llm_windows_html.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-103
+e2e_hosts/xml_cli_verify/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-17
+e2e_hosts/xml_cli_verify/res/drawable/ic_arrow_right_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/android_xml/app/src/main/res/values/strings.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+backend/e2e_compile_verify.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-361
+backend/agent/providers/anthropic/provider.py
+  s_a11c6fccfda920::t_ea58ed446061bc 7,19-26,28,34-38,53-57,84-140,148-159,171-177,328,334,343-353,356-358,384-387,400-403,410-416,424-434,439-440,494
+e2e_hosts/xml_cli_verify/res/drawable/circle_dark_green.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_hosts/xml_cli_build/res/drawable/bg_search_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_demo/template_build_test/kotlin_compose/app/src/main/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-20
+backend/list_models.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-88
+backend/prompts/android_compose_system.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-75
+backend/test_new_key2.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-46
+backend/agent/providers/anthropic/image.py
+  s_a11c6fccfda920::t_ea58ed446061bc 12,16-17,43-46,48-53,62-77,79,82,93-94,96-97
+backend/agent/tools/seed_tool_call.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-262
+frontend/src/components/unified-input/ScreenshotToCodeControls.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-211
+package.json
+  s_a11c6fccfda920::t_ea58ed446061bc 7-8,14-16
+frontend/src/components/evals/report-format.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-48
+e2e_hosts/android_xml/gradlew.bat
+  s_a11c6fccfda920::t_ea58ed446061bc 1-94
+e2e_hosts/xml_cli_verify/src/MainActivity.java
+  s_a11c6fccfda920::t_ea58ed446061bc 1-12
+e2e_hosts/xml_cli_verify/res/drawable/bg_search_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_demo/template_build_test/kotlin_compose/app/build.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-51
+e2e_demo/template_build_test/winui3/SettingsPage.xaml.cs
+  s_a11c6fccfda920::t_ea58ed446061bc 1-12
+e2e_hosts/android_xml/app/src/main/res/drawable/circle_orange.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/gen_preview_html.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-103
+backend/asset_extraction.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1,5-9,11,14-65,68-72,80-90,93-149,155-157,160-162,166-173,176-178,180-182,186-187,190-196,199-217,220,222-223,225-226,228-236,239-265,271-275,279-280,282,284,288-334,336-343,350-352,354-363,370-393,395-415,419-422,427,432,438-440
+e2e_hosts/xml_cli_verify/res/drawable/ic_search_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/xml_cli_verify/res/drawable/circle_orange.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+frontend/src/components/preview/PreviewPane.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 25,80-87,239-248,251-259
+backend/test_ark_endpoints.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-170
+e2e_demo/android_app/sign_apk.sh
+  s_a11c6fccfda920::t_ea58ed446061bc 1-15
+frontend/src/components/unified-input/tabs/UrlTab.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-2,8,16,36-38,89-94,103-110,112-125,127,129-162,165-182
+backend/test_responses_api.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-187
+e2e_hosts/xml_cli_verify/res/drawable/circle_red.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_demo/llm_windows_wpf.xaml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-49
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_cast_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/template_build_test/qml_screenshot_test.qml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-258
+backend/prompts/android_xml_system.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-92
+e2e_demo/templates/windows_html/template.html
+  s_a11c6fccfda920::t_ea58ed446061bc 1-77
+backend/e2e/inject.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-43
+e2e_demo/templates/winui3/App.xaml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-13
+frontend/src/components/select-and-edit/overlays.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 63-67
+e2e_hosts/xml_cli_build/AndroidManifest.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-17
+backend/prompts/prompt_types.py
+  s_a11c6fccfda920::t_ea58ed446061bc 41-42
+e2e_demo/templates/kotlin_compose/README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-45
+e2e_hosts/xml_cli_verify/res/drawable/ic_camera_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/xml_cli_verify/res/drawable/ic_mic_off_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+frontend/src/components/agent/generation-time.test.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-36
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_camera_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/scripts/quick_verify.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-557
+e2e_demo/templates/qt_qml/run_qmlscene.sh
+  s_a11c6fccfda920::t_ea58ed446061bc 1-48
+frontend/src/types.ts
+  s_a11c6fccfda920::t_ea58ed446061bc 18,87
+e2e_demo/android_project/gradlew.bat
+  s_a11c6fccfda920::t_ea58ed446061bc 1-94
+e2e_demo/template_build_test/winui3/E2EApp.csproj
+  s_a11c6fccfda920::t_ea58ed446061bc 1-36
+e2e_demo/llm_android_xml.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-49
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_mic_off_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/templates/kotlin_compose/app/src/main/res/values/strings.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-4
+e2e_hosts/xml_cli_build/res/drawable/circle_teal.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_demo/android_project/settings.gradle.kts
+  s_a11c6fccfda920::t_ea58ed446061bc 1-16
+design-docs/screenshot-to-arkui-reuse-report.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-195
+backend/agent/tools/definitions.py
+  s_a11c6fccfda920::t_ea58ed446061bc 77,93-122,126,128,130-132,135-136,140,153-159,227,229-231,233,240,242-245,247,255-263
+e2e_hosts/android_xml/app/src/main/res/drawable/circle_red.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_demo/render_ui_effects.cjs
+  s_a11c6fccfda920::t_ea58ed446061bc 1-225
+e2e_hosts/android_xml/app/src/main/res/drawable/bg_card_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-6
+e2e_demo/template_build_test/kotlin_compose/app/src/main/java/com/e2e/settings/MainActivity.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-14
+e2e_demo/templates/qt_qml/README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-51
+backend/evals/asset_extraction_benchmark.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-865
+frontend/src/components/evals/EvalComparePage.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 1-457
+backend/e2e_deep_verify.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-1670
+e2e_hosts/xml_cli_build/res/drawable/ic_smart_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+design-docs/e2e-verification-projects.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-568
+frontend/src/App.tsx
+  s_a11c6fccfda920::t_ea58ed446061bc 18,40,93,191,267-278,282,316-319,335,363,574-575,619-623,643-677,693-696,724-738,950-965
+e2e_test/settings_android_compose.kt
+  s_a11c6fccfda920::t_ea58ed446061bc 1-71
+backend/agent/engine.py
+  s_a11c6fccfda920::t_ea58ed446061bc 2,21-60,74,76,78,82-83,87,91,93,95-96,100,102-103,111,114,134-142,186-187,238,247-255,286-322,341-344,346-349,352-355,376-379,388,390-398,401-417,422-426,430,434-435
+backend/fs_logging/prompt_reports.py
+  s_a11c6fccfda920::t_ea58ed446061bc 22-23
+backend/routes/agent_runs.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-272
+backend/pyproject.toml
+  s_a11c6fccfda920::t_ea58ed446061bc 27-28
+e2e_demo/llm_qt_qml.qml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-63
+e2e_demo/template_build_test/winui3/README.md
+  s_a11c6fccfda920::t_ea58ed446061bc 1-43
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_wifi_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_demo/template_build_test/gen_report.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-267
+backend/routes/eval_sets.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-388
+e2e_test/settings_android_xml.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-61
+e2e_hosts/xml_cli_build/res/drawable/ic_search_gray.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/xml_cli_build/res/drawable/circle_blue.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+backend/evals/runner.py
+  s_a11c6fccfda920::t_ea58ed446061bc 10-12,41-49,55-71,88-89,91,95-102,123-125,138-155,166-180,209-211,213-215,258-268,270,276,281-283
+e2e_demo/template_build_test/kotlin_compose/gradlew
+  s_a11c6fccfda920::t_ea58ed446061bc 1-252
+e2e_hosts/android_xml/app/src/main/res/drawable/ic_smart_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/xml_cli_build/res/drawable/circle_dark_green.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-5
+e2e_hosts/xml_cli_build/res/drawable/ic_business_white.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-7
+e2e_hosts/xml_cli_build/res/layout/activity_main.xml
+  s_a11c6fccfda920::t_ea58ed446061bc 1-765
+e2e_demo/template_build_test/kotlin_compose/gradlew.bat
+  s_a11c6fccfda920::t_ea58ed446061bc 1-94
+e2e_hosts/android_compose/repack_full.py
+  s_a11c6fccfda920::t_ea58ed446061bc 1-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.2",
+  "base_commit_sha": "deea9373766d679c0dd8386495b03c3ea9dbdba3",
+  "prompts": {},
+  "sessions": {
+    "s_a11c6fccfda920": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a9937d61636267dfa873ddf",
+        "model": "Doubao-Seed-2.0-Code__dev"
+      },
+      "human_author": "zhouqiao8 <zhouqiaor@126.com>",
+      "custom_attributes": {
+        "tool_use_id": "6a99395a1636267dfa873ef3",
+        "operation_id": "6a99395a1636267dfa873ef3",
+        "display_model_name": "Doubao-Seed-2.0-Code",
+        "session_id": "6a9937d61636267dfa873ddf",
+        "external_session_id": "6a9937d61636267dfa873ddf",
+        "tool_name": "RunCommand",
+        "edit_kind": "bash"
+      }
+    }
+  }
+}
